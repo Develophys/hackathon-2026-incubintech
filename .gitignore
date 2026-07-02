@@ -1,0 +1,181 @@
+# =========================================
+# Monorepo .gitignore (React + NestJS + Docker + AI/ML)
+# =========================================
+
+# ---------- Dependencies ----------
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+jspm_packages/
+
+# ---------- Package manager lockfile artifacts (keep one, ignore rest if desired) ----------
+# Uncomment if you standardize on a single package manager
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ---------- Build outputs ----------
+dist/
+**/dist/
+build/
+**/build/
+out/
+**/out/
+.next/
+.nuxt/
+.turbo/
+.vite/
+.parcel-cache/
+storybook-static/
+
+# NestJS specific
+apps/**/dist/
+libs/**/dist/
+
+# React / CRA / Vite specific
+apps/**/build/
+
+# ---------- Env & secrets ----------
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.crt
+secrets/
+**/secrets/
+
+# ---------- Logs ----------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ---------- Testing / Coverage ----------
+coverage/
+**/coverage/
+.nyc_output/
+junit.xml
+*.lcov
+
+# ---------- Cache ----------
+.cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.tmp/
+.temp/
+
+# ---------- OS files ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ---------- Editors / IDEs ----------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.swp
+*.swo
+*~
+
+# ---------- Docker ----------
+docker-compose.override.yml
+*.env.docker
+.docker/
+volumes/
+**/pgdata/
+**/mongodata/
+**/redis-data/
+
+# ---------- Nest / Node runtime ----------
+*.pid
+*.pid.lock
+*.sock
+
+# ---------- AI / ML specific ----------
+# Model weights & checkpoints
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.h5
+*.pkl
+*.joblib
+models/
+**/models/
+checkpoints/
+**/checkpoints/
+
+# Datasets (large files, usually pulled via DVC/LFS or external storage)
+data/
+**/data/raw/
+**/data/processed/
+*.csv
+*.parquet
+*.jsonl
+!**/fixtures/**/*.csv
+!**/seed/**/*.json
+
+# Vector stores / embeddings
+*.faiss
+*.index
+chroma/
+**/chroma/
+qdrant_storage/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Python (if AI services use Python)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+*.egg
+pip-wheel-metadata/
+
+# LLM / API tooling
+.langchain/
+.llamaindex/
+wandb/
+mlruns/
+.ollama/
+
+# ---------- Monorepo tooling ----------
+.turbo/
+.nx/cache/
+.nx/workspace-data/
+.rush/
+common/temp/
+
+# ---------- Terraform / Infra (if present) ----------
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# ---------- Misc ----------
+*.local
+.history/
+.vercel
+.netlify

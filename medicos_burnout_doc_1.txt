@@ -1,0 +1,17 @@
+📍Contexto
+Mais de 57% dos médicos brasileiros apresentam sintomas de burnout (CFM/AMB, 2022). Em Santa Catarina, a ausência de estrutura sistematizada de cuidado à saúde mental do médico deixa essa crise invisível — com menos de 12% buscando ajuda profissional.
+
+⚠️Problema / Dor Principal
+O médico em sofrimento psíquico não tem para onde ir sem medo de expor sua condição e prejudicar o registro no CRM. O resultado são erros clínicos evitáveis, abandono precoce da profissão e taxas de suicídio mais de duas vezes maiores que a população geral.
+
+🎯Objetivo da PoC
+Desenvolver uma plataforma de triagem e suporte confidencial à saúde mental do médico, com IA conversacional para acolhimento inicial (sem emitir diagnóstico), escalonamento anônimo para pares treinados ou psicólogos parceiros, e painel longitudinal de monitoramento.
+
+📦Entregável-Chave
+Protótipo funcional com autoavaliação validada clinicamente (PHQ-9, GAD-7, MBI-HSS), chat de acolhimento por IA, matching anônimo de pares e dashboard de monitoramento — com privacidade por design (criptografia client-side).
+
+🛠️Tecnologias e Recursos
+Escalas clínicas validadas (PHQ-9, GAD-7, MBI-HSS), AES-256 client-side via Web Crypto API, LLM com system prompt de escuta ativa clínica, PWA mobile-first, WebSocket com E2E, FastAPI + PostgreSQL anonimizado.
+
+📊Métrica de Sucesso
+Arquitetura de privacidade demonstrada (score calculado no dispositivo) + acolhimento por IA funcional + matching anônimo de pares + painel de monitoramento — sem jamais expor a identidade do usuário.

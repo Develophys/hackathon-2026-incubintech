@@ -1,0 +1,245 @@
+# User Stories: Zelo* — MVP dos 28 dias (1ª Jornada Incubintech)
+
+`*Nome de trabalho, ainda não validado.`
+
+Estas 8 histórias cobrem o escopo "Dentro do Escopo" definido na PRD. Persona de referência: Dra. Camila Andrade (médica usuária), exceto US-006, referente a uma persona secundária de gestor(a) hospitalar ainda não documentada em detalhe.
+
+---
+
+## US-001 — Autoavaliação clínica com score calculado no dispositivo
+
+| Campo | Valor |
+|---|---|
+| ID | US-001 |
+| Persona | Médica usuária (Dra. Camila Andrade) |
+| Prioridade | P0 |
+| Épico | Autoavaliação e Triagem |
+| Estimativa | M |
+
+**Como** médica plantonista que sente sinais de esgotamento,
+**eu quero** responder a uma autoavaliação clínica validada (PHQ-9, GAD-7 e/ou MBI-HSS) e ver meu resultado calculado inteiramente no meu dispositivo,
+**para que** eu possa entender objetivamente o que sinto sem que meus dados brutos saiam do meu aparelho em texto claro.
+
+**Contexto**: Este é o ponto de entrada de todo o produto (Passos 1 e 2 do fluxo de referência). Sem confiança nesta etapa, nenhuma etapa seguinte é usada.
+
+**Critérios de Aceite**
+
+- *AC-1 — Cálculo local do score*: Dado que a médica respondeu a todas as perguntas da escala, quando ela finaliza o questionário, então o score é calculado no dispositivo e nenhum dado bruto de resposta é enviado ao servidor em texto claro.
+- *AC-2 — Feedback imediato*: Dado que o score foi calculado, quando a tela de resultado é exibida, então a médica vê o resultado em linguagem clara (não apenas um número), sem jargão técnico não explicado.
+- *AC-3 — Indicador de privacidade visível*: Dado que a médica está respondendo a autoavaliação, quando qualquer tela do fluxo é exibida, então um indicador visível comunica que o processamento é local ("no seu aparelho").
+
+**Notas de Design**: O indicador de privacidade deve aparecer antes da primeira pergunta, não só no resultado.
+**Notas Técnicas**: Cálculo via lógica local no client (PWA), sem uso de Web Crypto API nesta etapa específica (reservada à cifragem, ver US posteriores); nenhuma chamada de rede durante o preenchimento das respostas.
+**Dependências**: Nenhuma (US inicial).
+**Fora do Escopo**: Histórico longitudinal de múltiplas autoavaliações (considerar para painel/v2).
+**Perguntas em Aberto**: Qual subconjunto exato de escalas (PHQ-9 + GAD-7 + MBI-HSS completos ou reduzidos) cabe no prazo de 28 dias?
+
+---
+
+## US-002 — Chat de acolhimento por IA sem diagnóstico
+
+| Campo | Valor |
+|---|---|
+| ID | US-002 |
+| Persona | Médica usuária |
+| Prioridade | P0 |
+| Épico | Acolhimento por IA |
+| Estimativa | M |
+
+**Como** médica que acabou de ver um resultado de autoavaliação indicando sinais de sofrimento leve a moderado,
+**eu quero** conversar com um chat de acolhimento por IA que escuta ativamente sem me diagnosticar,
+**para que** eu tenha um primeiro espaço de fala confidencial antes de decidir buscar qualquer ajuda formal.
+
+**Contexto**: Fluxo padrão pós-triagem (ver fluxo de referência: "Chat de acolhimento por IA — sem emitir diagnóstico").
+
+**Critérios de Aceite**
+
+- *AC-1 — Ausência de diagnóstico*: Dado que a médica está conversando com o chat, quando a IA responde a qualquer mensagem, então a resposta nunca contém linguagem que possa ser lida como diagnóstico clínico formal.
+- *AC-2 — Disclaimer permanente*: Dado que o chat está ativo, quando a médica abre a conversa, então um aviso permanente e visível informa que o chat não substitui atendimento profissional.
+- *AC-3 — Anonimização antes do envio a terceiro*: Dado que a médica envia uma mensagem, quando a mensagem é encaminhada à API de IA externa, então identificadores diretos (nome, CRM, hospital) são removidos antes do envio.
+
+**Notas de Design**: Tom de voz acolhedor, nem clínico-frio nem informal demais.
+**Notas Técnicas**: API de LLM de terceiro (provedor a definir) com anonimização client-side antes do envio; system prompt com guardrails revisado por mentor especializado.
+**Dependências**: US-001 (o chat também pode ser acessado de forma independente, mas o fluxo natural vem após o score).
+**Fora do Escopo**: Histórico de conversas entre sessões (avaliar implicação de privacidade antes de implementar).
+**Perguntas em Aberto**: Qual provedor de LLM e qual sua política de retenção de dados de API?
+
+---
+
+## US-003 — Escalonamento em crise: aceite de conexão humana
+
+| Campo | Valor |
+|---|---|
+| ID | US-003 |
+| Persona | Médica usuária |
+| Prioridade | P0 |
+| Épico | Escalonamento em Crise |
+| Estimativa | M |
+
+**Como** médica cujo padrão de respostas indica risco agudo,
+**eu quero** receber a oferta de conexão imediata com um psicólogo parceiro humano e poder aceitar me identificar apenas para esse canal,
+**para que** eu tenha ajuda real em um momento crítico, sem que isso vire um registro permanente e identificável em outro lugar do sistema.
+
+**Contexto**: Caminho "SIM — escalonamento em crise" → "ACEITA" do fluxo de referência.
+
+**Critérios de Aceite**
+
+- *AC-1 — Oferta, não imposição*: Dado que o sistema identificou sinal de risco agudo, quando a tela de oferta é exibida, então a médica pode recusar sem qualquer bloqueio de uso do restante do app.
+- *AC-2 — Token efêmero*: Dado que a médica aceita se identificar, quando a conexão com o psicólogo é estabelecida, então um token de sessão efêmero é usado, e a identidade não é persistida em texto claro no banco de dados principal.
+- *AC-3 — Escopo da exposição*: Dado que a identificação foi aceita, quando a sessão com o psicólogo termina, então a identidade exposta não se torna visível em nenhum outro canal do produto (chat de IA, matching de pares, painel institucional).
+
+**Notas de Design**: A tela de oferta deve deixar claríssimo o que muda (identificação) e o que não muda (o resto do app continua anônimo).
+**Notas Técnicas**: Geração de token de sessão efêmero; canal de comunicação ao vivo (detalhado no documento de arquitetura técnica) isolado do restante da base de dados.
+**Dependências**: Definição dos critérios de risco agudo (parceiro clínico); disponibilidade de psicólogo parceiro (ou simulação para demo).
+**Fora do Escopo**: Histórico de sessões passadas com psicólogos.
+**Perguntas em Aberto**: Como a demo vai representar essa conexão se não houver psicólogo parceiro real disponível a tempo?
+
+---
+
+## US-004 — Escalonamento em crise: recusa e linha externa
+
+| Campo | Valor |
+|---|---|
+| ID | US-004 |
+| Persona | Médica usuária |
+| Prioridade | P0 |
+| Épico | Escalonamento em Crise |
+| Estimativa | S |
+
+**Como** médica em sinal de risco agudo que não quer se identificar,
+**eu quero** recusar a conexão humana oferecida e ainda assim ver imediatamente uma linha de crise externa,
+**para que** eu tenha uma saída de emergência sem abrir mão do meu anonimato.
+
+**Contexto**: Caminho "SIM — escalonamento em crise" → "RECUSA" do fluxo de referência.
+
+**Critérios de Aceite**
+
+- *AC-1 — Exibição imediata de linha externa*: Dado que a médica recusa a oferta de conexão, quando a recusa é confirmada, então o app exibe imediatamente linhas de crise externas (ex.: CVV 188).
+- *AC-2 — Anonimato preservado*: Dado que a médica recusou a identificação, quando qualquer dado da sessão é registrado, então nenhuma informação identificável é persistida em decorrência dessa recusa.
+- *AC-3 — Oferta pode reaparecer*: Dado que a médica recusou uma vez, quando ela volta a usar o app em uma sessão futura com novo sinal de risco, então a oferta de conexão humana pode ser apresentada novamente, sem penalidade pela recusa anterior.
+
+**Notas de Design**: Linha de crise deve ser uma ação de um toque (discar/abrir chat), não apenas texto informativo.
+**Notas Técnicas**: Lista de linhas de crise configurável (permitir adicionar linha específica de SC além do CVV 188, se existir).
+**Dependências**: Nenhuma além do fluxo de detecção de risco (parte da US-001/US-003).
+**Fora do Escopo**: Acionamento automático de terceiros (ex.: SAMU) sem ação do usuário.
+**Perguntas em Aberto**: Existe uma linha de apoio específica ao médico em SC a incluir além do CVV 188?
+
+---
+
+## US-005 — Matching anônimo de pares treinados
+
+| Campo | Valor |
+|---|---|
+| ID | US-005 |
+| Persona | Médica usuária |
+| Prioridade | P1 |
+| Épico | Matching de Pares |
+| Estimativa | M |
+
+**Como** médica que concluiu o fluxo padrão de acolhimento,
+**eu quero** ser conectada, por escolha própria, a outro médico (par treinado) de forma anônima,
+**para que** eu sinta que não estou sozinha, sem expor minha identidade a essa pessoa.
+
+**Contexto**: Fluxo padrão pós-chat de IA, opcional ("sob escolha do médico").
+
+**Critérios de Aceite**
+
+- *AC-1 — Opt-in explícito*: Dado que a médica concluiu a conversa com o chat de IA, quando a opção de matching é apresentada, então ela só é conectada a um par se escolher ativamente essa opção.
+- *AC-2 — Anonimato mútuo*: Dado que o matching foi aceito, quando a conversa com o par se inicia, então nenhuma das duas partes vê dados identificáveis da outra.
+- *AC-3 — Encerramento a qualquer momento*: Dado que a conversa com o par está em andamento, quando qualquer uma das partes decide encerrar, então a conversa termina sem necessidade de justificativa e sem penalidade.
+
+**Notas de Design**: Deixar claro que o par é "treinado", não um profissional de saúde mental.
+**Notas Técnicas**: Para o hackathon, pode ser implementado com dados/pares simulados, desde que documentado como tal.
+**Dependências**: US-002 (fluxo de chat concluído).
+**Fora do Escopo**: Curadoria e treinamento real de pares (processo institucional, fora do escopo técnico do PoC).
+**Perguntas em Aberto**: Como simular de forma honesta o matching na demo sem uma base real de pares treinados?
+
+---
+
+## US-006 — Painel agregado para gestor hospitalar
+
+| Campo | Valor |
+|---|---|
+| ID | US-006 |
+| Persona | Gestor(a) hospitalar / coordenação de saúde ocupacional (persona secundária, a documentar) |
+| Prioridade | P1 |
+| Épico | Painel de Monitoramento |
+| Estimativa | M |
+
+**Como** gestor(a) hospitalar responsável por saúde ocupacional,
+**eu quero** ver um painel com métricas agregadas e anônimas de tendências de burnout na equipe (ex.: por turno/setor),
+**para que** eu possa agir preventivamente sem jamais ver dados de um médico específico.
+
+**Contexto**: Contrapartida do modelo de negócio ("quem paga não é quem julga", pitch deck da equipe).
+
+**Critérios de Aceite**
+
+- *AC-1 — Nenhum dado individual*: Dado que o painel está sendo exibido, quando qualquer métrica é renderizada, então não é possível identificar, direta ou indiretamente, um médico específico.
+- *AC-2 — Limiar mínimo por segmento*: Dado que um segmento (ex.: turno) tem poucas respostas, quando o número de respostas está abaixo de um limiar mínimo definido, então a métrica desse segmento não é exibida, para evitar re-identificação por dedução.
+- *AC-3 — Métricas de tendência, não de evento único*: Dado que o gestor acessa o painel, quando ele visualiza os dados, então as métricas são apresentadas como tendências ao longo do tempo, não como eventos pontuais atribuíveis a um dia/turno específico com poucas pessoas.
+
+**Notas de Design**: O painel deve reforçar visualmente a mensagem "isso é agregado", por exemplo via rótulos e mínimos de amostra.
+**Notas Técnicas**: Para a demo, usar dados agregados simulados/anonimizados; nenhuma base real de médicos é necessária.
+**Dependências**: Volume mínimo de dados simulados suficiente para o limiar (AC-2) não esvaziar o painel na demo.
+**Fora do Escopo**: Exportação de dados, integração com sistemas de BI do hospital.
+**Perguntas em Aberto**: Qual o limiar mínimo de respostas por segmento (n=3? n=5?) e quem valida esse número (parceiro clínico/jurídico)?
+
+---
+
+## US-007 — Consentimento explícito antes de qualquer exposição de identidade
+
+| Campo | Valor |
+|---|---|
+| ID | US-007 |
+| Persona | Médica usuária |
+| Prioridade | P0 |
+| Épico | Privacidade & Segurança (transversal) |
+| Estimativa | S |
+
+**Como** médica usando qualquer parte do produto,
+**eu quero** que meu consentimento seja pedido de forma específica e no momento exato em que minha identidade poderia ser exposta,
+**para que** eu nunca seja surpreendida por uma exposição que eu não autorizei conscientemente.
+
+**Contexto**: Requisito transversal (FR-15 da PRD), aplicável à US-003 e a qualquer fluxo futuro que envolva identificação.
+
+**Critérios de Aceite**
+
+- *AC-1 — Consentimento contextual, não genérico*: Dado que qualquer fluxo do produto pode levar à exposição de identidade, quando esse ponto é alcançado, então o sistema pede consentimento específico para aquele momento, não um "aceite os termos" genérico do cadastro.
+- *AC-2 — Consentimento revogável*: Dado que a médica já consentiu em um momento, quando ela decide não continuar, então ela pode recusar prosseguir sem perder acesso às partes anônimas do produto.
+- *AC-3 — Registro do consentimento*: Dado que o consentimento foi dado, quando a ação subsequente ocorre (ex.: conexão com psicólogo), então existe um registro técnico do consentimento vinculado apenas ao token efêmero da sessão, não à identidade permanente do usuário.
+
+**Notas de Design**: Nenhum "aceite tudo" escondido em letras miúdas — todo consentimento relevante aparece no momento da decisão.
+**Notas Técnicas**: Aplica-se transversalmente onde quer que FR-15 da PRD seja relevante.
+**Dependências**: US-003.
+**Fora do Escopo**: Gestão de consentimento para finalidades de marketing (não aplicável a este produto).
+**Perguntas em Aberto**: Nenhuma pendente além das já listadas na PRD.
+
+---
+
+## US-008 — Onboarding e transparência do modelo de privacidade
+
+| Campo | Valor |
+|---|---|
+| ID | US-008 |
+| Persona | Médica usuária — primeiro uso |
+| Prioridade | P0 |
+| Épico | Onboarding |
+| Estimativa | S |
+
+**Como** médica usando o Zelo pela primeira vez,
+**eu quero** entender, antes de responder qualquer pergunta sensível, como meus dados são protegidos,
+**para que** eu confie o suficiente no sistema para de fato completar a autoavaliação.
+
+**Contexto**: Sem esta etapa, a barreira de desconfiança descrita na persona (Dra. Camila) impede o uso de qualquer outra funcionalidade.
+
+**Critérios de Aceite**
+
+- *AC-1 — Explicação antes da primeira pergunta*: Dado que é o primeiro acesso da médica ao app, quando ela abre a autoavaliação pela primeira vez, então uma explicação curta e não técnica do modelo de privacidade é exibida antes da primeira pergunta.
+- *AC-2 — Linguagem verificável, não promocional*: Dado que a explicação de privacidade é exibida, quando a médica lê o conteúdo, então a linguagem descreve o que tecnicamente acontece (ex.: "processado no seu aparelho") em vez de apenas afirmar "seus dados estão seguros".
+- *AC-3 — Onboarding não bloqueante*: Dado que a médica já viu o onboarding uma vez, quando ela abre o app novamente, então o onboarding completo não é repetido, mas o indicador de privacidade continua visível nas telas relevantes.
+
+**Notas de Design**: Evitar tom infantilizado; a persona é uma profissional de saúde que reconhece explicações técnicas superficiais.
+**Notas Técnicas**: Onboarding é apenas conteúdo estático/local; não depende de nenhuma chamada de API.
+**Dependências**: Nenhuma (primeira tela do produto).
+**Fora do Escopo**: Onboarding personalizado por perfil de usuário.
+**Perguntas em Aberto**: Nenhuma.
