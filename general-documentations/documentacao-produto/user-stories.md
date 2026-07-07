@@ -52,17 +52,20 @@ Estas 8 histórias cobrem o escopo "Dentro do Escopo" definido na PRD. Persona d
 
 **Contexto**: Fluxo padrão pós-triagem (ver fluxo de referência: "Chat de acolhimento por IA — sem emitir diagnóstico").
 
+**Insight de pesquisa (07/07/2026)**: na entrevista com Dr. David Mendes (gestor médico, 02/07/2026), ele afirmou que desconfiaria "no menor sinal" de estar falando com uma IA em vez de uma pessoa real, e que a alta rotatividade de atendentes também gera insegurança. Por isso, AC-4 abaixo é P0, não nice-to-have.
+
 **Critérios de Aceite**
 
 - *AC-1 — Ausência de diagnóstico*: Dado que a médica está conversando com o chat, quando a IA responde a qualquer mensagem, então a resposta nunca contém linguagem que possa ser lida como diagnóstico clínico formal.
 - *AC-2 — Disclaimer permanente*: Dado que o chat está ativo, quando a médica abre a conversa, então um aviso permanente e visível informa que o chat não substitui atendimento profissional.
 - *AC-3 — Anonimização antes do envio a terceiro*: Dado que a médica envia uma mensagem, quando a mensagem é encaminhada à API de IA externa, então identificadores diretos (nome, CRM, hospital) são removidos antes do envio.
+- *AC-4 — Atalho humano sempre visível*: Dado que a médica está em qualquer ponto da conversa com a IA, quando ela olha a tela, então um atalho claramente visível permite pedir conexão com uma pessoa real (par médico ou psicólogo) a qualquer momento, não apenas quando o sistema detecta risco agudo (ver PRD FR-6b).
 
-**Notas de Design**: Tom de voz acolhedor, nem clínico-frio nem informal demais.
+**Notas de Design**: Tom de voz acolhedor, nem clínico-frio nem informal demais; o atalho humano (AC-4) precisa ser visualmente distinto de um botão de menu comum — não deve parecer uma opção secundária escondida.
 **Notas Técnicas**: API de LLM de terceiro (provedor a definir) com anonimização client-side antes do envio; system prompt com guardrails revisado por mentor especializado.
 **Dependências**: US-001 (o chat também pode ser acessado de forma independente, mas o fluxo natural vem após o score).
 **Fora do Escopo**: Histórico de conversas entre sessões (avaliar implicação de privacidade antes de implementar).
-**Perguntas em Aberto**: Qual provedor de LLM e qual sua política de retenção de dados de API?
+**Perguntas em Aberto**: Qual provedor de LLM e qual sua política de retenção de dados de API? Qual o destino exato do atalho humano (AC-4) — par médico, psicólogo, ou escolha do usuário?
 
 ---
 

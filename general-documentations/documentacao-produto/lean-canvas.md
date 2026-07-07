@@ -39,7 +39,7 @@ Duas pontas distintas:
 2 a 3 hospitais/cooperativas de porte médio em Santa Catarina, dispostos a rodar um piloto guiado pela pré-incubação da Incubintech.
 
 **Confiança**: Média
-**Racional**: Segmento pagante descrito no pitch deck, mas nenhum hospital piloto formalmente confirmado até o momento.
+**Racional**: Segmento pagante descrito no pitch deck, mas nenhum hospital piloto formalmente confirmado até o momento. Gatilho comercial reforçado pelo checklist oficial do desafio: a NR-1 entra em vigência fiscalizatória plena em maio/2026, exigindo gestão de riscos psicossociais pelos empregadores — a ferramenta passa a atender também uma obrigação de conformidade legal do lado pagante, não só um benefício de bem-estar.
 
 ---
 
@@ -58,7 +58,7 @@ Uma plataforma de saúde mental do médico em que o empregador paga pela ferrame
 
 ## 4. Solução
 
-- **Para P1**: Autoavaliação clínica validada (PHQ-9, GAD-7, MBI-HSS) com score calculado no dispositivo + chat de acolhimento por IA (sem diagnóstico) + matching anônimo de pares + escalonamento opt-in em crise.
+- **Para P1**: Autoavaliação clínica validada (PHQ-9, GAD-7, MBI-HSS) com score calculado no dispositivo + chat de acolhimento por IA humanizado, com atalho sempre visível para conexão humana (sem diagnóstico) + matching anônimo de pares + escalonamento opt-in em crise. *(Atalho humano adicionado em 07/07/2026 após entrevista indicar desconfiança de médicos em relação à IA em momentos de sofrimento.)*
 - **Para P2**: Painel de monitoramento com métricas agregadas e anônimas por turno/setor, nunca por indivíduo.
 - **Para P3**: Arquitetura de privacidade verificável (client-side scoring, criptografia AES-256/E2E) como diferencial de confiança, não apenas política de privacidade em texto.
 
@@ -136,6 +136,7 @@ Pergunta em aberto. Ainda não há um fosso defensável comprovado. Candidato em
 ### Validado
 
 - Prevalência de burnout e baixa busca por ajuda entre médicos brasileiros (CFM/AMB, 2022, citado no brief e no pitch deck).
+- Barreiras de estigma e cultura workaholic, e forte preferência por interação humana real sobre IA em momentos de sofrimento — confirmadas na 1ª entrevista de usuário (Dr. David Mendes, gestor médico, 02/07/2026). Amostra ainda pequena (1 entrevista) para generalizar.
 
 ### Assumido
 

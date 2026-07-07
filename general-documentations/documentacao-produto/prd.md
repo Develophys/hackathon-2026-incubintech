@@ -1,7 +1,8 @@
 ---
 artefato: prd
-versão: "1.0"
+versão: "1.1"
 criado: 2026-07-02
+atualizado: 2026-07-07
 status: rascunho
 ---
 
@@ -18,6 +19,8 @@ Médicos em sofrimento psíquico não têm hoje um canal de triagem e apoio conf
 ### Resumo da Solução
 
 Zelo é uma PWA mobile-first que permite a um médico realizar autoavaliação clínica validada (PHQ-9, GAD-7, MBI-HSS) com score calculado inteiramente no próprio dispositivo, conversar com um chat de acolhimento por IA sem receber diagnóstico, ser conectado anonimamente a pares treinados ou, em sinal de risco agudo, receber a oferta — nunca imposição — de conexão com um psicólogo parceiro humano. O hospital ou cooperativa que financia a ferramenta enxerga apenas um painel agregado e anônimo de tendências da equipe.
+
+> **Nota de refinamento (07/07/2026)**: a primeira entrevista de usuário (Dr. David Mendes, gestor médico, 02/07/2026) revelou que médicos desconfiam fortemente de IA em momentos de sofrimento e preferem interação humana real, mesmo valorizando anonimato. O edital exige "Acolhimento por IA" como componente obrigatório, então a decisão do time (07/07/2026) foi manter o chat de IA, mas humanizá-lo e exibir, de forma permanente e visível, um atalho para conexão com um humano — não apenas quando o sistema detecta risco agudo (ver FR-6b).
 
 ### Usuários-Alvo
 
@@ -107,6 +110,7 @@ Ver documento `user-stories` para critérios de aceite completos.
 - **FR-4**: O chat deve operar sob um system prompt de escuta ativa clínica, com guardrails explícitos contra emissão de diagnóstico.
 - **FR-5**: O sistema deve anonimizar o conteúdo enviado à API de IA de terceiro antes do envio (remover identificadores diretos do texto do usuário).
 - **FR-6**: O chat deve exibir aviso permanente e visível de que não substitui atendimento profissional.
+- **FR-6b** *(adicionado 07/07/2026, baseado em ENT-01 — entrevista com Dr. David Mendes)*: O chat deve exibir, de forma permanente e visível em qualquer ponto da conversa — não apenas quando o sistema detecta risco agudo —, um atalho para solicitar conexão com um humano (par médico treinado ou psicólogo). Esse atalho é independente do fluxo automático de escalonamento em crise (FR-7 a FR-10) e existe porque pesquisa com usuário indicou que a desconfiança de IA é, por si só, uma barreira de abandono tão relevante quanto o anonimato.
 
 #### Escalonamento em Crise
 
@@ -151,6 +155,7 @@ Fluxo mobile-first (PWA): abrir app → autoavaliação (< 5 min) → score imed
 - Uso de API de LLM de terceiro (ex.: Anthropic/OpenAI) para o chat de acolhimento, com anonimização do texto antes do envio — trade-off explícito assumido para viabilizar os 28 dias (ver Perguntas em Aberto).
 - Janela de 28 dias corridos com checkpoints eliminatórios semanais (edital) — qualquer requisito que não caiba nesse prazo vira "Consideração Futura".
 - LGPD (Lei nº 13.709/2018) aplica-se integralmente a qualquer dado pessoal tratado, mesmo em protótipo.
+- CID-11 reconhece burnout como fenômeno ocupacional desde 2022; NR-1 exige gestão de riscos psicossociais dos empregadores, com vigência fiscalizatória plena a partir de maio/2026 (fonte: checklist oficial do desafio).
 - Disponibilidade de parceiro clínico (psicólogo) para o caminho de crise não está confirmada — pode exigir simulação controlada na demo, documentada como tal para a banca.
 
 ### Pontos de Integração
@@ -201,6 +206,8 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 - [ ] Existe parceiro clínico (psicólogo) confirmado para validar os critérios de risco agudo antes da final? — Responsável: Líder de equipe
 - [ ] O painel institucional terá uma persona "gestor hospitalar" documentada, ou fica fora do escopo de PM por ora? — Responsável: PM
 - [ ] Qual o limiar mínimo de respostas por segmento no painel agregado para evitar re-identificação por dedução? — Responsável: Tech Lead + PM
+- [ ] Qual o texto e a posição exata na tela do atalho "falar com uma pessoa real" (FR-6b), e ele leva direto a um par médico, a um psicólogo, ou oferece escolha? — Responsável: Mauricio (arquitetura) + Raquel (copy/UX de conteúdo)
+- [ ] O time ainda não tem uma função de PM/liderança de produto formalmente definida — os papéis atuais são Raquel (marketing/social media), Mauricio (dev full stack/arquitetura), Gui (devops), Yasmin e Kati (dados). Quem assume a coordenação de escopo e a comunicação oficial com a organização da Jornada? — Responsável: time (definir até o checkpoint de 11/07)
 
 ## Apêndice
 
@@ -214,9 +221,13 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 - Fluxo de Acolhimento e Escalonamento em Crise (`fluxo-escalonamento-crise.pdf`, fornecido pela equipe)
 - Pitch Deck (`pitch-deck.pdf`, fornecido pela equipe)
 - Edital 1ª Jornada Incubintech (`EDITAL-Incubintech_1a-Jornada.pdf`)
+- Checklist do Desafio 19 — Burnout Médico (`07_07_docs/CHECKLIST DO DESAFIO 19 – BURNOUT MÉDICO.docx`)
+- Entrevista com Dr. David Mendes, 02/07/2026 (`07_07_docs/Entrevista com Dr. David Mendes...docx`)
+- Roadmap de atividades por pessoa (`roadmap/`)
 
 ### Histórico de Revisões
 
 | Versão | Data | Autor | Mudanças |
 |---|---|---|---|
 | 1.0 | 2026-07-02 | Rascunho gerado via pm-skills a partir do edital, brief, pitch deck e fluxo de crise fornecidos; revisão da equipe pendente | Versão inicial |
+| 1.1 | 2026-07-07 | Atualizado a partir da entrevista com Dr. David Mendes e dos documentos de 07/07 (checklist oficial, resumos revisados) | Adicionado FR-6b (atalho humano visível no chat de IA); adicionados marcos legais CID-11/NR-1; registrada decisão de produto sobre IA humanizada vs. desconfiança de IA |

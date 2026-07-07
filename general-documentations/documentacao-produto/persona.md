@@ -9,8 +9,8 @@
 | Escopo do produto | Autoavaliação, chat de acolhimento por IA, escalonamento em crise, matching de pares (todo o lado "usuário médico" da plataforma Zelo*) |
 | Válida para | Médicos(as) com CRM ativo atuando em regime de plantão ou alta carga assistencial em hospitais, redes de saúde ou cooperativas médicas (ex.: Unimed) em Santa Catarina, com sinais de sofrimento psíquico não tratado |
 | Não válida para | Estudantes de medicina/residentes com apoio psicológico institucional já estruturado; gestores hospitalares (persona compradora, ver Nota); pacientes |
-| Confiança | Proto — baseada em dados agregados publicados (CFM/AMB 2022) e no brief do desafio, sem entrevistas primárias com médicos ainda realizadas |
-| Última validação | 2026-07-02 |
+| Confiança | Proto — baseada em dados agregados publicados (CFM/AMB 2022) e no brief do desafio; 1 entrevista primária realizada (Dr. David Mendes, gestor médico, 02/07/2026), ainda insuficiente para validar como padrão geral |
+| Última validação | 2026-07-07 |
 | Responsável | Equipe do desafio "Saúde do Médico" — 1ª Jornada Incubintech |
 
 `*Zelo é um nome de trabalho sugerido para o produto, ainda não validado (marca/domínio) pela equipe. Ajustar em todos os documentos se o nome mudar.`
@@ -30,7 +30,7 @@ Camila, 34 anos, é médica emergencista, atua em plantões de 12h em um hospita
 
 **Frustrações.** Canais de saúde ocupacional existentes passam pelo RH ou pela chefia médica, o que ela entende como exposição; falta tempo, entre plantões, para terapia particular regular; teme que uma autoavaliação formal vire documento usado contra ela em avaliações de desempenho; já viu colegas serem informalmente "marcados" após pedir afastamento por saúde mental.
 
-**Regras de design — sempre.** Sempre calcular e mostrar o resultado da autoavaliação sem que o dado bruto saia do dispositivo dela; sempre deixar claro, em cada tela, o que é anônimo e o que exige identificação; sempre oferecer — nunca forçar — o próximo passo de ajuda.
+**Regras de design — sempre.** Sempre calcular e mostrar o resultado da autoavaliação sem que o dado bruto saia do dispositivo dela; sempre deixar claro, em cada tela, o que é anônimo e o que exige identificação; sempre oferecer — nunca forçar — o próximo passo de ajuda; sempre exibir um atalho visível para falar com uma pessoa real (par médico ou psicólogo), mesmo fora de um sinal de risco automático — achado da entrevista com Dr. David Mendes (02/07/2026), que afirmou desconfiar no "menor sinal" de estar falando com uma IA em vez de uma pessoa de verdade.
 
 **Regras de design — nunca.** Nunca enviar dado identificável para o hospital/cooperativa que financia a ferramenta; nunca emitir diagnóstico dentro do chat de IA; nunca reter a identidade dela sem consentimento explícito e contextual, mesmo em caso de crise.
 
@@ -195,6 +195,7 @@ Camila, 34 anos, é médica emergencista, atua em plantões de 12h em um hospita
 | BRF-01 | Brief do desafio | Documento "medicos_burnout_doc_1" — contexto, problema, objetivo da PoC fornecidos pela organização demandante |
 | PIT-01 | Material de pitch | Pitch deck do time, com dados CFM/AMB 2022 (57% sintomas de burnout, <12% buscam ajuda) e taxa de suicídio médica |
 | FLX-01 | Especificação de fluxo | Diagrama "Fluxo de Acolhimento e Escalonamento em Crise" (Caminho B) |
+| ENT-01 | Entrevista com usuário | Entrevista com Dr. David Mendes (gestor médico, PS/UTI), 02/07/2026 — confirma barreiras de estigma e cultura workaholic; revela forte preferência por interação humana real sobre IA em momentos de sofrimento, baixa tolerância a fluxos robóticos/automatizados, e preferência por falar com outro médico (corporativismo/confiança) |
 
 **Validado.** A prevalência de burnout e a baixa procura por ajuda profissional entre médicos brasileiros (fontes CFM/AMB) são dados publicados e amplamente citados no setor — não fabricados para este exercício.
 
@@ -202,7 +203,7 @@ Camila, 34 anos, é médica emergencista, atua em plantões de 12h em um hospita
 
 **Perguntas em aberto.**
 1. Médicos de diferentes especialidades e regimes de trabalho (plantonista vs. consultório, público vs. privado) compartilham o mesmo padrão de medo do CRM?
-2. Qual o real apetite por "matching de pares anônimo" vs. preferência por atendimento profissional direto?
-3. Em que estágio de sofrimento a pessoa efetivamente abre o app pela primeira vez — prevenção ou já em crise?
+2. Qual o real apetite por "matching de pares anônimo" vs. preferência por atendimento profissional direto? — *Parcialmente informada pela ENT-01*: Dr. David Mendes indica maior conforto em falar com outro médico por corporativismo/confiança, mas reconhece psicólogo como opção válida. Amostra de 1 entrevista, insuficiente para generalizar.
+3. Em que estágio de sofrimento a pessoa efetivamente abre o app pela primeira vez — prevenção ou já em crise? — *Indício da ENT-01*: o entrevistado sugeriu uso mais provável "durante o trabalho, em situação de crise", mas também citou uso preventivo tipo check-in (referência aos apps Cogni e I Am).
 
 **Governança.** Revisar esta persona após as primeiras entrevistas com médicos reais (recomendado: durante os checkpoints da Jornada ou no início da pré-incubação). Critério de aposentadoria: substituir por versão "Validada" assim que houver pelo menos 5-8 entrevistas convergentes.

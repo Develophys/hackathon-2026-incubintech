@@ -76,6 +76,9 @@ Provar, com um protótipo funcional (TRL3), que é possível oferecer triagem e 
 - **Guardrail 2**: Nenhuma resposta do chat de IA deve conter linguagem que possa ser lida como diagnóstico clínico (revisão amostral manual a cada checkpoint).
   - Por quê: emitir diagnóstico automatizado é um não-objetivo explícito da PRD e um risco ético/legal para o produto.
 
+- **Guardrail 3** *(adicionado 07/07/2026)*: O atalho "falar com uma pessoa real" (PRD FR-6b) deve estar visível em toda tela do chat de IA, verificado a cada checkpoint.
+  - Por quê: a entrevista com Dr. David Mendes (02/07/2026) indicou que a desconfiança de IA em momentos de sofrimento é uma barreira de abandono tão crítica quanto o próprio anonimato — sem esse atalho, o produto corre risco de ser rejeitado no primeiro contato pelo próprio público que deveria atender.
+
 ## Notas de Alinhamento
 
 - **Vínculo com estratégia**: Edital 1ª Jornada Incubintech — Método de Inovação Aberta (critérios de avaliação, item 12.1)
@@ -104,7 +107,7 @@ Este conjunto de OKRs enquadra entregas pré-definidas pelo edital (checkpoints,
 ## Perguntas em Aberto
 
 1. Qual ferramenta será a "fonte de verdade" do backlog da equipe (GitHub Projects, Linear, Trello)?
-2. As datas exatas dos 3 checkpoints semanais já foram publicadas pela organização, ou apenas o formato ("um por semana")?
+2. As datas exatas dos 3 checkpoints semanais já foram publicadas pela organização, ou apenas o formato ("um por semana")? — **Confirmado pelo time em 07/07/2026**: 04/07, 11/07 e 18/07 (checkpoints) e 25/07 (final) permanecem válidas como planejamento interno. Ver `roadmap/README.md` para o detalhamento por pessoa.
 3. Existe algum piso mínimo de qualidade definido pela mentoria para considerar um checkpoint "aprovado", além do prazo de entrega?
 
 ## Próximo Passo Sugerido
