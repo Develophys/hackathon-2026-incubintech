@@ -752,15 +752,15 @@ module.exports = {
       name: "use-cases-no-react",
       comment: "use-cases/ must be framework-agnostic — no React, no browser APIs directly (spec Section B). They depend only on ports/.",
       severity: "error",
-      from: { path: "^apps/web/src/use-cases" },
+      from: { path: "^src/use-cases" },
       to: { path: "node_modules/react" },
     },
     {
       name: "use-cases-no-infrastructure",
       comment: "use-cases/ must depend only on ports/, never on concrete infrastructure/ implementations.",
       severity: "error",
-      from: { path: "^apps/web/src/use-cases" },
-      to: { path: "^apps/web/src/infrastructure" },
+      from: { path: "^src/use-cases" },
+      to: { path: "^src/infrastructure" },
     },
   ],
   options: {
@@ -769,6 +769,8 @@ module.exports = {
   },
 };
 ```
+
+**Path prefix note:** `from`/`to` patterns are `^src/...`, not `^apps/web/src/...` — `depcruise src --config .dependency-cruiser.cjs` (Task 1's `lint:boundaries` script) runs with cwd = `apps/web`, so dependency-cruiser reports and matches module paths relative to that cwd, never prefixed with `apps/web/`. Verified independently during Plan 01 Task 6's review by inspecting `depcruise`'s actual JSON output on the analogous `packages/domain` case.
 
 - [ ] **Step 2: Verify the rule passes on current (clean) code**
 

@@ -586,14 +586,14 @@ module.exports = {
       name: "application-no-infrastructure-imports",
       comment: "application/ (ports + use-cases) must depend only on ports, never on concrete infrastructure — that's the Dependency Inversion boundary (spec Section C).",
       severity: "error",
-      from: { path: "^apps/api/src/modules/[^/]+/application" },
-      to: { path: "^apps/api/src/modules/[^/]+/infrastructure" },
+      from: { path: "^src/modules/[^/]+/application" },
+      to: { path: "^src/modules/[^/]+/infrastructure" },
     },
     {
       name: "application-no-prisma-imports",
       comment: "application/ must never import @prisma/client directly — only through a port implemented in infrastructure/.",
       severity: "error",
-      from: { path: "^apps/api/src/modules/[^/]+/application" },
+      from: { path: "^src/modules/[^/]+/application" },
       to: { path: "node_modules/@prisma/client" },
     },
   ],
@@ -605,6 +605,8 @@ module.exports = {
 ```
 
 Note `@nestjs/common` is deliberately **not** forbidden from `application/` — DI decorators (`@Injectable`, `@Inject`) are framework wiring, not infrastructure, and every use-case in this codebase uses them (see `CheckHealthUseCase` in Task 3).
+
+**Path prefix note:** `from`/`to` patterns are `^src/...`, not `^apps/api/src/...` — `depcruise src --config .dependency-cruiser.cjs` (Task 1's `lint:boundaries` script) runs with cwd = `apps/api` (via `pnpm --filter`/`turbo run`), so dependency-cruiser reports and matches module paths relative to that cwd (e.g. `src/modules/health/application/...`), never prefixed with `apps/api/`. Plan 01 Task 6 originally used the `packages/domain/`-prefixed form for `packages/domain`'s own config and discovered this the hard way — verified independently in that task's review by inspecting `depcruise`'s actual JSON output. This plan uses the corrected form from the start.
 
 - [ ] **Step 2: Verify the rule passes on current (clean) code**
 
