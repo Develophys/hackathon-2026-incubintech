@@ -179,3 +179,11 @@ common/temp/
 .history/
 .vercel
 .netlify
+
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
