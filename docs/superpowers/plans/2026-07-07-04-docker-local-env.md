@@ -4,7 +4,7 @@
 
 **Goal:** Run `apps/api` and `apps/web` as actual production builds inside Docker, wired to a containerized Postgres via `docker-compose.yml` — a local prod-parity environment that catches "works in dev server, breaks in the real build" problems before the live demo.
 
-**Architecture:** Multi-stage Dockerfiles using `turbo prune` (the standard Turborepo Docker pattern) to build a minimal, isolated dependency+source subset per app before compiling. `docker-compose.yml` wires `postgres` → `api` → `web` with health-check-gated startup. This is local-only prod-parity, not the real deploy pipeline (that's Gui's domain per `roadmap/gui.md`), but the same Dockerfiles are the natural starting point for it.
+**Architecture:** Multi-stage Dockerfiles using `turbo prune` (the standard Turborepo Docker pattern) to build a minimal, isolated dependency+source subset per app before compiling. `docker-compose.yml` wires `postgres` → `api` → `web` with health-check-gated startup. This is local-only prod-parity, not the real deploy pipeline (that's Gui's domain per `general-documentations/roadmap/gui.md`), but the same Dockerfiles are the natural starting point for it.
 
 **Tech Stack:** Docker, Docker Compose, `turbo prune`, `nginx:alpine` (static serving for the built PWA), `prisma migrate deploy`.
 
@@ -12,7 +12,7 @@
 
 - Requires Plans 01, 02, and 03 complete — this plan builds their output, it doesn't add application code.
 - Secrets (`DATABASE_URL` inside the containers, and later the LLM API key in Plan 05) come from a gitignored `docker/.env.docker`, never baked into an image layer (spec Section E).
-- This compose setup is local-only prod-parity — it is explicitly not the cloud deployment pipeline (spec Section E, `roadmap/gui.md`).
+- This compose setup is local-only prod-parity — it is explicitly not the cloud deployment pipeline (spec Section E, `general-documentations/roadmap/gui.md`).
 
 ---
 

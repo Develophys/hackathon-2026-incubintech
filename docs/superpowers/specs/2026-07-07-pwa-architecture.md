@@ -10,9 +10,9 @@ owner: Mauricio Alexandre
 
 ## Context
 
-This spec defines the technical architecture foundation for Zelo (working name), the mobile-first PWA described in `documentacao-produto/prd.md`. It covers Mauricio's scope from `roadmap/mauricio.md`: monorepo structure, Clean Architecture layering for both frontend and backend, the AI chat provider abstraction, and the local Docker environment.
+This spec defines the technical architecture foundation for Zelo (working name), the mobile-first PWA described in `general-documentations/documentacao-produto/prd.md`. It covers Mauricio's scope from `general-documentations/roadmap/mauricio.md`: monorepo structure, Clean Architecture layering for both frontend and backend, the AI chat provider abstraction, and the local Docker environment.
 
-It does **not** re-derive product requirements — see `documentacao-produto/prd.md` for the full FR list and `documentacao-produto/user-stories.md` for acceptance criteria. This document exists to answer: *given those requirements, how is the code structured so that privacy-by-design is enforced architecturally (not just by policy), and so an AI provider swap is a one-file change?*
+It does **not** re-derive product requirements — see `general-documentations/documentacao-produto/prd.md` for the full FR list and `general-documentations/documentacao-produto/user-stories.md` for acceptance criteria. This document exists to answer: *given those requirements, how is the code structured so that privacy-by-design is enforced architecturally (not just by policy), and so an AI provider swap is a one-file change?*
 
 Two constraints shaped every decision below:
 - **Privacy-by-design is non-negotiable** (PRD FR-1, FR-2, FR-13, FR-14): assessment scores are computed on-device and the server must never be *able* to receive raw answers or cross aggregated metrics back to an individual — this has to be true because the code makes it impossible, not because everyone remembers to redact.
@@ -192,7 +192,7 @@ volumes:
   pgdata:
 ```
 
-`api.Dockerfile` runs `prisma migrate deploy` against the `postgres` service on container start, so `docker compose up` gives a fully migrated DB every time. Secrets (`ANTHROPIC_API_KEY`) come from a gitignored `.env.docker`, never baked into the image. This is local-only prod-parity, not the real deploy pipeline — that stays Gui's domain per `roadmap/gui.md` — but the same Dockerfiles are the natural starting point for whatever he builds there.
+`api.Dockerfile` runs `prisma migrate deploy` against the `postgres` service on container start, so `docker compose up` gives a fully migrated DB every time. Secrets (`ANTHROPIC_API_KEY`) come from a gitignored `.env.docker`, never baked into the image. This is local-only prod-parity, not the real deploy pipeline — that stays Gui's domain per `general-documentations/roadmap/gui.md` — but the same Dockerfiles are the natural starting point for whatever he builds there.
 
 ## Section F — Boundary Enforcement + Testing Strategy
 

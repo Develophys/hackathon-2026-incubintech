@@ -55,5 +55,5 @@ This is genuinely new scope beyond the six existing plans, so it gets its own pl
 
 ## Out of Scope
 
-- Real cloud deployment CI/CD (staging/production pipelines) — that's Gui's domain per `roadmap/gui.md`; this CI plan only covers local validation (lint/build/test) on every push/PR, not deployment.
+- Real cloud deployment CI/CD (staging/production pipelines) — that's Gui's domain per `general-documentations/roadmap/gui.md`; this CI plan only covers local validation (lint/build/test) on every push/PR, not deployment.
 - Reorganizing `general-documentations/` or `jornada-checkpoints/` internally — out of scope, not requested, and already settled by the team's own recent commits.
