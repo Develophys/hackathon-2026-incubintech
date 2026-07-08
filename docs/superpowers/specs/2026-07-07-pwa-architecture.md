@@ -200,12 +200,12 @@ volumes:
 ```js
 {
   name: 'no-infra-in-application',
-  from: { path: '^(apps/(web|api))/src/(use-cases|application)' },
+  from: { path: '^src/(use-cases|application)' },
   to:   { path: '(infrastructure|node_modules/(react|@nestjs|@prisma))' },
   severity: 'error',
 }
 ```
-Same idea for `domain` (must import nothing from either app) and for presentation not reaching past hooks into raw infrastructure. Wired into `turbo.json` as a `lint:boundaries` task so it runs inside `turbo run lint` — the same command everyone already runs — and fails CI the same way a type error would.
+Paths are relative to each app's own `src/`, not prefixed with `apps/web/` or `apps/api/` — `depcruise` runs with cwd set to the package/app directory (via `pnpm --filter`/`turbo run`), so it reports and matches module paths relative to that cwd (verified during implementation — see Plan 01 Task 6). Same idea for `domain` (must import nothing from either app) and for presentation not reaching past hooks into raw infrastructure. Wired into `turbo.json` as a `lint:boundaries` task so it runs inside `turbo run lint` — the same command everyone already runs — and fails CI the same way a type error would.
 
 **Testing strategy** (Vitest everywhere — fast, ESM-native, works for both the Vite frontend and the Nest backend):
 
