@@ -16,6 +16,7 @@
 - The risk signal (PHQ-9 item 9 positive) is computed and consumed **entirely client-side**. The shared `AssessmentSchema` (`@zelo/domain`, Plan 01 Task 4) has no `riskSignal` field by design — the backend must never learn a risk signal exists (spec Section G). This plan introduces a **frontend-local-only** `AssessmentRecord` type (in `apps/web/src/domain/`, not `packages/domain`) that carries `riskSignal` for on-device use only.
 - Backend submission of an assessment is best-effort and must never block the user from seeing their score — if the network call fails, the score is still shown and the record is still saved locally (PRD's documented edge case: "Conexão instável... nenhum dado é perdido").
 - Requires Plans 01, 02, 03, 04 complete.
+- `apps/api` runs under Node's `NodeNext` ESM resolution (Plan 02) — every relative import between hand-written source files in Task 1/2 (backend) uses an explicit `.ts` extension (`allowImportingTsExtensions`/`rewriteRelativeImportExtensions`, rewritten to `.js` by `tsc`). `apps/web` (Tasks 3-6) is unaffected and stays CommonJS with extensionless imports. Neither `prisma migrate dev` nor `prisma migrate deploy` takes a `--schema` flag in Prisma 7 (Plan 02) — schema location comes from `apps/api/prisma.config.ts`.
 
 ---
 
@@ -52,7 +53,7 @@ No `riskSignal` column — matches `AssessmentSchema`'s wire contract exactly; t
 
 - [ ] **Step 2: Create the migration**
 
-Run: `pnpm --filter @zelo/api exec prisma migrate dev --schema=prisma/schema.prisma --name add_assessment_model`
+Run: `pnpm --filter @zelo/api exec prisma migrate dev --name add_assessment_model`
 Expected: creates `apps/api/prisma/migrations/<timestamp>_add_assessment_model/migration.sql` containing a `CREATE TABLE "assessments" (...)` statement, applies it, and regenerates the Prisma client. Requires the Postgres container from Plan 02 running.
 
 - [ ] **Step 3: Write the failing test for `StoreEncryptedAssessmentUseCase`**
@@ -61,8 +62,8 @@ Create `apps/api/src/modules/assessment/application/use-cases/store-encrypted-as
 
 ```ts
 import { describe, expect, it } from "vitest";
-import { StoreEncryptedAssessmentUseCase } from "./store-encrypted-assessment.use-case";
-import type { AssessmentRepository } from "../ports/assessment-repository.port";
+import { StoreEncryptedAssessmentUseCase } from "./store-encrypted-assessment.use-case.ts";
+import type { AssessmentRepository } from "../ports/assessment-repository.port.ts";
 import type { Assessment } from "@zelo/domain";
 
 class FakeAssessmentRepository implements AssessmentRepository {
@@ -94,7 +95,7 @@ describe("StoreEncryptedAssessmentUseCase", () => {
 - [ ] **Step 4: Run the test to verify it fails**
 
 Run: `pnpm --filter @zelo/api test`
-Expected: FAIL — `Cannot find module './store-encrypted-assessment.use-case'`.
+Expected: FAIL — `Cannot find module './store-encrypted-assessment.use-case.ts'`.
 
 - [ ] **Step 5: Define the port**
 
@@ -117,7 +118,7 @@ Create `apps/api/src/modules/assessment/application/use-cases/store-encrypted-as
 ```ts
 import { Inject, Injectable } from "@nestjs/common";
 import type { Assessment } from "@zelo/domain";
-import { ASSESSMENT_REPOSITORY, type AssessmentRepository } from "../ports/assessment-repository.port";
+import { ASSESSMENT_REPOSITORY, type AssessmentRepository } from "../ports/assessment-repository.port.ts";
 
 @Injectable()
 export class StoreEncryptedAssessmentUseCase {
@@ -141,8 +142,8 @@ Create `apps/api/src/modules/assessment/infrastructure/persistence/prisma-assess
 ```ts
 import { Injectable } from "@nestjs/common";
 import type { Assessment } from "@zelo/domain";
-import type { AssessmentRepository } from "../../application/ports/assessment-repository.port";
-import { PrismaService } from "../../../../shared/prisma/prisma.service";
+import type { AssessmentRepository } from "../../application/ports/assessment-repository.port.ts";
+import { PrismaService } from "../../../../shared/prisma/prisma.service.ts";
 
 @Injectable()
 export class PrismaAssessmentRepository implements AssessmentRepository {
@@ -191,10 +192,10 @@ import { describe, expect, it, afterAll, beforeAll } from "vitest";
 import { Test } from "@nestjs/testing";
 import type { INestApplication } from "@nestjs/common";
 import request from "supertest";
-import { AssessmentController } from "./assessment.controller";
-import { StoreEncryptedAssessmentUseCase } from "../application/use-cases/store-encrypted-assessment.use-case";
-import { ASSESSMENT_REPOSITORY } from "../application/ports/assessment-repository.port";
-import type { AssessmentRepository } from "../application/ports/assessment-repository.port";
+import { AssessmentController } from "./assessment.controller.ts";
+import { StoreEncryptedAssessmentUseCase } from "../application/use-cases/store-encrypted-assessment.use-case.ts";
+import { ASSESSMENT_REPOSITORY } from "../application/ports/assessment-repository.port.ts";
+import type { AssessmentRepository } from "../application/ports/assessment-repository.port.ts";
 import type { Assessment } from "@zelo/domain";
 
 class FakeAssessmentRepository implements AssessmentRepository {
@@ -270,7 +271,7 @@ describe("POST /assessments", () => {
 - [ ] **Step 2: Run the test to verify it fails**
 
 Run: `pnpm --filter @zelo/api test`
-Expected: FAIL — `Cannot find module './assessment.controller'`.
+Expected: FAIL — `Cannot find module './assessment.controller.ts'`.
 
 - [ ] **Step 3: Implement `AssessmentController`**
 
@@ -279,7 +280,7 @@ Create `apps/api/src/modules/assessment/infrastructure/assessment.controller.ts`
 ```ts
 import { BadRequestException, Body, Controller, HttpCode, Post } from "@nestjs/common";
 import { AssessmentSchema } from "@zelo/domain";
-import { StoreEncryptedAssessmentUseCase } from "../application/use-cases/store-encrypted-assessment.use-case";
+import { StoreEncryptedAssessmentUseCase } from "../application/use-cases/store-encrypted-assessment.use-case.ts";
 
 @Controller("assessments")
 export class AssessmentController {
@@ -312,10 +313,10 @@ Create `apps/api/src/modules/assessment/assessment.module.ts`:
 
 ```ts
 import { Module } from "@nestjs/common";
-import { AssessmentController } from "./infrastructure/assessment.controller";
-import { StoreEncryptedAssessmentUseCase } from "./application/use-cases/store-encrypted-assessment.use-case";
-import { PrismaAssessmentRepository } from "./infrastructure/persistence/prisma-assessment.repository";
-import { ASSESSMENT_REPOSITORY } from "./application/ports/assessment-repository.port";
+import { AssessmentController } from "./infrastructure/assessment.controller.ts";
+import { StoreEncryptedAssessmentUseCase } from "./application/use-cases/store-encrypted-assessment.use-case.ts";
+import { PrismaAssessmentRepository } from "./infrastructure/persistence/prisma-assessment.repository.ts";
+import { ASSESSMENT_REPOSITORY } from "./application/ports/assessment-repository.port.ts";
 
 @Module({
   controllers: [AssessmentController],
@@ -334,10 +335,10 @@ Modify `apps/api/src/app.module.ts`:
 ```ts
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { PrismaModule } from "./shared/prisma/prisma.module";
-import { HealthModule } from "./modules/health/health.module";
-import { ChatModule } from "./modules/chat/chat.module";
-import { AssessmentModule } from "./modules/assessment/assessment.module";
+import { PrismaModule } from "./shared/prisma/prisma.module.ts";
+import { HealthModule } from "./modules/health/health.module.ts";
+import { ChatModule } from "./modules/chat/chat.module.ts";
+import { AssessmentModule } from "./modules/assessment/assessment.module.ts";
 
 @Module({
   imports: [

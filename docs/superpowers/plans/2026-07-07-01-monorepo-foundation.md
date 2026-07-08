@@ -212,7 +212,9 @@ git commit -m "chore: add Turborepo pipeline config"
 }
 ```
 
-`module: "CommonJS"` is deliberate, not a default left unconsidered: NestJS (Plan 02) has real friction running under native ESM (loader flags, forced `.js` extensions on relative imports, decorator-metadata quirks), while CommonJS output is transparently consumable by NestJS, Vite (Plan 03 — esbuild pre-bundles CJS deps without issue), and Vitest. Keeping every workspace package on the same module system avoids `require(esm)` interop failures between `packages/domain` and `apps/api`.
+`module: "CommonJS"` is deliberate, not a default left unconsidered: NestJS (Plan 02) has real friction running under native ESM (loader flags, forced `.js`/`.ts` extensions on relative imports, decorator-metadata quirks), while CommonJS output is transparently consumable by NestJS, Vite (Plan 03 — esbuild pre-bundles CJS deps without issue), and Vitest. Keeping every workspace package on the same module system avoids `require(esm)` interop failures between `packages/domain` and `apps/api`.
+
+**Amendment (Plan 02):** this default holds for `packages/domain` and `apps/web`. `apps/api` later overrides `module`/`moduleResolution` to `"NodeNext"` in its own `tsconfig.json` — a deliberate, isolated exception forced by Prisma 7's client shipping ESM-only (see Plan 02's Global Constraints). The override lives entirely in `apps/api`'s own config; nothing here changes.
 
 - [ ] **Step 3: Create `packages/config/eslint.base.mjs`**
 

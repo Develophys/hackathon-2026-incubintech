@@ -6,11 +6,12 @@
 
 **Architecture:** NestJS with DI as the Dependency Inversion mechanism. Each module defines `application/ports` (interfaces) and `infrastructure` (concrete implementations, bound to port tokens in the module's providers). `PrismaService` is a global module injected wherever persistence is needed. No feature logic (assessment scoring, chat, crisis) is implemented here — see Plans 05/06.
 
-**Tech Stack:** NestJS (Express platform), TypeScript (CommonJS — matches Plan 01), Prisma, PostgreSQL, Vitest + Supertest, dependency-cruiser.
+**Tech Stack:** NestJS (Express platform), TypeScript (ESM/NodeNext for `apps/api`), Prisma 7, PostgreSQL, Vitest + Supertest, dependency-cruiser.
 
 ## Global Constraints
 
-- `apps/api` compiles to CommonJS, matching `packages/domain` (Plan 01 Task 3) — no ESM/CJS interop issues.
+- `apps/api` compiles to **ESM** (`module`/`moduleResolution: "NodeNext"`, `"type": "module"` in its `package.json`) — a deliberate, isolated exception to Plan 01 Task 3's shared CommonJS base. Prisma 7's generated client ships ESM-only (no CJS output), so `apps/api` cannot stay on CommonJS once it depends on Prisma. `packages/domain` and `apps/web` are unaffected and remain CommonJS per Plan 01 — Node's ESM loader can still `import` a CommonJS package's default export (`@zelo/domain`) from `apps/api`'s ESM context without special handling. This override lives entirely in `apps/api/tsconfig.json` and `apps/api/package.json` (Task 1); no already-merged Plan 01 file changes.
+- Because `apps/api` runs under Node's `NodeNext` module resolution, every relative import between hand-written source files in `apps/api/src` must include an explicit extension. Rather than the common (but confusing) convention of writing `.js` against `.ts` source, this plan enables TypeScript 5.7+'s `allowImportingTsExtensions` + `rewriteRelativeImportExtensions` (Task 1 Step 2) so imports can say `.ts` — matching the actual source filename — and `tsc` rewrites it to `.js` in the compiled output. This does **not** apply to imports of already-compiled code (e.g. the Prisma-generated client, Task 2), which keep their real `.js` extension since there's no `.ts` source to reference. Every code block in this plan (and Plans 05/06, which build on it) already reflects this.
 - `application/` (ports + use-cases) must never import `infrastructure/`, `@prisma/client`, or `@nestjs/platform-express` directly — only port tokens and `@nestjs/common` (DI decorators) are allowed there (spec Section C).
 - The backend must never define a DTO/controller shape that accepts raw assessment answers — this plan does not touch assessment endpoints at all (that's Plan 06), so this constraint has nothing to violate yet, but the pattern established here (Zod-validated DTOs matching `packages/domain` schemas) is what Plan 06 will follow.
 - Requires a local Postgres instance reachable at `DATABASE_URL` to complete Task 2's verification steps — Task 2 Step 1 starts one via plain `docker run` (temporary, ad hoc). Plan 04 formalizes this into `docker-compose.yml`.
@@ -38,7 +39,9 @@
   "version": "0.0.0",
   "private": true,
   "license": "UNLICENSED",
+  "type": "module",
   "scripts": {
+    "postinstall": "prisma generate",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/main.js",
     "dev": "tsx watch src/main.ts",
@@ -51,7 +54,7 @@
     "@nestjs/common": "^10.4.0",
     "@nestjs/core": "^10.4.0",
     "@nestjs/platform-express": "^10.4.0",
-    "@prisma/client": "^5.20.0",
+    "@prisma/client": "^7.8.0",
     "@zelo/domain": "workspace:*",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.0",
@@ -63,14 +66,17 @@
     "@types/supertest": "^6.0.2",
     "@zelo/config": "workspace:*",
     "dependency-cruiser": "^16.4.0",
-    "prisma": "^5.20.0",
+    "dotenv": "^16.4.0",
+    "prisma": "^7.8.0",
     "supertest": "^7.0.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.6.0",
+    "typescript": "^5.7.0",
     "vitest": "^2.1.0"
   }
 }
 ```
+
+`"type": "module"` and the `postinstall: "prisma generate"` script are both required by Prisma 7: the generated client ships ESM-only, and (unlike Prisma 5/6) `migrate dev`/`db push` no longer regenerate the client automatically — `postinstall` guarantees a fresh client after every `pnpm install` (including in CI, Task 6), and `prisma:generate` remains for manual re-runs after a schema edit without a full reinstall.
 
 - [ ] **Step 2: Create `apps/api/tsconfig.json`**
 
@@ -78,6 +84,10 @@
 {
   "extends": "@zelo/config/tsconfig.base.json",
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
     "outDir": "dist",
     "rootDir": "src",
     "experimentalDecorators": true,
@@ -85,11 +95,15 @@
     "strictPropertyInitialization": false
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "dist"]
+  "exclude": ["src/**/*.test.ts", "dist", "generated"]
 }
 ```
 
 `strictPropertyInitialization: false` is scoped to this app only (not the shared base) — Nest DI-injected class properties are assigned by the framework, not the constructor body, so the compiler can't see the initialization.
+
+`module`/`moduleResolution: "NodeNext"` override the shared base's `"CommonJS"`/`"Node"` (Plan 01 Task 3) — required because Prisma 7's client is ESM-only (see Global Constraints). `generated` is excluded from `include` because Task 2 makes `prisma generate` write pre-built client code there — it's build output, not source `apps/api` owns, the same reason `dist` is excluded.
+
+`allowImportingTsExtensions` + `rewriteRelativeImportExtensions` (TypeScript 5.7+, hence the `typescript` bump to `^5.7.0` in Step 1) let relative imports between hand-written files say `.ts` (matching the real filename) instead of the more common but confusing NodeNext convention of writing `.js` against `.ts` source — `tsc` rewrites `.ts` specifiers to `.js` automatically at emit time.
 
 - [ ] **Step 3: Create `apps/api/vitest.config.ts`**
 
@@ -130,7 +144,7 @@ Create `apps/api/src/main.ts`:
 ```ts
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
+import { AppModule } from "./app.module.ts";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -165,8 +179,10 @@ git commit -m "feat(api): bootstrap NestJS application skeleton"
 ### Task 2: Prisma + PostgreSQL wiring
 
 **Files:**
+- Create: `apps/api/prisma.config.ts`
 - Create: `apps/api/prisma/schema.prisma`
-- Create: `apps/api/prisma/migrations/` (generated by `prisma migrate dev` in Step 5, not hand-written)
+- Create: `apps/api/prisma/migrations/` (generated by `prisma migrate dev` in Step 6, not hand-written)
+- Create: `apps/api/generated/prisma/` (generated by `prisma generate` in Step 7, not hand-written)
 - Create: `apps/api/.env.example`
 - Create: `apps/api/src/shared/prisma/prisma.service.ts`
 - Create: `apps/api/src/shared/prisma/prisma.service.test.ts`
@@ -199,11 +215,33 @@ PORT=3000
 Run: `cp apps/api/.env.example apps/api/.env`
 Expected: `apps/api/.env` now exists with the same content.
 
-- [ ] **Step 4: Create `apps/api/prisma/schema.prisma`**
+- [ ] **Step 4: Create `apps/api/prisma.config.ts`**
+
+Prisma 7 reads schema location, migrations path, and the datasource URL from this file instead of `--schema`/`--url` CLI flags:
+
+```ts
+import "dotenv/config";
+import { defineConfig, env } from "prisma/config";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
+  datasource: {
+    url: env("DATABASE_URL"),
+  },
+});
+```
+
+`import "dotenv/config"` loads `apps/api/.env` (Step 3) before `env("DATABASE_URL")` reads it — Prisma 7's CLI no longer auto-loads `.env` itself, unlike Prisma 5/6.
+
+- [ ] **Step 5: Create `apps/api/prisma/schema.prisma`**
 
 ```prisma
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -216,20 +254,27 @@ datasource db {
 // verified as part of the foundation, independent of any feature.
 ```
 
-- [ ] **Step 5: Initialize Prisma migration history and generate the client**
+`provider = "prisma-client"` (not the old `"prisma-client-js"`) and an explicit `output` are both required in Prisma 7 — the client generator no longer defaults to a `node_modules/.prisma/client` location. `output` is resolved relative to this schema file, so `../generated/prisma` lands at `apps/api/generated/prisma` (excluded from `tsconfig.json`'s `include` in Task 1 Step 2, since it's generated code, not source).
 
-Run: `pnpm --filter @zelo/api exec prisma migrate dev --schema=prisma/schema.prisma --name init`
-Expected: creates `apps/api/prisma/migrations/<timestamp>_init/` with an empty `migration.sql` (there are no models yet, so the diff is empty) and a `migration_lock.toml`, applies it to the database, and prints `Generated Prisma Client`.
+- [ ] **Step 6: Initialize Prisma migration history**
+
+Run: `pnpm --filter @zelo/api exec prisma migrate dev --name init`
+Expected: creates `apps/api/prisma/migrations/<timestamp>_init/` with an empty `migration.sql` (there are no models yet, so the diff is empty) and a `migration_lock.toml`, and applies it to the database. No `--schema` flag — `prisma.config.ts` (Step 4) already declares the schema location.
 
 Using `migrate dev` (not just `generate`) here — even with zero models — establishes real migration history from the start. Plan 04's `docker-compose` runs `prisma migrate deploy` on container start, which needs an existing migrations directory to apply; Plan 06 later appends its `Assessment` model as a second migration onto this same history, exactly as it would with any real schema change.
 
-- [ ] **Step 6: Write the failing test for `PrismaService` connectivity**
+- [ ] **Step 7: Generate the Prisma Client**
+
+Run: `pnpm --filter @zelo/api exec prisma generate`
+Expected: prints `Generated Prisma Client` and creates `apps/api/generated/prisma/`. Prisma 7's `migrate dev` no longer regenerates the client automatically (unlike Prisma 5/6), so this is now a separate, required step — `postinstall` (Task 1) covers this automatically on every future `pnpm install`, but the client doesn't exist yet on this first run until this step completes.
+
+- [ ] **Step 8: Write the failing test for `PrismaService` connectivity**
 
 Create `apps/api/src/shared/prisma/prisma.service.test.ts`:
 
 ```ts
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { PrismaService } from "./prisma.service";
+import { PrismaService } from "./prisma.service.ts";
 
 describe("PrismaService", () => {
   const prisma = new PrismaService();
@@ -250,18 +295,18 @@ describe("PrismaService", () => {
 });
 ```
 
-- [ ] **Step 7: Run the test to verify it fails**
+- [ ] **Step 9: Run the test to verify it fails**
 
 Run: `pnpm --filter @zelo/api test`
-Expected: FAIL — `Cannot find module './prisma.service'`.
+Expected: FAIL — `Cannot find module './prisma.service.ts'`.
 
-- [ ] **Step 8: Implement `PrismaService`**
+- [ ] **Step 10: Implement `PrismaService`**
 
 Create `apps/api/src/shared/prisma/prisma.service.ts`:
 
 ```ts
 import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../../../generated/prisma/client.js";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -275,18 +320,20 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 }
 ```
 
-- [ ] **Step 9: Run the test to verify it passes**
+`PrismaClient` now comes from the generated output path (Step 5's `output = "../generated/prisma"`), not from `@prisma/client` directly — Prisma 7 no longer re-exports the client from the package itself. This import keeps the real `.js` extension (unlike the `.ts` imports elsewhere in this file) because `generated/prisma/client.js` is pre-built output from `prisma generate`, not a `.ts` source file this plan authors. If `prisma generate` (Step 7) names its entry file differently than `client.js`, adjust this import to match — check `apps/api/generated/prisma/` after running it.
+
+- [ ] **Step 11: Run the test to verify it passes**
 
 Run: `pnpm --filter @zelo/api test`
 Expected: PASS — 1 test passed. (Requires the Postgres container from Step 1 to be running.)
 
-- [ ] **Step 10: Create the global `PrismaModule`**
+- [ ] **Step 12: Create the global `PrismaModule`**
 
 Create `apps/api/src/shared/prisma/prisma.module.ts`:
 
 ```ts
 import { Global, Module } from "@nestjs/common";
-import { PrismaService } from "./prisma.service";
+import { PrismaService } from "./prisma.service.ts";
 
 @Global()
 @Module({
@@ -296,13 +343,13 @@ import { PrismaService } from "./prisma.service";
 export class PrismaModule {}
 ```
 
-- [ ] **Step 11: Register `PrismaModule` in `AppModule`**
+- [ ] **Step 13: Register `PrismaModule` in `AppModule`**
 
 Modify `apps/api/src/app.module.ts`:
 
 ```ts
 import { Module } from "@nestjs/common";
-import { PrismaModule } from "./shared/prisma/prisma.module";
+import { PrismaModule } from "./shared/prisma/prisma.module.ts";
 
 @Module({
   imports: [PrismaModule],
@@ -310,11 +357,11 @@ import { PrismaModule } from "./shared/prisma/prisma.module";
 export class AppModule {}
 ```
 
-- [ ] **Step 12: Commit**
+- [ ] **Step 14: Commit**
 
 ```bash
 git add apps/api
-git commit -m "feat(api): add Prisma/PostgreSQL wiring via global PrismaModule"
+git commit -m "feat(api): add Prisma 7/PostgreSQL wiring via global PrismaModule"
 ```
 
 ---
@@ -341,8 +388,8 @@ Create `apps/api/src/modules/health/application/use-cases/check-health.use-case.
 
 ```ts
 import { describe, expect, it } from "vitest";
-import { CheckHealthUseCase } from "./check-health.use-case";
-import type { DatabaseHealthPort } from "../ports/database-health.port";
+import { CheckHealthUseCase } from "./check-health.use-case.ts";
+import type { DatabaseHealthPort } from "../ports/database-health.port.ts";
 
 class FakeHealthyDatabase implements DatabaseHealthPort {
   async isReachable(): Promise<boolean> {
@@ -398,7 +445,7 @@ Create `apps/api/src/modules/health/application/use-cases/check-health.use-case.
 
 ```ts
 import { Inject, Injectable } from "@nestjs/common";
-import { DATABASE_HEALTH_PORT, type DatabaseHealthPort } from "../ports/database-health.port";
+import { DATABASE_HEALTH_PORT, type DatabaseHealthPort } from "../ports/database-health.port.ts";
 
 export interface HealthResult {
   status: "ok" | "degraded";
@@ -429,8 +476,8 @@ Create `apps/api/src/modules/health/infrastructure/prisma-database-health.adapte
 
 ```ts
 import { Injectable } from "@nestjs/common";
-import type { DatabaseHealthPort } from "../application/ports/database-health.port";
-import { PrismaService } from "../../../shared/prisma/prisma.service";
+import type { DatabaseHealthPort } from "../application/ports/database-health.port.ts";
+import { PrismaService } from "../../../shared/prisma/prisma.service.ts";
 
 @Injectable()
 export class PrismaDatabaseHealthAdapter implements DatabaseHealthPort {
@@ -456,8 +503,8 @@ import { describe, expect, it, afterAll, beforeAll } from "vitest";
 import { Test } from "@nestjs/testing";
 import type { INestApplication } from "@nestjs/common";
 import request from "supertest";
-import { HealthModule } from "../health.module";
-import { PrismaModule } from "../../../shared/prisma/prisma.module";
+import { HealthModule } from "../health.module.ts";
+import { PrismaModule } from "../../../shared/prisma/prisma.module.ts";
 
 describe("GET /health", () => {
   let app: INestApplication;
@@ -495,7 +542,7 @@ Create `apps/api/src/modules/health/infrastructure/health.controller.ts`:
 
 ```ts
 import { Controller, Get } from "@nestjs/common";
-import { CheckHealthUseCase } from "../application/use-cases/check-health.use-case";
+import { CheckHealthUseCase } from "../application/use-cases/check-health.use-case.ts";
 
 @Controller("health")
 export class HealthController {
@@ -514,10 +561,10 @@ Create `apps/api/src/modules/health/health.module.ts`:
 
 ```ts
 import { Module } from "@nestjs/common";
-import { HealthController } from "./infrastructure/health.controller";
-import { CheckHealthUseCase } from "./application/use-cases/check-health.use-case";
-import { PrismaDatabaseHealthAdapter } from "./infrastructure/prisma-database-health.adapter";
-import { DATABASE_HEALTH_PORT } from "./application/ports/database-health.port";
+import { HealthController } from "./infrastructure/health.controller.ts";
+import { CheckHealthUseCase } from "./application/use-cases/check-health.use-case.ts";
+import { PrismaDatabaseHealthAdapter } from "./infrastructure/prisma-database-health.adapter.ts";
+import { DATABASE_HEALTH_PORT } from "./application/ports/database-health.port.ts";
 
 @Module({
   controllers: [HealthController],
@@ -535,8 +582,8 @@ Modify `apps/api/src/app.module.ts`:
 
 ```ts
 import { Module } from "@nestjs/common";
-import { PrismaModule } from "./shared/prisma/prisma.module";
-import { HealthModule } from "./modules/health/health.module";
+import { PrismaModule } from "./shared/prisma/prisma.module.ts";
+import { HealthModule } from "./modules/health/health.module.ts";
 
 @Module({
   imports: [PrismaModule, HealthModule],
@@ -618,7 +665,7 @@ Expected: PASS — no dependency violations found.
 Create a temporary file `apps/api/src/modules/health/application/use-cases/__boundary_violation.ts`:
 
 ```ts
-import { PrismaDatabaseHealthAdapter } from "../../infrastructure/prisma-database-health.adapter";
+import { PrismaDatabaseHealthAdapter } from "../../infrastructure/prisma-database-health.adapter.ts";
 
 export const broken = PrismaDatabaseHealthAdapter;
 ```
@@ -746,11 +793,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build
-        run: pnpm build
+      - name: Generate Prisma Client
+        run: pnpm --filter @zelo/api exec prisma generate
 
       - name: Apply database migrations
-        run: pnpm --filter @zelo/api exec prisma migrate deploy --schema=prisma/schema.prisma
+        run: pnpm --filter @zelo/api exec prisma migrate deploy
+
+      - name: Build
+        run: pnpm build
 
       - name: Lint
         run: pnpm lint
@@ -762,7 +812,7 @@ jobs:
         run: pnpm test
 ```
 
-`services.postgres` is a GitHub Actions service container — it starts before the job's steps run and is reachable at `localhost:5432` from them, the same way the local ad hoc container (Task 2 Step 1) is reachable during local development. The `Apply database migrations` step runs the same `prisma migrate deploy` command Plan 04's Docker image runs on container start, against the migration history created in this plan's Task 2 Step 5.
+`services.postgres` is a GitHub Actions service container — it starts before the job's steps run and is reachable at `localhost:5432` from them, the same way the local ad hoc container (Task 2 Step 1) is reachable during local development. `pnpm install`'s `postinstall` (Task 1) already runs `prisma generate` once, but the explicit `Generate Prisma Client` step keeps this workflow's steps self-documenting and matches Plan 04's Docker image, which does the same. Neither `migrate deploy` nor `migrate dev` takes a `--schema` flag in Prisma 7 — both read schema/migrations location from `apps/api/prisma.config.ts` (Task 2 Step 4). The `Apply database migrations` step runs the same `prisma migrate deploy` command Plan 04's Docker image runs on container start, against the migration history created in this plan's Task 2 Step 6. `Build` moved after the Prisma steps because `tsc` needs the generated client (Task 2 Step 7's output) to type-check `PrismaService`'s import.
 
 - [ ] **Step 3: Validate the YAML is well-formed**
 

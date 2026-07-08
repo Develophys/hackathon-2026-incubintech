@@ -76,18 +76,20 @@ WORKDIR /app
 COPY --from=pruner /app/out/json/ .
 RUN pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
+RUN pnpm --filter @zelo/api exec prisma generate
 RUN pnpm exec turbo run build --filter=@zelo/api
-RUN pnpm --filter @zelo/api exec prisma generate --schema=apps/api/prisma/schema.prisma
 
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=installer /app .
 EXPOSE 3000
-CMD ["sh", "-c", "pnpm --filter @zelo/api exec prisma migrate deploy --schema=apps/api/prisma/schema.prisma && node apps/api/dist/main.js"]
+CMD ["sh", "-c", "pnpm --filter @zelo/api exec prisma migrate deploy && node apps/api/dist/main.js"]
 ```
 
 `turbo prune @zelo/api --docker` (in the `pruner` stage) generates `/app/out/json/` (only the `package.json` files needed for `@zelo/api` and its workspace dependencies — `@zelo/domain`, `@zelo/config`) and `/app/out/full/` (the pruned source tree). Installing from `out/json/` first means `pnpm install` only re-runs when a dependency actually changes, not on every source edit — this is what makes the image layer-cacheable.
+
+Neither `prisma generate` nor `prisma migrate deploy` takes a `--schema` flag in Prisma 7 (Plan 02) — both read the schema and migrations location from `apps/api/prisma.config.ts`, which travels with the pruned source tree since it's part of `apps/api`. `prisma generate` now runs explicitly *before* the `turbo run build` step (rather than after, as it would with Prisma 5/6's old `prisma-client-js` provider) because `tsc` needs the generated client at `apps/api/generated/prisma` to type-check `PrismaService`'s import — the build would fail without it.
 
 - [ ] **Step 2: Verify the image builds standalone**
 

@@ -16,6 +16,7 @@
 - The "talk to a human" shortcut (FR-6b) must be visible at all times during the conversation, not just on risk detection, and must not depend on the AI provider being reachable (spec Section D).
 - **Deviation from spec, stated explicitly:** spec Section D says "SSE for AI chat." Native browser `EventSource` (the SSE API) only supports `GET` requests with no body, but starting a chat turn requires POSTing the anonymized message history — a payload `EventSource` cannot carry, and encoding it into a URL query string would leak chat content into server access logs, which would itself violate FR-5's anonymization intent. This plan therefore implements the same one-directional server→client streaming *transport pattern* over plain HTTP using `fetch` + `ReadableStream` (newline-delimited JSON), consumed manually instead of via `new EventSource()`. This is a transport-detail refinement, not an architectural reversal — the port/adapter boundary, the streaming shape (`ChatToken`), and the "backend-only, key never in client" property are all unchanged from the spec.
 - Requires `apps/api` (Plan 02) and `apps/web` (Plan 03) foundations complete, and `packages/domain`'s `AnonymizedMessageSchema`/`ChatTokenSchema` (Plan 01 Task 5).
+- `apps/api` runs under Node's `NodeNext` ESM resolution (Plan 02) — every relative import between hand-written source files in Task 1/2 (backend) uses an explicit `.ts` extension (`allowImportingTsExtensions`/`rewriteRelativeImportExtensions`, rewritten to `.js` by `tsc`). `apps/web` (Tasks 3-5) is unaffected and stays CommonJS with extensionless imports, as in Plan 01/03.
 - Requires a real Anthropic API key to complete this plan's manual end-to-end verification steps (Task 6) — all automated tests in Tasks 1-5 mock the Anthropic SDK and do not require one.
 
 ---
@@ -78,8 +79,8 @@ import {
   SendChatMessageUseCase,
   AiProviderUnavailableError,
   CrisisFallbackRequiredError,
-} from "./send-chat-message.use-case";
-import type { AiChatPort } from "../ports/ai-chat.port";
+} from "./send-chat-message.use-case.ts";
+import type { AiChatPort } from "../ports/ai-chat.port.ts";
 import type { ChatToken } from "@zelo/domain";
 
 class FakeWorkingAiChatPort implements AiChatPort {
@@ -141,7 +142,7 @@ describe("SendChatMessageUseCase", () => {
 - [ ] **Step 4: Run the test to verify it fails**
 
 Run: `pnpm --filter @zelo/api test`
-Expected: FAIL — `Cannot find module './send-chat-message.use-case'`.
+Expected: FAIL — `Cannot find module './send-chat-message.use-case.ts'`.
 
 - [ ] **Step 5: Implement `SendChatMessageUseCase`**
 
@@ -150,8 +151,8 @@ Create `apps/api/src/modules/chat/application/use-cases/send-chat-message.use-ca
 ```ts
 import { Inject, Injectable } from "@nestjs/common";
 import type { AnonymizedMessage, ChatToken } from "@zelo/domain";
-import { AI_CHAT_PORT, type AiChatPort } from "../ports/ai-chat.port";
-import { CHAT_SYSTEM_PROMPT } from "../prompts/chat-system-prompt";
+import { AI_CHAT_PORT, type AiChatPort } from "../ports/ai-chat.port.ts";
+import { CHAT_SYSTEM_PROMPT } from "../prompts/chat-system-prompt.ts";
 
 export class AiProviderUnavailableError extends Error {
   constructor() {
@@ -273,7 +274,7 @@ describe("ClaudeAdapter", () => {
     }
     streamMock.mockReturnValue(fakeAnthropicStream());
 
-    const { ClaudeAdapter } = await import("./claude.adapter");
+    const { ClaudeAdapter } = await import("./claude.adapter.ts");
     const fakeConfig = {
       getOrThrow: () => "fake-api-key",
       get: () => undefined,
@@ -301,7 +302,7 @@ describe("ClaudeAdapter", () => {
 - [ ] **Step 3: Run the test to verify it fails**
 
 Run: `pnpm --filter @zelo/api test`
-Expected: FAIL — `Cannot find module './claude.adapter'`.
+Expected: FAIL — `Cannot find module './claude.adapter.ts'`.
 
 - [ ] **Step 4: Implement `ClaudeAdapter`**
 
@@ -311,7 +312,7 @@ Create `apps/api/src/modules/chat/infrastructure/ai-providers/claude.adapter.ts`
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Anthropic from "@anthropic-ai/sdk";
-import type { AiChatPort } from "../../application/ports/ai-chat.port";
+import type { AiChatPort } from "../../application/ports/ai-chat.port.ts";
 import type { AnonymizedMessage, ChatToken } from "@zelo/domain";
 
 @Injectable()
@@ -364,10 +365,10 @@ import { describe, expect, it, afterAll, beforeAll } from "vitest";
 import { Test } from "@nestjs/testing";
 import type { INestApplication } from "@nestjs/common";
 import request from "supertest";
-import { ChatController } from "./chat.controller";
-import { SendChatMessageUseCase } from "../application/use-cases/send-chat-message.use-case";
-import { AI_CHAT_PORT } from "../application/ports/ai-chat.port";
-import type { AiChatPort } from "../application/ports/ai-chat.port";
+import { ChatController } from "./chat.controller.ts";
+import { SendChatMessageUseCase } from "../application/use-cases/send-chat-message.use-case.ts";
+import { AI_CHAT_PORT } from "../application/ports/ai-chat.port.ts";
+import type { AiChatPort } from "../application/ports/ai-chat.port.ts";
 import type { ChatToken } from "@zelo/domain";
 
 class FakeAiChatPort implements AiChatPort {
@@ -423,7 +424,7 @@ describe("POST /chat/stream", () => {
 - [ ] **Step 7: Run the test to verify it fails**
 
 Run: `pnpm --filter @zelo/api test`
-Expected: FAIL — `Cannot find module './chat.controller'`.
+Expected: FAIL — `Cannot find module './chat.controller.ts'`.
 
 - [ ] **Step 8: Implement `ChatController`**
 
@@ -434,7 +435,7 @@ import { BadRequestException, Body, Controller, Post, Res } from "@nestjs/common
 import type { Response } from "express";
 import { z } from "zod";
 import { AnonymizedMessageSchema } from "@zelo/domain";
-import { SendChatMessageUseCase, CrisisFallbackRequiredError } from "../application/use-cases/send-chat-message.use-case";
+import { SendChatMessageUseCase, CrisisFallbackRequiredError } from "../application/use-cases/send-chat-message.use-case.ts";
 
 const SendChatMessageRequestSchema = z.object({
   conversationId: z.string().uuid(),
@@ -483,9 +484,9 @@ Modify `apps/api/src/app.module.ts`:
 ```ts
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { PrismaModule } from "./shared/prisma/prisma.module";
-import { HealthModule } from "./modules/health/health.module";
-import { ChatModule } from "./modules/chat/chat.module";
+import { PrismaModule } from "./shared/prisma/prisma.module.ts";
+import { HealthModule } from "./modules/health/health.module.ts";
+import { ChatModule } from "./modules/chat/chat.module.ts";
 
 @Module({
   imports: [
@@ -505,10 +506,10 @@ Create `apps/api/src/modules/chat/chat.module.ts`:
 ```ts
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { ChatController } from "./infrastructure/chat.controller";
-import { SendChatMessageUseCase } from "./application/use-cases/send-chat-message.use-case";
-import { ClaudeAdapter } from "./infrastructure/ai-providers/claude.adapter";
-import { AI_CHAT_PORT } from "./application/ports/ai-chat.port";
+import { ChatController } from "./infrastructure/chat.controller.ts";
+import { SendChatMessageUseCase } from "./application/use-cases/send-chat-message.use-case.ts";
+import { ClaudeAdapter } from "./infrastructure/ai-providers/claude.adapter.ts";
+import { AI_CHAT_PORT } from "./application/ports/ai-chat.port.ts";
 
 @Module({
   imports: [ConfigModule],
