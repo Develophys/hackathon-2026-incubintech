@@ -354,7 +354,7 @@ describe("AssessmentSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects a payload containing a raw numeric answers array", () => {
+  it("rejects a payload missing the required ciphertext field", () => {
     const input = {
       id: "b3f1c2b0-1234-4a5b-9c6d-000000000001",
       scaleType: "PHQ-9",
@@ -365,6 +365,20 @@ describe("AssessmentSchema", () => {
     const result = AssessmentSchema.safeParse(input);
 
     expect(result.success).toBe(false);
+  });
+
+  it("strips a raw answers array if present, even alongside valid ciphertext", () => {
+    const input = {
+      id: "b3f1c2b0-1234-4a5b-9c6d-000000000001",
+      scaleType: "PHQ-9",
+      capturedAt: "2026-07-07T12:00:00.000Z",
+      ciphertext: "base64-encoded-ciphertext==",
+      answers: [1, 2, 3],
+    };
+
+    const result = AssessmentSchema.parse(input);
+
+    expect(result).not.toHaveProperty("answers");
   });
 
   it("strips a riskSignal field if a buggy client includes one, rather than storing it", () => {
@@ -423,7 +437,7 @@ export type Assessment = z.infer<typeof AssessmentSchema>;
 - [ ] **Step 8: Run the test to verify it passes**
 
 Run: `pnpm --filter @zelo/domain test`
-Expected: PASS — 3 tests passed.
+Expected: PASS — 4 tests passed.
 
 - [ ] **Step 9: Create the package entry point**
 
@@ -669,7 +683,7 @@ export type ChatToken = z.infer<typeof ChatTokenSchema>;
 - [ ] **Step 13: Run all domain tests to verify everything passes**
 
 Run: `pnpm --filter @zelo/domain test`
-Expected: PASS — 8 tests passed (3 from Task 4 + 5 new).
+Expected: PASS — 9 tests passed (4 from Task 4 + 5 new).
 
 - [ ] **Step 14: Update the package entry point**
 
@@ -708,36 +722,23 @@ git commit -m "feat(domain): add RiskSignal, ConsentRecord, CrisisSession, and c
 - Consumes: `packages/domain/src` (Tasks 4-5).
 - Produces: a `lint:boundaries` script pattern every future app/package replicates (Plans 02, 03 add their own `.dependency-cruiser.cjs` extending this base with their own layer rules).
 
-- [ ] **Step 1: Create the shared base rule set**
+- [ ] **Step 1: Create the shared base — generic options only, no domain-specific rules**
 
 Create `packages/config/dependency-cruiser.base.cjs`:
 
 ```js
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
-  forbidden: [
-    {
-      name: "domain-no-app-imports",
-      comment: "packages/domain must never import from apps/* — it is consumed BY apps, not the other way around.",
-      severity: "error",
-      from: { path: "^packages/domain/src" },
-      to: { path: "^apps" },
-    },
-    {
-      name: "domain-no-framework-imports",
-      comment: "packages/domain holds types/schemas only — no React, NestJS, or Prisma (spec Decisions table).",
-      severity: "error",
-      from: { path: "^packages/domain/src" },
-      to: { path: "node_modules/(react|@nestjs|@prisma)" },
-    },
-  ],
+  forbidden: [],
   options: {
     tsPreCompilationDeps: true,
   },
 };
 ```
 
-- [ ] **Step 2: Create `packages/domain/.dependency-cruiser.cjs` extending the base**
+This base is spread (`...base.forbidden`) by every future package/app's own `.dependency-cruiser.cjs` (Plans 02, 03 too) — keep it free of any rule that isn't universally true for every consumer. `packages/domain`'s own rules (Step 2) belong in `packages/domain`'s own config, not here — a rule forbidding `react`/`@nestjs` imports would falsely fire on every legitimate import in `apps/web`/`apps/api` if it lived in this shared base.
+
+- [ ] **Step 2: Create `packages/domain/.dependency-cruiser.cjs` extending the base with domain's own rules**
 
 ```js
 const base = require("@zelo/config/dependency-cruiser.base.cjs");
@@ -745,12 +746,33 @@ const base = require("@zelo/config/dependency-cruiser.base.cjs");
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
   ...base,
+  forbidden: [
+    ...base.forbidden,
+    {
+      name: "domain-no-app-imports",
+      comment: "packages/domain must never import from apps/* — it is consumed BY apps, not the other way around.",
+      severity: "error",
+      from: { path: "^src" },
+      to: { path: "[/]apps[/]" },
+    },
+    {
+      name: "domain-no-framework-imports",
+      comment: "packages/domain holds types/schemas only — no React, NestJS, or Prisma (spec Decisions table).",
+      severity: "error",
+      from: { path: "^src" },
+      to: { path: "node_modules/(react|@nestjs|@prisma)" },
+    },
+  ],
   options: {
     ...base.options,
     tsConfig: { fileName: "tsconfig.json" },
   },
 };
 ```
+
+Two things worth noting about these patterns:
+- `from`/`to` paths are `^src`/`[/]apps[/]`, not `^packages/domain/src`/`^apps` — `depcruise src --config .dependency-cruiser.cjs` (Step 3's `lint:boundaries` script) runs with cwd = `packages/domain` (via `pnpm --filter`/`turbo run`), so dependency-cruiser reports and matches module paths relative to that cwd (e.g. `src/entities/assessment.ts`, and cross-package targets like `../../apps/web/src/foo.ts`) — never prefixed with `packages/domain/`, and never anchored-starting with `apps`. An earlier anchored form of both patterns was tried and found to silently never match anything; use the forms above directly.
+- These two rules are domain-specific and deliberately live here, not in the shared base (Step 1) — see that step's note.
 
 - [ ] **Step 3: Add `dependency-cruiser` as a devDependency and export the base config**
 
@@ -824,10 +846,23 @@ git commit -m "chore: add dependency-cruiser boundary enforcement for packages/d
 
 **Files:**
 - Create: `README.md` (root — only if one does not already exist; if it exists, add a "## Monorepo Structure" section instead)
+- Create: `packages/domain/eslint.config.mjs`
 
 **Interfaces:**
 - Consumes: everything from Tasks 1-6.
 - Produces: a documented, fully verified monorepo root that Plans 02 and 03 build `apps/api` and `apps/web` into.
+
+- [ ] **Step 0: Wire `packages/domain` to the shared ESLint base**
+
+Create `packages/domain/eslint.config.mjs`:
+
+```js
+import base from "@zelo/config/eslint.base";
+
+export default base;
+```
+
+Without this file, `packages/domain`'s `"lint": "eslint src"` script (added in Task 4) has no flat-config file to load, and `pnpm lint` fails with an ESLint 9 "couldn't find an eslint.config" error — Task 3 created the shared base but no earlier task ever wired a package to consume it. This is the first package to need it; run `pnpm --filter @zelo/domain lint` now to confirm it passes before moving to Step 1.
 
 - [ ] **Step 1: Check whether a root `README.md` already exists**
 
@@ -866,6 +901,8 @@ Mobile-first PWA for confidential medical burnout triage and support. See `gener
 - `pnpm test` — run all test suites
 ```
 
+Note: at the point this plan completes, `apps/web`, `apps/api`, and `docker/` don't exist yet (Plans 02, 03, 04 add them) — the Monorepo Structure section above describes the target shape, not yet the current one. Leave the section as-is; it becomes accurate as those plans land, and rewriting it now would just mean rewriting it again three more times.
+
 - [ ] **Step 2b (if found): Append a "## Monorepo Structure" section**
 
 Add the same content as Step 2a's `## Monorepo Structure` through `## Commands` sections to the end of the existing `README.md`, without removing existing content.
@@ -881,12 +918,12 @@ pnpm run lint:boundaries
 pnpm test
 ```
 
-Expected: every command completes with exit code 0. `pnpm build` produces `packages/domain/dist/`. `pnpm test` reports 8 passing tests.
+Expected: every command completes with exit code 0. `pnpm build` produces `packages/domain/dist/`. `pnpm test` reports 9 passing tests.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add README.md
+git add README.md packages/domain/eslint.config.mjs
 git commit -m "docs: document monorepo structure and root commands"
 ```
 
@@ -894,7 +931,8 @@ git commit -m "docs: document monorepo structure and root commands"
 
 ## Definition of Done
 
-- `pnpm install && pnpm build && pnpm lint && pnpm run lint:boundaries && pnpm test` all pass from a clean checkout.
+- `pnpm install && pnpm build && pnpm lint && pnpm run lint:boundaries && pnpm test` all pass from a clean checkout — `pnpm lint` requires `packages/domain/eslint.config.mjs` (Task 7 Step 0) to exist, since Task 4's `"lint": "eslint src"` script has nothing to load without it.
 - `packages/domain` exports `Assessment`, `RiskSignal`, `ConsentRecord`, `CrisisSession`, `AnonymizedMessage`, and `ChatToken` (schemas + inferred types).
-- A boundary violation in `packages/domain/src` fails `lint:boundaries` (proven once in Task 6, not left in the codebase).
-- No `apps/*` directory exists yet — that is out of scope for this plan (see Plans 02, 03).
+- `packages/config/dependency-cruiser.base.cjs` contains no domain-specific rules — only generic `options` — so Plans 02/03 spreading `...base.forbidden` inherit nothing that would falsely flag their own legitimate imports. `packages/domain`'s own two rules (no app imports, no framework imports) live in `packages/domain/.dependency-cruiser.cjs` (Task 6), with `from`/`to` patterns relative to `depcruise`'s per-package cwd (`^src`, `[/]apps[/]`), not the package's path from the repo root.
+- A boundary violation in `packages/domain/src` fails `lint:boundaries` (proven once in Task 6, not left in the codebase) — this includes a genuine cross-package `apps/*` import target, not just the framework-import case.
+- No `apps/*` directory exists yet — that is out of scope for this plan (see Plans 02, 03). Note for Plan 03: `turbo.json`'s `dev` task doesn't declare `dependsOn: ["^build"]` — if `apps/web`'s dev server resolves `@zelo/domain` via its built `dist/` output (per its `package.json` `main`/`types` fields) rather than source, Plan 03 should either add that `dependsOn` or confirm Vite resolves the workspace package a different way.
