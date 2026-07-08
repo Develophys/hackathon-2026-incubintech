@@ -683,10 +683,106 @@ git commit -m "docs: document backend local Postgres setup"
 
 ---
 
+### Task 6: Extend CI with a Postgres service for backend tests
+
+**Files:**
+- Modify: `.github/workflows/ci.yml` (created by `docs/superpowers/plans/2026-07-08-ci-pipeline.md`)
+
+**Interfaces:**
+- Consumes: the `build-lint-test` job created by the CI pipeline plan.
+- Produces: the same job, now with a `postgres` service container and a `DATABASE_URL` env var, plus a migration step — so `apps/api`'s Postgres-dependent tests (`prisma.service.test.ts`, `health.controller.test.ts`) pass in CI exactly as they do locally against the ad hoc container from Task 2.
+
+- [ ] **Step 1: Confirm the CI pipeline plan has already run**
+
+Run: `cat .github/workflows/ci.yml 2>&1 || echo "not found"`
+Expected: shows the base workflow from `docs/superpowers/plans/2026-07-08-ci-pipeline.md`. If "not found", run that plan first — this task modifies its output.
+
+- [ ] **Step 2: Add the Postgres service and migration step**
+
+Modify `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-lint-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: zelo
+          POSTGRES_PASSWORD: devpassword
+          POSTGRES_DB: zelo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://zelo:devpassword@localhost:5432/zelo?schema=public
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Apply database migrations
+        run: pnpm --filter @zelo/api exec prisma migrate deploy --schema=prisma/schema.prisma
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Lint boundaries
+        run: pnpm run lint:boundaries
+
+      - name: Test
+        run: pnpm test
+```
+
+`services.postgres` is a GitHub Actions service container — it starts before the job's steps run and is reachable at `localhost:5432` from them, the same way the local ad hoc container (Task 2 Step 1) is reachable during local development. The `Apply database migrations` step runs the same `prisma migrate deploy` command Plan 04's Docker image runs on container start, against the migration history created in this plan's Task 2 Step 5.
+
+- [ ] **Step 3: Validate the YAML is well-formed**
+
+Run: `npx -y js-yaml .github/workflows/ci.yml`
+Expected: prints the parsed YAML structure back with no error.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add .github/workflows/ci.yml
+git commit -m "ci: add Postgres service container for backend tests"
+```
+
+This change is verified automatically the next time a commit from this plan (or a later one) is pushed — no separate verification push is needed solely for this task, since Task 2 of the CI pipeline plan already established the confirm-before-push convention for this repo.
+
+---
+
 ## Definition of Done
 
 - `pnpm install && pnpm build && pnpm lint && pnpm run lint:boundaries && pnpm test` all pass from a clean checkout (given a reachable Postgres).
 - `GET /health` returns `{"status":"ok","database":true}` when run against a live Postgres.
 - The `health` module demonstrates the full pattern: `application/ports` → `application/use-cases` (unit-tested with fakes, zero framework/infra imports) → `infrastructure` adapter + controller → `*.module.ts` DI binding.
 - A boundary violation (`application` importing `infrastructure` or `@prisma/client`) fails `lint:boundaries` (proven once in Task 4, not left in the codebase).
+- `.github/workflows/ci.yml` runs a Postgres service container and applies migrations before tests, so CI exercises the same Postgres-dependent tests as local development (Task 6).
 - No feature modules (`chat`, `assessment`, `crisis`) exist yet — out of scope for this plan (see Plans 05, 06).
