@@ -33,3 +33,19 @@ Mobile-first PWA for confidential medical burnout triage and support. See `gener
 ## Frontend local setup
 
 `apps/web` requires `VITE_API_BASE_URL` — copy `apps/web/.env.example` to `apps/web/.env`. Run `pnpm --filter @zelo/web dev` with `apps/api` (Plan 02) running to see the live health-check banner.
+
+## Local Docker Environment
+
+Runs actual production builds of `apps/api` and `apps/web` against a containerized Postgres — use this to catch build-only issues before a demo, not for day-to-day development (use `pnpm --filter @zelo/api dev` / `pnpm --filter @zelo/web dev` for that).
+
+```bash
+cd docker
+cp .env.example .env.docker   # first time only
+docker compose up --build -d
+```
+
+- API: http://localhost:3000 (health check: `curl http://localhost:3000/health`)
+- Web: http://localhost:8080
+- Postgres: localhost:5432 (credentials in `docker/.env.docker`)
+
+Tear down with `docker compose down` (add `-v` to also wipe the Postgres volume).
