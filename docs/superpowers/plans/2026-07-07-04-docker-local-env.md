@@ -75,8 +75,9 @@ RUN npx turbo prune @zelo/api --docker
 FROM base AS installer
 WORKDIR /app
 COPY --from=pruner /app/out/json/ .
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY --from=pruner /app/out/full/ .
+ENV DATABASE_URL="postgresql://user:password@localhost:5432/db?schema=public"
 RUN pnpm --filter @zelo/api exec prisma generate
 RUN pnpm exec turbo run build --filter=@zelo/api
 
@@ -88,9 +89,9 @@ EXPOSE 3000
 CMD ["sh", "-c", "pnpm --filter @zelo/api exec prisma migrate deploy && node apps/api/dist/src/main.js"]
 ```
 
-`turbo prune @zelo/api --docker` (in the `pruner` stage) generates `/app/out/json/` (only the `package.json` files needed for `@zelo/api` and its workspace dependencies — `@zelo/domain`, `@zelo/config`) and `/app/out/full/` (the pruned source tree). Installing from `out/json/` first means `pnpm install` only re-runs when a dependency actually changes, not on every source edit — this is what makes the image layer-cacheable.
+`turbo prune @zelo/api --docker` (in the `pruner` stage) generates `/app/out/json/` (only the `package.json` files needed for `@zelo/api` and its workspace dependencies — `@zelo/domain`, `@zelo/config`) and `/app/out/full/` (the pruned source tree). Installing from `out/json/` first means `pnpm install` only re-runs when a dependency actually changes, not on every source edit — this is what makes the image layer-cacheable. `--ignore-scripts` is required on this first install: `apps/api/package.json`'s `postinstall: prisma generate` would otherwise fire against `out/json/`, which has no `prisma/schema.prisma` yet (that only arrives with `out/full/`), failing with "Could not find Prisma Schema."
 
-Neither `prisma generate` nor `prisma migrate deploy` takes a `--schema` flag in Prisma 7 (Plan 02) — both read the schema and migrations location from `apps/api/prisma.config.ts`, which travels with the pruned source tree since it's part of `apps/api`. `prisma generate` now runs explicitly *before* the `turbo run build` step (rather than after, as it would with Prisma 5/6's old `prisma-client-js` provider) because `tsc` needs the generated client at `apps/api/generated/prisma` to type-check `PrismaService`'s import — the build would fail without it. The CMD's entry point is `dist/src/main.js`, not `dist/main.js` — Plan 02 Task 2 Step 9 widens `apps/api/tsconfig.json`'s `rootDir` to `.` (from `src`) to accommodate the generated Prisma client's real TypeScript source, which shifts `tsc`'s emitted output from `dist/main.js` to `dist/src/main.js`.
+Neither `prisma generate` nor `prisma migrate deploy` takes a `--schema` flag in Prisma 7 (Plan 02) — both read the schema and migrations location from `apps/api/prisma.config.ts`, which travels with the pruned source tree since it's part of `apps/api`. `prisma generate` now runs explicitly *before* the `turbo run build` step (rather than after, as it would with Prisma 5/6's old `prisma-client-js` provider) because `tsc` needs the generated client at `apps/api/generated/prisma` to type-check `PrismaService`'s import — the build would fail without it. The placeholder `ENV DATABASE_URL` immediately before `prisma generate` is required because Prisma 7's config loader validates that `prisma.config.ts`'s `env("DATABASE_URL")` resolves to a real value even for `generate` (which never opens a connection) — without it the build fails with `PrismaConfigEnvError: Cannot resolve environment variable: DATABASE_URL`. This placeholder is build-time only and does not appear in the `runner` stage; the real `DATABASE_URL` for `prisma migrate deploy` in `CMD` comes from `docker-compose.yml` (Task 4) at container start. The CMD's entry point is `dist/src/main.js`, not `dist/main.js` — Plan 02 Task 2 Step 9 widens `apps/api/tsconfig.json`'s `rootDir` to `.` (from `src`) to accommodate the generated Prisma client's real TypeScript source, which shifts `tsc`'s emitted output from `dist/main.js` to `dist/src/main.js`.
 
 - [ ] **Step 2: Verify the image builds standalone**
 
