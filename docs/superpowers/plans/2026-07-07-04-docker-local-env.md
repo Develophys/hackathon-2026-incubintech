@@ -13,6 +13,7 @@
 - Requires Plans 01, 02, and 03 complete — this plan builds their output, it doesn't add application code.
 - Secrets (`DATABASE_URL` inside the containers, and later the LLM API key in Plan 05) come from a gitignored `docker/.env.docker`, never baked into an image layer (spec Section E).
 - This compose setup is local-only prod-parity — it is explicitly not the cloud deployment pipeline (spec Section E, `general-documentations/roadmap/gui.md`).
+- Both Dockerfiles' base image is `node:24-alpine`, matching root `.nvmrc` (Plan 01 Task 1, bumped to `24` after Plan 02's real CI run failed on Node 20 — Prisma 7.8's transitive `@prisma/streams-local` dependency requires Node `>=22.0.0`). `apps/web` doesn't strictly need this floor itself, but matching `.nvmrc` keeps one Node version as the single source of truth across local dev, CI, and Docker.
 
 ---
 
@@ -62,7 +63,7 @@ git commit -m "chore: add root .dockerignore for Docker build contexts"
 - [ ] **Step 1: Create `docker/api.Dockerfile`**
 
 ```dockerfile
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 RUN apk add --no-cache libc6-compat
 RUN corepack enable
 
@@ -139,7 +140,7 @@ server {
 - [ ] **Step 2: Create `docker/web.Dockerfile`**
 
 ```dockerfile
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 RUN corepack enable
 
 FROM base AS pruner
