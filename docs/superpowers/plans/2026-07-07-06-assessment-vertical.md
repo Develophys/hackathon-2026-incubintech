@@ -1504,11 +1504,15 @@ Open browser DevTools → Network tab, inspect the `POST /assessments` request b
 
 Expected: the request body contains only `id`, `scaleType`, `capturedAt`, `ciphertext` — no `answers` field, no `riskSignal` field, and `ciphertext` is not human-readable.
 
+**What was actually verified (no browser available in this environment):** the exact same `POST /assessments` contract was exercised directly against a running `apps/api` with `curl`, against a real Postgres container, with the three privacy proofs re-confirmed live (not just via the automated test suite): (1) a valid ciphertext-only payload → `201 { id }`; (2) a payload with a raw `answers` array and no `ciphertext` → `400`, Zod reporting `ciphertext: ["Required"]`; (3) a payload with valid `ciphertext` *and* an extra `riskSignal: true` field → `201`, accepted normally. For (3), queried the live Postgres row directly afterward (`SELECT * FROM assessments WHERE id = '...'`) — the returned row has exactly five columns (`id`, `scaleType`, `capturedAt`, `ciphertext`, `createdAt`) and `\d assessments` confirms the table itself has no `riskSignal` column at all. This is a stronger proof than a single accepted request: it's not that `riskSignal` happened to be dropped for this payload, it is architecturally impossible for the column to exist. The frontend-side claim (result page rendering, Network tab inspection, IndexedDB inspection) was not visually verified since no browser is available in this environment — deferred to whoever next runs this manually with a real browser.
+
 - [ ] **Step 3: Verify data survives a page reload (IndexedDB persistence)**
 
 Open DevTools → Application → IndexedDB → `zelo-assessments` → `records`.
 
 Expected: one record matching the assessment just submitted, including `riskSignal: true` (present locally, confirming the local-vs-backend split works as designed).
+
+**Not independently verified** (no browser available) — but `IndexedDbAssessmentStoreAdapter.test.ts` (Task 4) already proves this exact behavior against `fake-indexeddb`: saving an `AssessmentRecord` with `riskSignal: true` and reading it back via `listAll()` returns the same record including `riskSignal`.
 
 - [ ] **Step 4: Commit** (only if any file changed during manual verification — typically none will)
 
