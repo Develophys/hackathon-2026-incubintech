@@ -10,3 +10,13 @@ datasource db {
 // No models yet — the first real model (Assessment) is added in Plan 06.
 // This file exists now so `prisma generate` and DB connectivity can be
 // verified as part of the foundation, independent of any feature.
+
+model Assessment {
+  id         String   @id
+  scaleType  String
+  capturedAt DateTime
+  ciphertext String
+  createdAt  DateTime @default(now())
+
+  @@map("assessments")
+}
