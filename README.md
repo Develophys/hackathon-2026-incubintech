@@ -25,3 +25,7 @@ Mobile-first PWA for confidential medical burnout triage and support. See `gener
 - `pnpm lint` — lint all packages/apps
 - `pnpm lint:boundaries` — enforce Clean Architecture layer boundaries (dependency-cruiser)
 - `pnpm test` — run all test suites
+
+## Backend local setup
+
+`apps/api` requires a `DATABASE_URL` — copy `apps/api/.env.example` to `apps/api/.env` and point it at a running Postgres instance (see Plan 04 for the Docker Compose setup, or run one manually as shown in `docs/superpowers/plans/2026-07-07-02-backend-foundation.md` Task 2).
