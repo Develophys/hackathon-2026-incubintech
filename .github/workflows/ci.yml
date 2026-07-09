@@ -8,6 +8,22 @@ on:
 jobs:
   build-lint-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: zelo
+          POSTGRES_PASSWORD: devpassword
+          POSTGRES_DB: zelo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://zelo:devpassword@localhost:5432/zelo?schema=public
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,6 +39,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @zelo/api exec prisma generate
+
+      - name: Apply database migrations
+        run: pnpm --filter @zelo/api exec prisma migrate deploy
 
       - name: Build
         run: pnpm build
