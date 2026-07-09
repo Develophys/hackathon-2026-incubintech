@@ -37,6 +37,9 @@ storybook-static/
 apps/**/dist/
 libs/**/dist/
 
+# Prisma generated client (regenerated via postinstall's `prisma generate`)
+apps/**/generated/
+
 # React / CRA / Vite specific
 apps/**/build/
 

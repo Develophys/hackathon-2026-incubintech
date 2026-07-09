@@ -6,11 +6,11 @@
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false
   },
-  "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "dist", "generated"]
+  "include": ["src", "generated"],
+  "exclude": ["src/**/*.test.ts", "dist"]
 }

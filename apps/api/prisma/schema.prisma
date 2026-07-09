@@ -1,0 +1,12 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// No models yet — the first real model (Assessment) is added in Plan 06.
+// This file exists now so `prisma generate` and DB connectivity can be
+// verified as part of the foundation, independent of any feature.

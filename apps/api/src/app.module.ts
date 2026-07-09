@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
+import { PrismaModule } from "./shared/prisma/prisma.module.ts";
 
 @Module({
-  imports: [],
+  imports: [PrismaModule],
 })
 export class AppModule {}
