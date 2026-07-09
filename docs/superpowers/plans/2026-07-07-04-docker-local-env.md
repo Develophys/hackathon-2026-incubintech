@@ -37,10 +37,15 @@ dist
 .git
 **/*.tsbuildinfo
 .env
+**/.env
 .env.*
+**/.env.*
 !.env.example
+!**/.env.example
 docker/.env.docker
 ```
+
+The `**/`-prefixed env patterns are required alongside the root-level ones: without them, a nested file like `apps/api/.env` (a real local-dev secrets file, distinct from the tracked `apps/api/.env.example`) is not excluded from the `pruner` stage's `COPY . .` — the plan's own constraint that secrets never get baked into an image layer depends on this being recursive, the same way `**/node_modules`/`**/dist`/`**/.turbo` already are.
 
 - [ ] **Step 2: Commit**
 
