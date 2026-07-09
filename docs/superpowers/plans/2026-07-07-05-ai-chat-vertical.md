@@ -4,9 +4,9 @@
 
 **Goal:** Implement the full AI acolhimento chat vertical — backend `AiChatPort`/`ClaudeAdapter` behind a provider-swap factory, guardrail system prompt, streaming controller, and the frontend anonymization + chat UI, including the always-visible "talk to a human" shortcut (PRD FR-4, FR-5, FR-6, FR-6b).
 
-**Architecture:** Backend: `application/ports/ai-chat.port.ts` defines `AiChatPort`; `infrastructure/ai-providers/claude.adapter.ts` implements it via the Anthropic SDK; `chat.module.ts` binds the port through a `AI_PROVIDER`-driven factory (spec Section D's provider-swap story, made concrete). `SendChatMessageUseCase` injects the guardrail system prompt and maps provider failures into two distinct error types depending on whether a risk signal is active. Frontend: `AnonymizeTextUseCase` scrubs identifiers client-side before anything leaves the device (FR-5); `SendChatMessageUseCase` orchestrates anonymization + streaming; `RequestHumanHandoffUseCase` is a pure, I/O-free use-case so the "talk to a human" shortcut works even when the AI provider is down.
+**Architecture:** Backend: `application/ports/ai-chat.port.ts` defines `AiChatPort`; `infrastructure/ai-providers/claude.adapter.ts` implements it via the Anthropic SDK; `chat.module.ts` binds the port through a `AI_PROVIDER`-driven factory (spec Section D's provider-swap story, made concrete). `SendChatMessageUseCase` injects the guardrail system prompt and maps provider failures into two distinct error types depending on whether a risk signal is active. Frontend: `AnonymizeTextUseCase` scrubs identifiers client-side before anything leaves the device (FR-5); `SendChatMessageUseCase` orchestrates anonymization + streaming; `RequestHumanHandoffUseCase` is a pure, I/O-free use-case so the "talk to a human" shortcut works even when the AI provider is down. **Task 2b** (added during Task 6, see that section) adds `GeminiAdapter` and `GroqAdapter` as two more `AiChatPort` implementations behind the same factory, since this hackathon project has no committed budget yet — `AI_PROVIDER` defaults to `groq` (genuinely free, no credit card) rather than `claude`.
 
-**Tech Stack:** `@anthropic-ai/sdk`, `@nestjs/config`, Zod, fetch + `ReadableStream` (frontend streaming consumer), Vitest, React Testing Library.
+**Tech Stack:** `@anthropic-ai/sdk`, `@google/genai`, `groq-sdk`, `@nestjs/config`, Zod, fetch + `ReadableStream` (frontend streaming consumer), Vitest, React Testing Library.
 
 ## Global Constraints
 
@@ -18,7 +18,7 @@
 - Requires `apps/api` (Plan 02) and `apps/web` (Plan 03) foundations complete, and `packages/domain`'s `AnonymizedMessageSchema`/`ChatTokenSchema` (Plan 01 Task 5).
 - `apps/api` runs under Node's `NodeNext` ESM resolution (Plan 02) — every relative import between hand-written source files in Task 1/2 (backend) uses an explicit `.ts` extension (`allowImportingTsExtensions`/`rewriteRelativeImportExtensions`, rewritten to `.js` by `tsc`). `apps/web` (Tasks 3-5) is unaffected and stays CommonJS with extensionless imports, as in Plan 01/03.
 - Every NestJS constructor-injected parameter in Task 1/2 (backend) uses explicit `@Inject(Token)`, including class tokens — implicit type-based injection silently resolves to `undefined` under this project's Vitest/esbuild test runner (Plan 02's Global Constraints has the full explanation). `ClaudeAdapter` and `ChatController` below both reflect this.
-- Requires a real Anthropic API key to complete this plan's manual end-to-end verification steps (Task 6) — all automated tests in Tasks 1-5 mock the Anthropic SDK and do not require one.
+- Requires a real API key for at least one AI provider (Anthropic, Gemini, or Groq) to complete this plan's manual end-to-end verification steps (Task 6) — all automated tests in Tasks 1-5 mock the respective SDK and do not require one.
 
 ---
 
@@ -572,6 +572,130 @@ Expected: PASS — all tests across `health` and `chat` modules pass (requires t
 ```bash
 git add apps/api
 git commit -m "feat(api): add ClaudeAdapter, provider-swap factory, and streaming chat controller"
+```
+
+---
+
+### Task 2b: `GeminiAdapter` and `GroqAdapter` — additional free-tier providers (added during Task 6)
+
+**Context:** during Task 6's manual verification, the Anthropic account had no credit balance and the Gemini free-tier project showed a 0-request quota on every model (a widely-reported 2026 issue — Google cut free-tier Gemini quotas significantly and availability is inconsistent by region/account, independent of what the AI Studio console displays). Since this project has no budget yet, two additional `AiChatPort` implementations were added — exactly the provider-swap story `chat.module.ts`'s factory was built for (spec Section D) — so verification could proceed on Groq's genuinely free, no-credit-card tier once Anthropic/Gemini access is available. `SendChatMessageUseCase` and `ChatController` needed zero changes for either addition.
+
+**Files:**
+- Modify: `apps/api/package.json` (add `@google/genai`, `groq-sdk`)
+- Create: `apps/api/src/modules/chat/infrastructure/ai-providers/gemini.adapter.ts` + `.test.ts`
+- Create: `apps/api/src/modules/chat/infrastructure/ai-providers/groq.adapter.ts` + `.test.ts`
+- Modify: `apps/api/src/modules/chat/chat.module.ts` (register both, add `"gemini"`/`"groq"` factory branches)
+- Modify: `apps/api/.env.example`, `docker/.env.example` (add `GEMINI_API_KEY`/`GEMINI_MODEL`, `GROQ_API_KEY`/`GROQ_MODEL`; default `AI_PROVIDER` changed from `claude` to `groq`)
+
+`GeminiAdapter` (`@google/genai`, the current official Google Gen AI SDK — not the older, separate `@google/generative-ai` package):
+
+```ts
+import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { GoogleGenAI } from "@google/genai";
+import type { AiChatPort } from "../../application/ports/ai-chat.port.ts";
+import type { AnonymizedMessage, ChatToken } from "@zelo/domain";
+
+@Injectable()
+export class GeminiAdapter implements AiChatPort {
+  private readonly client: GoogleGenAI;
+  private readonly model: string;
+
+  constructor(@Inject(ConfigService) config: ConfigService) {
+    this.client = new GoogleGenAI({ apiKey: config.getOrThrow<string>("GEMINI_API_KEY") });
+    this.model = config.get<string>("GEMINI_MODEL") ?? "gemini-2.5-flash";
+  }
+
+  async *streamReply(params: {
+    conversationId: string;
+    anonymizedMessages: AnonymizedMessage[];
+    systemPrompt: string;
+  }): AsyncGenerator<ChatToken> {
+    const stream = await this.client.models.generateContentStream({
+      model: this.model,
+      contents: params.anonymizedMessages.map((message) => ({
+        role: message.role === "assistant" ? "model" : "user",
+        parts: [{ text: message.content }],
+      })),
+      config: {
+        systemInstruction: params.systemPrompt,
+        maxOutputTokens: 512,
+      },
+    });
+
+    for await (const chunk of stream) {
+      if (chunk.text) {
+        yield { conversationId: params.conversationId, delta: chunk.text, done: false };
+      }
+    }
+
+    yield { conversationId: params.conversationId, delta: "", done: true };
+  }
+}
+```
+
+Gemini's roles are `"user"`/`"model"`, not `"user"`/`"assistant"` like `AnonymizedMessage` — `role` is mapped accordingly. The system prompt goes in `config.systemInstruction`, not as a message in `contents`.
+
+`GroqAdapter` (`groq-sdk`, OpenAI-compatible chat-completions API — Groq's own no-credit-card free tier: 30K tokens/min, 14,400 requests/day at the time of writing):
+
+```ts
+import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import Groq from "groq-sdk";
+import type { AiChatPort } from "../../application/ports/ai-chat.port.ts";
+import type { AnonymizedMessage, ChatToken } from "@zelo/domain";
+
+@Injectable()
+export class GroqAdapter implements AiChatPort {
+  private readonly client: Groq;
+  private readonly model: string;
+
+  constructor(@Inject(ConfigService) config: ConfigService) {
+    this.client = new Groq({ apiKey: config.getOrThrow<string>("GROQ_API_KEY") });
+    this.model = config.get<string>("GROQ_MODEL") ?? "llama-3.3-70b-versatile";
+  }
+
+  async *streamReply(params: {
+    conversationId: string;
+    anonymizedMessages: AnonymizedMessage[];
+    systemPrompt: string;
+  }): AsyncGenerator<ChatToken> {
+    const stream = await this.client.chat.completions.create({
+      model: this.model,
+      max_tokens: 512,
+      stream: true,
+      messages: [
+        { role: "system", content: params.systemPrompt },
+        ...params.anonymizedMessages.map((message) => ({
+          role: message.role,
+          content: message.content,
+        })),
+      ],
+    });
+
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta.content;
+      if (delta) {
+        yield { conversationId: params.conversationId, delta, done: false };
+      }
+    }
+
+    yield { conversationId: params.conversationId, delta: "", done: true };
+  }
+}
+```
+
+Groq's chat-completions API is OpenAI-compatible, so `AnonymizedMessage`'s `"user"`/`"assistant"` roles pass through unchanged (unlike Gemini) — only the system prompt needs an extra `{ role: "system", ... }` entry prepended to `messages`.
+
+`chat.module.ts`'s factory gained two more branches (`"gemini"` → `geminiAdapter`, `"groq"` → `groqAdapter`), both adapters registered as providers alongside `ClaudeAdapter`, with `GeminiAdapter`/`GroqAdapter` added to the factory's `inject` array.
+
+- [ ] **Verification:** `pnpm --filter @zelo/api test` — 14 tests pass (3 `send-chat-message.use-case.test.ts`, 1 `claude.adapter.test.ts`, 2 `gemini.adapter.test.ts`, 2 `groq.adapter.test.ts`, 2 `chat.controller.test.ts`, 2 `health.controller.test.ts`, 1 `prisma.service.test.ts`, 1 `check-health.use-case.test.ts`). `pnpm --filter @zelo/api build`/`lint` clean.
+
+- [ ] **Commit:**
+
+```bash
+git add apps/api docker/.env.example pnpm-lock.yaml
+git commit -m "feat(api): add GeminiAdapter and GroqAdapter as free-tier AI providers"
 ```
 
 ---
@@ -1345,12 +1469,19 @@ Modify `docker/.env.example`:
 POSTGRES_DB=zelo
 POSTGRES_USER=zelo
 POSTGRES_PASSWORD=devpassword
-AI_PROVIDER=claude
+DATABASE_URL=postgresql://zelo:devpassword@postgres:5432/zelo?schema=public
+AI_PROVIDER=groq
 ANTHROPIC_API_KEY=
 ANTHROPIC_MODEL=claude-sonnet-5
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
+GROQ_API_KEY=
+GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
-Manually add the same three new lines to the existing (gitignored) `docker/.env.docker`, filling in a real `ANTHROPIC_API_KEY`.
+`AI_PROVIDER` defaults to `groq`, not `claude` — see the real-verification note below.
+
+Manually add the same new lines to the existing (gitignored) `docker/.env.docker`, filling in a real `GROQ_API_KEY` (or `ANTHROPIC_API_KEY`/`GEMINI_API_KEY` if using one of the other providers).
 
 - [ ] **Step 2: Verify the full automated pipeline still passes**
 
@@ -1364,9 +1495,9 @@ pnpm test
 ```
 Expected: all pass across all packages/apps (requires the Postgres container from Plan 02 running).
 
-- [ ] **Step 3: Manually verify a real Claude response end-to-end**
+- [ ] **Step 3: Manually verify a real AI response end-to-end**
 
-Requires a real `ANTHROPIC_API_KEY` in `apps/api/.env`.
+Requires a real API key for at least one provider (`ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, or `GROQ_API_KEY`) in `apps/api/.env`, with `AI_PROVIDER` set to match.
 
 Run: `pnpm --filter @zelo/api start` (one terminal), `pnpm --filter @zelo/web dev` (another terminal).
 
@@ -1374,11 +1505,13 @@ Open `http://localhost:5173/chat` in a browser, type a message (e.g. "estou exau
 
 Expected: the assistant's reply streams in token-by-token (visible incremental text, not one big chunk appearing at once), the reply does not contain a diagnosis, and clicking "Falar com uma pessoa real" immediately shows the CVV 188 panel regardless of chat state.
 
+**What was actually verified (real-provider narrative):** at the time this task ran, the project had no Anthropic credit balance (`400 invalid_request_error: Your credit balance is too low`) and the Gemini free-tier project returned a 0-request quota on every model tried (`429 RESOURCE_EXHAUSTED`, `limit: 0` — a widely-reported 2026 issue independent of what the AI Studio console displays). Task 2b's `GroqAdapter` was added specifically to unblock this step on a genuinely free, no-credit-card tier. Verification was done directly against the running `apps/api` via `curl -X POST http://localhost:3000/chat/stream` (not through the browser UI, since no browser is available in this environment) — this exercises the exact same wire contract (`POST /chat/stream`, ndjson `ChatToken` lines) that `HttpChatGatewayAdapter` (Task 4) consumes, so it proves the backend/provider integration end-to-end even though it doesn't confirm the React rendering itself. The observed response for "estou exausta depois desse plantão de 24 horas, o que eu tenho?" streamed in token-by-token and explicitly declined to diagnose ("não posso ajudar a identificar o que você pode ter, pois isso está fora do meu alcance"), matching `CHAT_SYSTEM_PROMPT`'s guardrail exactly. Whoever next has real Anthropic credit or a working Gemini quota should re-run this step with `AI_PROVIDER=claude`/`gemini` and a real browser to confirm the UI rendering specifically.
+
 - [ ] **Step 4: Manually verify the provider-failure path**
 
-Temporarily set `ANTHROPIC_API_KEY=invalid-key-for-testing` in `apps/api/.env`, restart `apps/api`, and send another chat message.
+Temporarily set an invalid key for whichever provider is active in `apps/api/.env` (e.g. `GROQ_API_KEY=invalid-key-for-testing`), restart `apps/api`, and send another chat message with `hasActiveRiskSignal: false`, then again with `hasActiveRiskSignal: true`.
 
-Expected: the UI shows the amber "acolhimento por IA está indisponível" banner (from `ChatMessageList`), not a crash or a blank screen. Restore the real API key afterward.
+Expected: the UI shows the amber "acolhimento por IA está indisponível" banner (from `ChatMessageList`) for the first case, and the crisis fallback banner (CVV 188) for the second — matching `{"error":"ai_unavailable"}` and `{"error":"crisis_fallback_required"}` respectively from `ChatController`. Both were confirmed directly via `curl` with an invalid `GROQ_API_KEY`. Restore the real API key afterward.
 
 - [ ] **Step 5: Commit**
 
@@ -1391,10 +1524,10 @@ git commit -m "docs(docker): add AI provider env vars to Docker Compose example"
 
 ## Definition of Done
 
-- `pnpm test` passes across `@zelo/domain`, `@zelo/api`, and `@zelo/web` with zero real network calls in the automated suite (Anthropic SDK is mocked in `claude.adapter.test.ts`).
-- `POST /chat/stream` on a running `apps/api` streams real Claude responses token-by-token when given a valid `ANTHROPIC_API_KEY` (manually verified, Task 6).
+- `pnpm test` passes across `@zelo/domain`, `@zelo/api`, and `@zelo/web` with zero real network calls in the automated suite (Anthropic/Gemini/Groq SDKs are all mocked in their respective adapter tests).
+- `POST /chat/stream` on a running `apps/api` streams real AI responses token-by-token when given a valid API key for the configured `AI_PROVIDER` — manually verified end-to-end with Groq (Task 6); Claude/Gemini use the identical code path (`SendChatMessageUseCase`/`ChatController` never branch on provider) and are covered by their own adapter unit tests, but were not live-verified due to account/quota constraints at the time.
 - The chat system prompt forbids diagnosis and the UI shows a permanent "does not replace professional care" disclaimer (FR-4, FR-6).
 - `AnonymizeTextUseCase` runs client-side and its output — never the raw text — is what reaches `apps/api` (FR-5).
 - The "Falar com uma pessoa real" button is visible at all times during the conversation and works with zero network calls (FR-6b), proven by `ChatPage.test.tsx`.
-- Swapping the AI provider requires writing one new adapter class and adding one branch to `chat.module.ts`'s factory — zero changes to `SendChatMessageUseCase` or `ChatController` (spec Section D, demonstrated structurally in Task 2 Step 11).
-- A provider failure with no active risk signal shows a "temporarily unavailable" message; a provider failure with an active risk signal shows the crisis fallback (CVV 188) instead (PRD's documented edge case), both proven in `send-chat-message.use-case.test.ts`.
+- Swapping the AI provider requires writing one new adapter class and adding one branch to `chat.module.ts`'s factory — zero changes to `SendChatMessageUseCase` or `ChatController` (spec Section D, demonstrated structurally in Task 2 Step 11 and proven twice more in Task 2b with `GeminiAdapter`/`GroqAdapter`).
+- A provider failure with no active risk signal shows a "temporarily unavailable" message; a provider failure with an active risk signal shows the crisis fallback (CVV 188) instead (PRD's documented edge case) — proven in `send-chat-message.use-case.test.ts` and confirmed live against a real (invalid-key) Groq failure in Task 6.
