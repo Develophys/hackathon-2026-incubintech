@@ -439,7 +439,7 @@ import { AnonymizedMessageSchema } from "@zelo/domain";
 import { SendChatMessageUseCase, CrisisFallbackRequiredError } from "../application/use-cases/send-chat-message.use-case.ts";
 
 const SendChatMessageRequestSchema = z.object({
-  conversationId: z.string().uuid(),
+  conversationId: z.string().min(1),
   anonymizedMessages: z.array(AnonymizedMessageSchema),
   hasActiveRiskSignal: z.boolean(),
 });
@@ -456,6 +456,7 @@ export class ChatController {
     }
     const params = parsed.data;
 
+    res.status(200);
     res.setHeader("Content-Type", "application/x-ndjson");
     res.setHeader("Cache-Control", "no-cache");
 
@@ -472,6 +473,8 @@ export class ChatController {
   }
 }
 ```
+
+`conversationId` is validated as `z.string().min(1)`, not `.uuid()` — the use-case layer's `SendChatMessageParams.conversationId` (Task 1) is a plain `string` with no UUID constraint, and every test fixture in this plan (including this task's own e2e test, which uses `"c1"`) follows that convention; a `.uuid()` constraint here would reject the test's own request body with a 400. `res.status(200)` is set explicitly before the headers: NestJS defaults `@Post()` routes to a `201 Created` status via route metadata, and that default is still applied to the underlying Express response even when the handler injects a raw `@Res()` (without `{ passthrough: true }`) and manages the response itself — without the explicit override, a valid streamed request would incorrectly return 201 instead of 200.
 
 - [ ] **Step 9: Run the test to verify it passes**
 
