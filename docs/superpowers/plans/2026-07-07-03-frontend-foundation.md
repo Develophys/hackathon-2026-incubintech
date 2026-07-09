@@ -684,9 +684,9 @@ git commit -m "feat(web): add Clean Architecture scaffold with API-health vertic
 **Interfaces:**
 - Produces: a `RouterProvider` wrapping the app with one route (`/`) rendering `HomePage`. Future plans (05/06) add routes for chat and the assessment wizard alongside this one, as children of the same root route.
 
-**Note:** this plan originally specified TanStack Router; switched to React Router (the project's actual choice) before this task executed — no TanStack Router code was ever merged. `react-router` (not `react-router-dom`) is the current, actively-maintained package as of this plan's writing — `react-router-dom` still exists as an older compatibility layer but isn't where new development happens.
+**Note:** this plan originally specified TanStack Router; switched to React Router (the project's actual choice) before this task executed — no TanStack Router code was ever merged. `react-router` (not `react-router-dom`) is the current, actively-maintained package as of this plan's writing — `react-router-dom` still exists as an older compatibility layer but isn't where new development happens. `react-router@8` requires React `>=19.2.7` as a hard peer dependency (confirmed via `npm view react-router@8.2.0 peerDependencies`) — Tasks 1-4 built `apps/web` against React 18.3 (Task 1), so this task also upgrades React itself; `@testing-library/react@16.x` (already pinned in Task 1) supports both `^18.0.0` and `^19.0.0`, and `@vitejs/plugin-react`/`vite-plugin-pwa` have no React-version-specific peer constraint, so neither needs to change.
 
-- [ ] **Step 1: Swap the router dependency**
+- [ ] **Step 1: Swap the router dependency and upgrade React to 19**
 
 Modify `apps/web/package.json` — remove `"@tanstack/react-router": "^1.58.0"` from `dependencies` and add:
 
@@ -694,8 +694,25 @@ Modify `apps/web/package.json` — remove `"@tanstack/react-router": "^1.58.0"` 
 "react-router": "^8.2.0",
 ```
 
+In the same `dependencies` block, bump:
+
+```json
+"react": "^19.2.0",
+"react-dom": "^19.2.0",
+```
+
+And in `devDependencies`, bump:
+
+```json
+"@types/react": "^19.2.0",
+"@types/react-dom": "^19.2.0",
+```
+
 Run: `pnpm install`
-Expected: completes without error; `@tanstack/react-router` is removed and `react-router` appears under `apps/web` in `pnpm -r list --depth -1`.
+Expected: completes without error; `@tanstack/react-router` is removed, `react-router`/`react@19`/`react-dom@19` appear under `apps/web` in `pnpm -r list --depth -1`.
+
+Run: `pnpm --filter @zelo/web test`
+Expected: PASS — the existing `CheckApiHealthUseCase` and `HealthBanner` tests (Task 4) still pass under React 19 — confirms the upgrade didn't regress anything already built.
 
 - [ ] **Step 2: Create `apps/web/src/presentation/pages/HomePage.tsx`**
 
