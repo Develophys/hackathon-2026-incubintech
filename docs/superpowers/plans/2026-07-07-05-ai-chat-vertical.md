@@ -241,8 +241,16 @@ Modify `apps/api/package.json` — add to `dependencies`:
 "@nestjs/config": "^3.3.0"
 ```
 
+Add to `devDependencies`:
+
+```json
+"@types/express": "^4.17.21"
+```
+
 Run: `pnpm install`
 Expected: completes without error.
+
+`@types/express` is required because `chat.controller.ts` (Step 8) does `import type { Response } from "express"` — `express` itself is present transitively via `@nestjs/platform-express`, but its type declarations are a separate package. Without this, `pnpm --filter @zelo/api test` still passes (Vitest's esbuild transform strips types without checking them), but `pnpm --filter @zelo/api build` (`tsc`) fails with `TS2307: Cannot find module 'express'` — this only surfaces when `tsc` actually runs, which none of Tasks 2-5's own verification steps happened to do against this file until Task 6's manual verification.
 
 - [ ] **Step 2: Write the failing test for `ClaudeAdapter`**
 
