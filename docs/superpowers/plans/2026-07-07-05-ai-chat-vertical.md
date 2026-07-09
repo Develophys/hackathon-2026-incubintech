@@ -788,7 +788,7 @@ Create `apps/web/src/use-cases/send-chat-message.usecase.ts`:
 ```ts
 import type { AnonymizedMessage } from "@zelo/domain";
 import type { ChatGatewayPort, ChatStreamEvent } from "../ports/chat-gateway.port";
-import { AnonymizeTextUseCase } from "./anonymize-text.usecase";
+import type { AnonymizeTextUseCase } from "./anonymize-text.usecase";
 
 export interface SendChatMessageParams {
   conversationId: string;
