@@ -196,7 +196,10 @@ git commit -m "feat(docker): add frontend Dockerfile with nginx SPA serving"
 POSTGRES_DB=zelo
 POSTGRES_USER=zelo
 POSTGRES_PASSWORD=devpassword
+DATABASE_URL=postgresql://zelo:devpassword@postgres:5432/zelo?schema=public
 ```
+
+`DATABASE_URL` is precomputed here rather than reconstructed from the other three vars inside `docker-compose.yml`. Compose's `${VAR}`/`$${VAR}` substitution in an `environment:` mapping value is resolved by Compose itself at parse time from the host/Compose environment (or a literal `.env` file next to the compose file) — it is never fed by `env_file:`, and it is never re-expanded by a shell inside the container the way a healthcheck's `CMD-SHELL` command is. So a reconstructed `DATABASE_URL: postgresql://${POSTGRES_USER}:...` line would silently render blank (no `.env` file exists in this repo), and escaping it to `$${POSTGRES_USER}` would not fix it either — it would just insert the literal, un-expanded string `${POSTGRES_USER}` into the container's env. The only vars genuinely available to the `api`/`postgres` containers themselves are the ones supplied via `env_file: .env.docker`, so `DATABASE_URL` has to be one of those precomputed literals rather than assembled from the others by Compose.
 
 - [ ] **Step 2: Create the real (gitignored) `docker/.env.docker` from the example**
 
@@ -225,8 +228,6 @@ services:
       context: ..
       dockerfile: docker/api.Dockerfile
     env_file: .env.docker
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     depends_on:
       postgres:
         condition: service_healthy
