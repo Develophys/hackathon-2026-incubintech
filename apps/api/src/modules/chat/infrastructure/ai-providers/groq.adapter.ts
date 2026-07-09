@@ -40,7 +40,7 @@ export class GroqAdapter implements AiChatPort {
     });
 
     for await (const chunk of stream) {
-      const delta = chunk.choices[0]?.delta.content;
+      const delta = chunk.choices[0]?.delta?.content;
       if (delta) {
         yield { conversationId: params.conversationId, delta, done: false };
       }
