@@ -1185,6 +1185,7 @@ Create `apps/web/src/presentation/components/AssessmentForm.tsx`:
 
 ```tsx
 import { useState } from "react";
+import type { FormEvent } from "react";
 
 interface AssessmentFormProps {
   questions: readonly string[];
@@ -1200,7 +1201,7 @@ export function AssessmentForm({ questions, responseOptions, isSubmitting, onSub
 
   const isComplete = answers.every((value) => value !== undefined);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     if (!isComplete) return;
     onSubmit(answers as number[]);
