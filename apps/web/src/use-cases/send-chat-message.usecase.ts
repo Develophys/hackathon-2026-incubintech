@@ -18,7 +18,14 @@ export class SendChatMessageUseCase {
   async *execute(params: SendChatMessageParams): AsyncGenerator<ChatStreamEvent> {
     const anonymizedContent = this.anonymizeText.execute(params.rawUserText);
     const anonymizedMessages: AnonymizedMessage[] = [
-      ...params.history,
+      // params.history is typed as already-anonymized, but the caller (useChatConversation)
+      // stores raw text for UI display and rebuilds history from that same state — so prior
+      // user turns are re-anonymized here too, as the last checkpoint before any network call.
+      // Redaction is idempotent (already-redacted "[EMAIL]"-style labels never re-match).
+      ...params.history.map((message) => ({
+        role: message.role,
+        content: this.anonymizeText.execute(message.content),
+      })),
       { role: "user", content: anonymizedContent },
     ];
 

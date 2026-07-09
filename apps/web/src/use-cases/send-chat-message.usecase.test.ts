@@ -59,6 +59,25 @@ describe("SendChatMessageUseCase (frontend)", () => {
     ]);
   });
 
+  it("re-anonymizes prior history entries, so a raw identifier from an earlier turn never reaches the wire", async () => {
+    const gateway = new FakeChatGateway();
+    const useCase = new SendChatMessageUseCase(gateway, new AnonymizeTextUseCase());
+
+    await collect(
+      useCase.execute({
+        conversationId: "c1",
+        history: [{ role: "user", content: "meu CRM-SC 123456 está ativo" }],
+        rawUserText: "cansada",
+        hasActiveRiskSignal: false,
+      }),
+    );
+
+    expect(gateway.lastParams?.anonymizedMessages).toEqual([
+      { role: "user", content: "meu [CRM] está ativo" },
+      { role: "user", content: "cansada" },
+    ]);
+  });
+
   it("streams the gateway's events through unchanged", async () => {
     const useCase = new SendChatMessageUseCase(new FakeChatGateway(), new AnonymizeTextUseCase());
 
