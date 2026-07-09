@@ -85,6 +85,8 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "noEmit": true,
     "types": ["vite/client"]
   },
@@ -92,7 +94,7 @@
 }
 ```
 
-`noEmit: true` because Vite (not `tsc`) produces the actual build output — `tsc` here only runs as a type-check gate (see the `build` script in Step 1).
+`noEmit: true` because Vite (not `tsc`) produces the actual build output — `tsc` here only runs as a type-check gate (see the `build` script in Step 1). `module`/`moduleResolution` override the shared base's `"CommonJS"`/`"Node"` (Plan 01 Task 3) — required because Task 4's HTTP adapter uses `import.meta.env.VITE_API_BASE_URL`, and TypeScript rejects the `import.meta` syntax outright under `module: "CommonJS"` (error TS1343). `"ESNext"` + `"Bundler"` is the standard configuration for a Vite app (matching Vite's own official React+TS template) — Vite itself, not `tsc`, produces the real runtime output, so this only affects the type-check gate, not `apps/api`'s separate NodeNext exception or `packages/domain`'s CommonJS output.
 
 - [ ] **Step 2b: Create `apps/web/eslint.config.mjs`**
 
@@ -373,6 +375,7 @@ git commit -m "feat(web): add PWA manifest and service worker via vite-plugin-pw
 - Create: `apps/web/src/app/container.ts`
 - Create: `apps/web/vitest.config.ts`
 - Create: `apps/web/vitest.setup.ts`
+- Modify: `apps/web/tsconfig.json` (Step 2b — adds `vitest.setup.ts` to `include`)
 - Modify: `apps/web/src/app/App.tsx`
 
 **Interfaces:**
@@ -400,6 +403,27 @@ export default defineConfig({
 ```ts
 import "@testing-library/jest-dom/vitest";
 ```
+
+- [ ] **Step 2b: Modify `apps/web/tsconfig.json`**
+
+Add `vitest.setup.ts` to `include`:
+
+```json
+{
+  "extends": "@zelo/config/tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vitest.setup.ts"]
+}
+```
+
+Without this, `tsc --noEmit` (the `build` script's type-check gate, Task 1 Step 1) never sees `vitest.setup.ts`, so `@testing-library/jest-dom/vitest`'s ambient matcher types (`.toBeInTheDocument()` etc., used by `HealthBanner.test.tsx`, Step 12) aren't in scope for the type-checker, even though Vitest itself picks the file up fine at runtime via `vitest.config.ts`'s `setupFiles`.
 
 - [ ] **Step 3: Write the failing unit test for `CheckApiHealthUseCase`**
 
