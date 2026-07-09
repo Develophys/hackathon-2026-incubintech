@@ -402,7 +402,15 @@ export default defineConfig({
 
 ```ts
 import "@testing-library/jest-dom/vitest";
+import { afterEach } from "vitest";
+import { cleanup } from "@testing-library/react";
+
+afterEach(() => {
+  cleanup();
+});
 ```
+
+**Correction (found in Plan 05, Task 5):** the original version of this file omitted the `afterEach(cleanup)` registration. React Testing Library's automatic post-test cleanup only self-registers when `afterEach` exists as a Vitest *global* (`test.globals: true`), which this project's `vitest.config.ts` does not set — every test file here explicitly imports `describe`/`it`/`expect` from `"vitest"` instead. Without explicit cleanup, `render()` calls across multiple `it` blocks in the same test file leave their DOM mounted for the next test, causing false "multiple elements found" failures. This didn't surface until Plan 05's `ChatPage.test.tsx` became the first test file with more than one `render()` call across `it` blocks in the same suite — `HealthBanner.test.tsx` (this plan's own test) only ever renders once per file, so the gap was invisible until then.
 
 - [ ] **Step 2b: Modify `apps/web/tsconfig.json`**
 

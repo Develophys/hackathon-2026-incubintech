@@ -1142,6 +1142,7 @@ Create `apps/web/src/presentation/components/ChatComposer.tsx`:
 
 ```tsx
 import { useState } from "react";
+import type { FormEvent } from "react";
 
 export function ChatComposer({
   isStreaming,
@@ -1152,7 +1153,7 @@ export function ChatComposer({
 }) {
   const [text, setText] = useState("");
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     if (text.trim().length === 0 || isStreaming) return;
     onSend(text);
@@ -1179,6 +1180,8 @@ export function ChatComposer({
   );
 }
 ```
+
+`FormEvent` is imported explicitly as a type from `"react"` rather than referenced as the bare `React.FormEvent`: this file's `tsconfig.json` sets `"jsx": "react-jsx"` (automatic JSX runtime), so `React` is never in scope as an identifier unless imported — referencing `React.FormEvent` without importing `React` fails to compile with "Cannot find name 'React'".
 
 - [ ] **Step 10: Write the failing test for `ChatPage`**
 
