@@ -1,15 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HealthBanner } from "../presentation/components/HealthBanner";
+import { RouterProvider } from "react-router";
+import { router } from "./router";
 
 const queryClient = new QueryClient();
 
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="p-4 text-lg font-semibold text-slate-800">
-        <HealthBanner />
-        Zelo
-      </div>
+      <RouterProvider router={router} />
     </QueryClientProvider>
   );
 }
