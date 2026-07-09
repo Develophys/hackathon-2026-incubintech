@@ -1426,50 +1426,40 @@ Expected: PASS — 1 new test passed.
 Modify `apps/web/src/app/router.tsx`:
 
 ```tsx
-import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
+import { createBrowserRouter, Outlet } from "react-router";
 import { HomePage } from "../presentation/pages/HomePage";
 import { ChatPage } from "../presentation/pages/ChatPage";
 import { Phq9AssessmentPage } from "../presentation/pages/Phq9AssessmentPage";
 import { Gad7AssessmentPage } from "../presentation/pages/Gad7AssessmentPage";
 
-const rootRoute = createRootRoute({
-  component: () => <Outlet />,
-});
-
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: HomePage,
-});
-
-const chatRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/chat",
-  component: ChatPage,
-});
-
-const phq9Route = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/assessment/phq9",
-  component: Phq9AssessmentPage,
-});
-
-const gad7Route = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/assessment/gad7",
-  component: Gad7AssessmentPage,
-});
-
-const routeTree = rootRoute.addChildren([indexRoute, chatRoute, phq9Route, gad7Route]);
-
-export const router = createRouter({ routeTree });
-
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
+export const router = createBrowserRouter([
+  {
+    id: "root",
+    path: "/",
+    Component: () => <Outlet />,
+    children: [
+      {
+        index: true,
+        Component: HomePage,
+      },
+      {
+        path: "chat",
+        Component: ChatPage,
+      },
+      {
+        path: "assessment/phq9",
+        Component: Phq9AssessmentPage,
+      },
+      {
+        path: "assessment/gad7",
+        Component: Gad7AssessmentPage,
+      },
+    ],
+  },
+]);
 ```
+
+(This project uses React Router, established in Plan 03 — `phq9Route`/`gad7Route` are two more objects in the root route's `children` array, alongside the entries Plans 03/05 already added.)
 
 - [ ] **Step 9: Run the full frontend build and test suite**
 

@@ -75,7 +75,7 @@ apps/web/src/
 │   └── crypto/           # Web Crypto API (AES-256) adapter
 ├── stores/              # Zustand — UI-only state (wizard step, modal open/closed, consent flags in-flight)
 ├── presentation/
-│   ├── pages/            # route components (TanStack Router)
+│   ├── pages/            # route components (React Router)
 │   ├── components/
 │   └── hooks/            # e.g. useSendChatMessage() — wraps a use-case in TanStack Query's useMutation/useQuery
 └── app/                  # bootstrap: router setup, DI wiring (which adapter implements which port), providers
@@ -86,7 +86,7 @@ apps/web/src/
 **Where each library sits:**
 - **TanStack Query** lives only in `presentation/hooks` — the caching/loading-state wrapper *around* a use-case call, never a place where business logic happens.
 - **Zustand** is strictly UI/ephemeral state (wizard progress, "is the crisis modal open") — never a duplicate of server data, so there's one source of truth per concern.
-- **TanStack Router** lives in `app/` for route definitions and code-splitting per page.
+- **React Router** lives in `app/` for route definitions and code-splitting per page.
 - **Zod** validates at the two boundaries that matter: form input before it enters a use-case, and any payload crossing `infrastructure/http` (parsed against schemas from `packages/domain`) before it's trusted as a domain object.
 
 ## Section C — Backend Clean Architecture (`apps/api`, NestJS)
@@ -259,7 +259,7 @@ This architecture is implemented as six plans, each scoped to run as its own Cla
 |---|---|---|---|
 | 01 | Monorepo Foundation | pnpm workspace, Turborepo, `packages/domain`, `packages/config`, dependency-cruiser rules | — |
 | 02 | Backend Foundation | NestJS skeleton in `apps/api`, Prisma + Postgres wiring, module folder convention, one smoke-test module | 01 |
-| 03 | Frontend Foundation | Vite + `vite-plugin-pwa`, TanStack Router base routes, Tailwind, Zustand scaffold, clean-arch folders | 01 |
+| 03 | Frontend Foundation | Vite + `vite-plugin-pwa`, React Router base routes, Tailwind, Zustand scaffold, clean-arch folders | 01 |
 | 04 | Docker Local Env | docker-compose (Postgres + api + web), Dockerfiles, `.env.docker`, migrate-on-start | 02, 03 |
 | 05 | AI Chat Vertical | `AiChatPort` + `ClaudeAdapter`, SSE chat module, frontend chat use-cases/hooks/UI, FR-6b handoff shortcut | 04 |
 | 06 | Assessment Vertical | PHQ-9/GAD-7/MBI-HSS forms, client-side scoring, Web Crypto encryption, IndexedDB, backend ciphertext endpoint | 04 |

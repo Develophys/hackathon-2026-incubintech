@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Stand up the Vite + React PWA (`apps/web`) with Tailwind, `vite-plugin-pwa`, TanStack Router/Query, and Zustand wired in, following the Clean Architecture folder convention from the spec (`use-cases` → `ports` ← `infrastructure`, `presentation` on top). Ends with one working vertical slice — a health-check banner that calls `apps/api`'s `GET /health` — that proves the full pattern end-to-end and is the template Plans 05/06 copy.
+**Goal:** Stand up the Vite + React PWA (`apps/web`) with Tailwind, `vite-plugin-pwa`, React Router, TanStack Query, and Zustand wired in, following the Clean Architecture folder convention from the spec (`use-cases` → `ports` ← `infrastructure`, `presentation` on top). Ends with one working vertical slice — a health-check banner that calls `apps/api`'s `GET /health` — that proves the full pattern end-to-end and is the template Plans 05/06 copy.
 
 **Architecture:** `presentation` (pages/components/hooks) never touches `infrastructure` directly — it calls `use-cases` through TanStack Query hooks. `use-cases` depend only on `ports` (interfaces). `infrastructure` implements those ports (HTTP, IndexedDB, Web Crypto adapters land here in later plans). `stores` (Zustand) hold UI-only state, never server data.
 
-**Tech Stack:** Vite, React 18, TypeScript (CommonJS-compatible build, matching Plan 01's shared base — `apps/api`, unlike `apps/web`, later became an isolated ESM exception in Plan 02, specifically for Prisma 7's ESM-only client; that exception doesn't apply here), Tailwind CSS, `vite-plugin-pwa`, TanStack Router, TanStack Query, Zustand, Zod, Vitest + React Testing Library.
+**Tech Stack:** Vite, React 18, TypeScript (CommonJS-compatible build, matching Plan 01's shared base — `apps/api`, unlike `apps/web`, later became an isolated ESM exception in Plan 02, specifically for Prisma 7's ESM-only client; that exception doesn't apply here), Tailwind CSS, `vite-plugin-pwa`, React Router, TanStack Query, Zustand, Zod, Vitest + React Testing Library.
 
 ## Global Constraints
 
@@ -673,17 +673,31 @@ git commit -m "feat(web): add Clean Architecture scaffold with API-health vertic
 
 ---
 
-### Task 5: TanStack Router base setup
+### Task 5: React Router base setup
 
 **Files:**
+- Modify: `apps/web/package.json` (swaps `@tanstack/react-router` for `react-router`)
 - Create: `apps/web/src/app/router.tsx`
 - Create: `apps/web/src/presentation/pages/HomePage.tsx`
 - Modify: `apps/web/src/app/App.tsx`
 
 **Interfaces:**
-- Produces: a `RouterProvider` wrapping the app with one route (`/`) rendering `HomePage`. Future plans (05/06) add routes for chat and the assessment wizard alongside this one.
+- Produces: a `RouterProvider` wrapping the app with one route (`/`) rendering `HomePage`. Future plans (05/06) add routes for chat and the assessment wizard alongside this one, as children of the same root route.
 
-- [ ] **Step 1: Create `apps/web/src/presentation/pages/HomePage.tsx`**
+**Note:** this plan originally specified TanStack Router; switched to React Router (the project's actual choice) before this task executed — no TanStack Router code was ever merged. `react-router` (not `react-router-dom`) is the current, actively-maintained package as of this plan's writing — `react-router-dom` still exists as an older compatibility layer but isn't where new development happens.
+
+- [ ] **Step 1: Swap the router dependency**
+
+Modify `apps/web/package.json` — remove `"@tanstack/react-router": "^1.58.0"` from `dependencies` and add:
+
+```json
+"react-router": "^8.2.0",
+```
+
+Run: `pnpm install`
+Expected: completes without error; `@tanstack/react-router` is removed and `react-router` appears under `apps/web` in `pnpm -r list --depth -1`.
+
+- [ ] **Step 2: Create `apps/web/src/presentation/pages/HomePage.tsx`**
 
 ```tsx
 import { HealthBanner } from "../components/HealthBanner";
@@ -698,40 +712,36 @@ export function HomePage() {
 }
 ```
 
-- [ ] **Step 2: Create `apps/web/src/app/router.tsx`**
+- [ ] **Step 3: Create `apps/web/src/app/router.tsx`**
 
 ```tsx
-import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
+import { createBrowserRouter, Outlet } from "react-router";
 import { HomePage } from "../presentation/pages/HomePage";
 
-const rootRoute = createRootRoute({
-  component: () => <Outlet />,
-});
-
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: HomePage,
-});
-
-const routeTree = rootRoute.addChildren([indexRoute]);
-
-export const router = createRouter({ routeTree });
-
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
+export const router = createBrowserRouter([
+  {
+    id: "root",
+    path: "/",
+    Component: () => <Outlet />,
+    children: [
+      {
+        index: true,
+        Component: HomePage,
+      },
+    ],
+  },
+]);
 ```
 
-- [ ] **Step 3: Wire the router into `App.tsx`**
+The root route's children array is where Plans 05/06 add their own route objects (chat, assessment) as siblings of the `index: true` entry — `createBrowserRouter` takes a plain route-object tree, so adding a route is adding one more object to this array, no route-tree-composition step needed the way TanStack Router's `addChildren` required.
+
+- [ ] **Step 4: Wire the router into `App.tsx`**
 
 Modify `apps/web/src/app/App.tsx`:
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RouterProvider } from "@tanstack/react-router";
+import { RouterProvider } from "react-router";
 import { router } from "./router";
 
 const queryClient = new QueryClient();
@@ -745,22 +755,24 @@ export function App() {
 }
 ```
 
-- [ ] **Step 4: Verify the build still succeeds**
+`@tanstack/react-query` is unaffected by this change — only the router package changes; TanStack Query remains the project's data-fetching layer (spec Section B), unrelated to TanStack Router.
+
+- [ ] **Step 5: Verify the build still succeeds**
 
 Run: `pnpm --filter @zelo/web build`
 Expected: completes without error.
 
-- [ ] **Step 5: Verify the dev server still serves the home page correctly**
+- [ ] **Step 6: Verify the dev server still serves the home page correctly**
 
 Run: `pnpm --filter @zelo/web dev` (background), then:
 Run: `curl -s http://localhost:5173 | grep -o '<div id="root">'`
 Expected: match found. (Full route rendering requires a browser; this only confirms the shell still serves — Step 17 of Task 4 already covered the browser-level check.) Stop the dev server once confirmed.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add apps/web
-git commit -m "feat(web): add TanStack Router base setup"
+git commit -m "feat(web): add React Router base setup"
 ```
 
 ---

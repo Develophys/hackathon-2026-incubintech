@@ -114,7 +114,7 @@ git commit -m "feat(docker): add backend Dockerfile using turbo prune"
 
 **Interfaces:**
 - Consumes: `apps/web` (Plan 03), `packages/domain` + `packages/config` (Plan 01).
-- Produces: an nginx image serving the built PWA on port 80, with SPA fallback routing (so TanStack Router's client-side routes don't 404 on refresh).
+- Produces: an nginx image serving the built PWA on port 80, with SPA fallback routing (so React Router's client-side routes don't 404 on refresh).
 
 - [ ] **Step 1: Create `docker/nginx.conf`**
 
@@ -135,7 +135,7 @@ server {
 }
 ```
 
-`try_files ... /index.html` is the SPA fallback: any path TanStack Router owns client-side (not a real static file) still serves `index.html`, letting the router take over. `sw.js` is explicitly set to `no-cache` so the PWA's service worker updates are never served stale.
+`try_files ... /index.html` is the SPA fallback: any path React Router owns client-side (not a real static file) still serves `index.html`, letting the router take over. `sw.js` is explicitly set to `no-cache` so the PWA's service worker updates are never served stale.
 
 - [ ] **Step 2: Create `docker/web.Dockerfile`**
 
@@ -291,7 +291,7 @@ Expected: `HTTP/1.1 200 OK`.
 - [ ] **Step 5: Verify SPA fallback routing works**
 
 Run: `curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/some/nonexistent/client/route`
-Expected: `200` (nginx's `try_files` fallback serves `index.html` instead of a 404 — this is what lets TanStack Router handle unknown paths client-side).
+Expected: `200` (nginx's `try_files` fallback serves `index.html` instead of a 404 — this is what lets React Router handle unknown paths client-side).
 
 - [ ] **Step 6: Tear down**
 

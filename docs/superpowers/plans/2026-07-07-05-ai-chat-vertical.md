@@ -1277,36 +1277,30 @@ Expected: PASS — 2 new tests passed. The handoff test clicks the button and as
 Modify `apps/web/src/app/router.tsx`:
 
 ```tsx
-import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
+import { createBrowserRouter, Outlet } from "react-router";
 import { HomePage } from "../presentation/pages/HomePage";
 import { ChatPage } from "../presentation/pages/ChatPage";
 
-const rootRoute = createRootRoute({
-  component: () => <Outlet />,
-});
-
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: HomePage,
-});
-
-const chatRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/chat",
-  component: ChatPage,
-});
-
-const routeTree = rootRoute.addChildren([indexRoute, chatRoute]);
-
-export const router = createRouter({ routeTree });
-
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
+export const router = createBrowserRouter([
+  {
+    id: "root",
+    path: "/",
+    Component: () => <Outlet />,
+    children: [
+      {
+        index: true,
+        Component: HomePage,
+      },
+      {
+        path: "chat",
+        Component: ChatPage,
+      },
+    ],
+  },
+]);
 ```
+
+(Plan 03 established this project's router as React Router, not TanStack Router — `chatRoute` is added here as one more object in the root route's `children` array, alongside the `index: true` entry Plan 03 created.)
 
 - [ ] **Step 16: Verify the full frontend build and test suite**
 
