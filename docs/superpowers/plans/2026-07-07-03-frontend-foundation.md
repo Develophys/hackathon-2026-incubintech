@@ -6,7 +6,7 @@
 
 **Architecture:** `presentation` (pages/components/hooks) never touches `infrastructure` directly — it calls `use-cases` through TanStack Query hooks. `use-cases` depend only on `ports` (interfaces). `infrastructure` implements those ports (HTTP, IndexedDB, Web Crypto adapters land here in later plans). `stores` (Zustand) hold UI-only state, never server data.
 
-**Tech Stack:** Vite, React 18, TypeScript (CommonJS-compatible build, matches Plans 01/02), Tailwind CSS, `vite-plugin-pwa`, TanStack Router, TanStack Query, Zustand, Zod, Vitest + React Testing Library.
+**Tech Stack:** Vite, React 18, TypeScript (CommonJS-compatible build, matching Plan 01's shared base — `apps/api`, unlike `apps/web`, later became an isolated ESM exception in Plan 02, specifically for Prisma 7's ESM-only client; that exception doesn't apply here), Tailwind CSS, `vite-plugin-pwa`, TanStack Router, TanStack Query, Zustand, Zod, Vitest + React Testing Library.
 
 ## Global Constraints
 
@@ -22,6 +22,7 @@
 **Files:**
 - Create: `apps/web/package.json`
 - Create: `apps/web/tsconfig.json`
+- Create: `apps/web/eslint.config.mjs`
 - Create: `apps/web/vite.config.ts`
 - Create: `apps/web/index.html`
 - Create: `apps/web/src/main.tsx`
@@ -92,6 +93,16 @@
 ```
 
 `noEmit: true` because Vite (not `tsc`) produces the actual build output — `tsc` here only runs as a type-check gate (see the `build` script in Step 1).
+
+- [ ] **Step 2b: Create `apps/web/eslint.config.mjs`**
+
+```js
+import base from "@zelo/config/eslint.base";
+
+export default base;
+```
+
+Without this file, `pnpm --filter @zelo/web lint` (the `lint` script from Step 1) fails outright with "ESLint couldn't find an eslint.config.(js|mjs|cjs) file" — ESLint v9's flat config requires one per package. The same gap hit `packages/domain` (Plan 01 Task 7) and `apps/api` (Plan 02 Task 1 Step 6b); fixed here from the start instead of discovered later.
 
 - [ ] **Step 3: Create `apps/web/vite.config.ts`**
 
