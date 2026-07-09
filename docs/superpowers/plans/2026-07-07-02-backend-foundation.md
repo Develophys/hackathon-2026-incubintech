@@ -24,6 +24,7 @@
 **Files:**
 - Create: `apps/api/package.json`
 - Create: `apps/api/tsconfig.json`
+- Create: `apps/api/eslint.config.mjs`
 - Create: `apps/api/vitest.config.ts`
 - Create: `apps/api/src/main.ts`
 - Create: `apps/api/src/app.module.ts`
@@ -153,12 +154,25 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  // eslint-disable-next-line no-console
   console.log(`Zelo API listening on port ${port}`);
 }
 
 bootstrap();
 ```
+
+`@zelo/config/eslint.base`'s rules (Plan 01 Task 3) don't include `no-console`, so no disable comment is needed here — one was present in an earlier draft of this plan and caused an "unused eslint-disable directive" lint failure; omitted here.
+
+- [ ] **Step 6b: Create `apps/api/eslint.config.mjs`**
+
+Create `apps/api/eslint.config.mjs`:
+
+```js
+import base from "@zelo/config/eslint.base";
+
+export default base;
+```
+
+Without this file, `pnpm --filter @zelo/api lint` (the `lint` script from Step 1) fails outright with "ESLint couldn't find an eslint.config.(js|mjs|cjs) file" — ESLint v9's flat config requires one per package, the same gap Plan 01 Task 7 fixed for `packages/domain`.
 
 - [ ] **Step 7: Verify the app builds**
 
@@ -383,7 +397,8 @@ Create `apps/api/src/shared/prisma/prisma.service.ts`:
 
 ```ts
 import "dotenv/config";
-import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import type { OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../../generated/prisma/client.ts";
 
