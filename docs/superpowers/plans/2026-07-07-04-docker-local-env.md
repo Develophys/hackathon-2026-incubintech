@@ -57,7 +57,7 @@ git commit -m "chore: add root .dockerignore for Docker build contexts"
 
 **Interfaces:**
 - Consumes: `apps/api` (Plan 02), `packages/domain` + `packages/config` (Plan 01).
-- Produces: an image that runs `prisma migrate deploy` then `node dist/main.js` on container start, listening on port 3000.
+- Produces: an image that runs `prisma migrate deploy` then `node dist/src/main.js` on container start, listening on port 3000.
 
 - [ ] **Step 1: Create `docker/api.Dockerfile`**
 
@@ -84,12 +84,12 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=installer /app .
 EXPOSE 3000
-CMD ["sh", "-c", "pnpm --filter @zelo/api exec prisma migrate deploy && node apps/api/dist/main.js"]
+CMD ["sh", "-c", "pnpm --filter @zelo/api exec prisma migrate deploy && node apps/api/dist/src/main.js"]
 ```
 
 `turbo prune @zelo/api --docker` (in the `pruner` stage) generates `/app/out/json/` (only the `package.json` files needed for `@zelo/api` and its workspace dependencies — `@zelo/domain`, `@zelo/config`) and `/app/out/full/` (the pruned source tree). Installing from `out/json/` first means `pnpm install` only re-runs when a dependency actually changes, not on every source edit — this is what makes the image layer-cacheable.
 
-Neither `prisma generate` nor `prisma migrate deploy` takes a `--schema` flag in Prisma 7 (Plan 02) — both read the schema and migrations location from `apps/api/prisma.config.ts`, which travels with the pruned source tree since it's part of `apps/api`. `prisma generate` now runs explicitly *before* the `turbo run build` step (rather than after, as it would with Prisma 5/6's old `prisma-client-js` provider) because `tsc` needs the generated client at `apps/api/generated/prisma` to type-check `PrismaService`'s import — the build would fail without it.
+Neither `prisma generate` nor `prisma migrate deploy` takes a `--schema` flag in Prisma 7 (Plan 02) — both read the schema and migrations location from `apps/api/prisma.config.ts`, which travels with the pruned source tree since it's part of `apps/api`. `prisma generate` now runs explicitly *before* the `turbo run build` step (rather than after, as it would with Prisma 5/6's old `prisma-client-js` provider) because `tsc` needs the generated client at `apps/api/generated/prisma` to type-check `PrismaService`'s import — the build would fail without it. The CMD's entry point is `dist/src/main.js`, not `dist/main.js` — Plan 02 Task 2 Step 9 widens `apps/api/tsconfig.json`'s `rootDir` to `.` (from `src`) to accommodate the generated Prisma client's real TypeScript source, which shifts `tsc`'s emitted output from `dist/main.js` to `dist/src/main.js`.
 
 - [ ] **Step 2: Verify the image builds standalone**
 

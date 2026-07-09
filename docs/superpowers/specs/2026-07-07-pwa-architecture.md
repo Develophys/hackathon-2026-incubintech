@@ -165,7 +165,7 @@ Purpose: run actual production builds locally (not `pnpm dev`) to catch build-on
 ```
 docker/
 ├── docker-compose.yml
-├── api.Dockerfile      # multi-stage: pnpm install --frozen-lockfile -> turbo build --filter=api -> node dist/main.js
+├── api.Dockerfile      # multi-stage: pnpm install --frozen-lockfile -> turbo build --filter=api -> node dist/src/main.js
 └── web.Dockerfile      # multi-stage: turbo build --filter=web -> serve static dist/ via nginx
 ```
 
