@@ -29,6 +29,14 @@ export class GroqAdapter implements AiChatPort {
     const stream = await this.client.chat.completions.create({
       model: this.model,
       max_tokens: 512,
+      // Llama-family models on Groq default to low-variance completions that
+      // loop the same handful of stock phrasings turn after turn — a direct
+      // contributor to the "feels like a robot" tell this project's user
+      // research flagged (ENT-01, persona.md). 0.8 keeps replies coherent
+      // while giving enough sampling variety that responses don't read as
+      // scripted. Paired with chat-system-prompt.ts's tone rules — this alone
+      // doesn't fix stock openers, the prompt does that.
+      temperature: 0.8,
       stream: true,
       messages: [
         { role: "system", content: params.systemPrompt },
