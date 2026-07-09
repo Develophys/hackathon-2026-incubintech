@@ -1,5 +1,6 @@
 import { createBrowserRouter, Outlet } from "react-router";
 import { HomePage } from "../presentation/pages/HomePage";
+import { ChatPage } from "../presentation/pages/ChatPage";
 
 export const router = createBrowserRouter([
   {
@@ -10,6 +11,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         Component: HomePage,
+      },
+      {
+        path: "chat",
+        Component: ChatPage,
       },
     ],
   },
