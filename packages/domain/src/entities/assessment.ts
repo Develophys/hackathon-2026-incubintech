@@ -15,6 +15,16 @@ export type AssessmentScaleType = z.infer<typeof AssessmentScaleType>;
  * `riskSignal` in the request body will have it silently dropped by
  * `AssessmentSchema.parse()` before anything is persisted.
  */
+/**
+ * `scaleType` accepts all three enum members, including "MBI-HSS", even though
+ * the frontend's ScoreAssessmentUseCase (Plan 06) currently throws rather than
+ * ever producing an MBI-HSS payload (licensing not procured — see that plan's
+ * Global Constraints). This is intentional, not an oversight: the backend is a
+ * deliberately dumb ciphertext store that doesn't gate on which scales the
+ * client can legitimately generate today: no plaintext or risk signal is
+ * exposed regardless of scaleType, so there's nothing here for the backend to
+ * protect by rejecting it.
+ */
 export const AssessmentSchema = z.object({
   id: z.string().uuid(),
   scaleType: AssessmentScaleType,
