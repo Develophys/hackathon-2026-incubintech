@@ -29,3 +29,7 @@ Mobile-first PWA for confidential medical burnout triage and support. See `gener
 ## Backend local setup
 
 `apps/api` requires a `DATABASE_URL` — copy `apps/api/.env.example` to `apps/api/.env` and point it at a running Postgres instance (see Plan 04 for the Docker Compose setup, or run one manually as shown in `docs/superpowers/plans/2026-07-07-02-backend-foundation.md` Task 2).
+
+## Frontend local setup
+
+`apps/web` requires `VITE_API_BASE_URL` — copy `apps/web/.env.example` to `apps/web/.env`. Run `pnpm --filter @zelo/web dev` with `apps/api` (Plan 02) running to see the live health-check banner.
