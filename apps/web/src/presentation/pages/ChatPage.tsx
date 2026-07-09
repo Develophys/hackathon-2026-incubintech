@@ -30,7 +30,10 @@ export function ChatPage() {
         </button>
       </div>
 
-      <ChatComposer isStreaming={isStreaming} onSend={(text) => sendMessage(text, crisisFallback)} />
+      {/* hasActiveRiskSignal is hardcoded false: real risk-signal detection is a separate,
+          not-yet-built feature. Feeding crisisFallback back in here would be circular — that
+          state only ever becomes true as a RESULT of hasActiveRiskSignal already being true. */}
+      <ChatComposer isStreaming={isStreaming} onSend={(text) => sendMessage(text, false)} />
 
       {isHandoffOpen && <HumanHandoffPanel onClose={() => setIsHandoffOpen(false)} />}
     </div>
