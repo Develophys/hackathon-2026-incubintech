@@ -1452,6 +1452,13 @@ git add apps/web
 git commit -m "feat(web): add chat UI with always-available human handoff shortcut"
 ```
 
+**Correction (found by the final whole-branch review, after Task 6):** two real bugs were found in this task's code, both fixed:
+
+1. **Critical — FR-5 violation on multi-turn conversations.** `useChatConversation` stores each turn's *raw* text in `messages` (needed for UI display) and rebuilds `history` from that same state on the next turn. The frontend `SendChatMessageUseCase` (Task 4) only anonymized the *current* message, passing `history` through untouched — so a raw identifier typed in an earlier turn (e.g. a CRM number) was replayed unredacted to `apps/api` on every subsequent turn. Fixed in `send-chat-message.usecase.ts` by re-anonymizing every `history` entry too, since this use-case is the last checkpoint before any network call; redaction is idempotent (an already-redacted `[EMAIL]`-style label never re-matches), so this is safe even when `history` happens to already be clean. A regression test seeds `history` with a raw-looking prior user message and asserts the wire payload is fully redacted.
+2. **Important — dead crisis-fallback path.** `ChatPage.tsx` passed `crisisFallback` back in as `sendMessage`'s `hasActiveRiskSignal` argument — but `crisisFallback` only ever becomes `true` as a *result* of `hasActiveRiskSignal` already being `true` on the backend (`SendChatMessageUseCase`, Task 1), making the whole branch permanently unreachable from the UI. Real risk-signal detection is a separate, not-yet-built feature; `hasActiveRiskSignal` is hardcoded to `false` in `ChatPage.tsx` with a comment explaining why, until that feature lands.
+
+Also fixed: `GroqAdapter`'s `chunk.choices[0]?.delta.content` → `?.delta?.content` (defensive optional chaining; Groq always sends `delta` in practice, so this had no observed effect, just hardening).
+
 ---
 
 ### Task 6: Manual end-to-end verification and Docker env update
