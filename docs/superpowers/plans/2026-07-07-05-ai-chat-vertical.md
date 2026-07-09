@@ -17,6 +17,7 @@
 - **Deviation from spec, stated explicitly:** spec Section D says "SSE for AI chat." Native browser `EventSource` (the SSE API) only supports `GET` requests with no body, but starting a chat turn requires POSTing the anonymized message history — a payload `EventSource` cannot carry, and encoding it into a URL query string would leak chat content into server access logs, which would itself violate FR-5's anonymization intent. This plan therefore implements the same one-directional server→client streaming *transport pattern* over plain HTTP using `fetch` + `ReadableStream` (newline-delimited JSON), consumed manually instead of via `new EventSource()`. This is a transport-detail refinement, not an architectural reversal — the port/adapter boundary, the streaming shape (`ChatToken`), and the "backend-only, key never in client" property are all unchanged from the spec.
 - Requires `apps/api` (Plan 02) and `apps/web` (Plan 03) foundations complete, and `packages/domain`'s `AnonymizedMessageSchema`/`ChatTokenSchema` (Plan 01 Task 5).
 - `apps/api` runs under Node's `NodeNext` ESM resolution (Plan 02) — every relative import between hand-written source files in Task 1/2 (backend) uses an explicit `.ts` extension (`allowImportingTsExtensions`/`rewriteRelativeImportExtensions`, rewritten to `.js` by `tsc`). `apps/web` (Tasks 3-5) is unaffected and stays CommonJS with extensionless imports, as in Plan 01/03.
+- Every NestJS constructor-injected parameter in Task 1/2 (backend) uses explicit `@Inject(Token)`, including class tokens — implicit type-based injection silently resolves to `undefined` under this project's Vitest/esbuild test runner (Plan 02's Global Constraints has the full explanation). `ClaudeAdapter` and `ChatController` below both reflect this.
 - Requires a real Anthropic API key to complete this plan's manual end-to-end verification steps (Task 6) — all automated tests in Tasks 1-5 mock the Anthropic SDK and do not require one.
 
 ---
@@ -309,7 +310,7 @@ Expected: FAIL — `Cannot find module './claude.adapter.ts'`.
 Create `apps/api/src/modules/chat/infrastructure/ai-providers/claude.adapter.ts`:
 
 ```ts
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Anthropic from "@anthropic-ai/sdk";
 import type { AiChatPort } from "../../application/ports/ai-chat.port.ts";
@@ -320,7 +321,7 @@ export class ClaudeAdapter implements AiChatPort {
   private readonly client: Anthropic;
   private readonly model: string;
 
-  constructor(config: ConfigService) {
+  constructor(@Inject(ConfigService) config: ConfigService) {
     this.client = new Anthropic({ apiKey: config.getOrThrow<string>("ANTHROPIC_API_KEY") });
     this.model = config.get<string>("ANTHROPIC_MODEL") ?? "claude-sonnet-5";
   }
@@ -431,7 +432,7 @@ Expected: FAIL — `Cannot find module './chat.controller.ts'`.
 Create `apps/api/src/modules/chat/infrastructure/chat.controller.ts`:
 
 ```ts
-import { BadRequestException, Body, Controller, Post, Res } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Inject, Post, Res } from "@nestjs/common";
 import type { Response } from "express";
 import { z } from "zod";
 import { AnonymizedMessageSchema } from "@zelo/domain";
@@ -445,7 +446,7 @@ const SendChatMessageRequestSchema = z.object({
 
 @Controller("chat")
 export class ChatController {
-  constructor(private readonly sendChatMessage: SendChatMessageUseCase) {}
+  constructor(@Inject(SendChatMessageUseCase) private readonly sendChatMessage: SendChatMessageUseCase) {}
 
   @Post("stream")
   async stream(@Body() body: unknown, @Res() res: Response): Promise<void> {

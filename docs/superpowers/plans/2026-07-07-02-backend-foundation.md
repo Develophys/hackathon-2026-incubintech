@@ -15,6 +15,7 @@
 - `application/` (ports + use-cases) must never import `infrastructure/`, `@prisma/client`, or `@nestjs/platform-express` directly — only port tokens and `@nestjs/common` (DI decorators) are allowed there (spec Section C).
 - The backend must never define a DTO/controller shape that accepts raw assessment answers — this plan does not touch assessment endpoints at all (that's Plan 06), so this constraint has nothing to violate yet, but the pattern established here (Zod-validated DTOs matching `packages/domain` schemas) is what Plan 06 will follow.
 - Requires a local Postgres instance reachable at `DATABASE_URL` to complete Task 2's verification steps — Task 2 Step 1 starts one via plain `docker run` (temporary, ad hoc). Plan 04 formalizes this into `docker-compose.yml`.
+- **Every NestJS constructor-injected parameter must use explicit `@Inject(Token)` — including class tokens, not just `Symbol` tokens.** NestJS's default (implicit, type-based) constructor injection relies on `design:paramtypes` decorator metadata, which `tsc` emits (with `emitDecoratorMetadata: true`, already set) but **Vitest's esbuild-based TS transform does not** — a well-known, longstanding esbuild limitation. Under implicit injection this doesn't fail loudly: NestJS silently resolves the parameter as `undefined`, so a test only surfaces it as a confusing downstream `TypeError` (e.g. `Cannot read properties of undefined (reading 'execute')`) or an unexplained 500 response, not a clear DI error. `apps/api/vitest.config.ts`'s `setupFiles: ["reflect-metadata"]` (Task 1 Step 3) is necessary but not sufficient — it makes `Reflect.metadata` exist, it doesn't make the missing parameter-type metadata appear. This constraint binds every future module (Task 3 here, and Plans 05/06's `chat`/`assessment` modules) — every code block in this plan and Plans 05/06 already reflects it.
 
 ---
 
@@ -114,9 +115,12 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     globals: false,
+    setupFiles: ["reflect-metadata"],
   },
 });
 ```
+
+`setupFiles: ["reflect-metadata"]` makes `Reflect.metadata`/`Reflect.defineMetadata` available in the Vitest worker process — `main.ts` already imports `reflect-metadata` for the real running app, but nothing does that for tests otherwise. This alone doesn't solve NestJS DI under Vitest (see the Global Constraints note on `@Inject`), but its absence would break class-decorator metadata entirely, not just constructor-parameter injection.
 
 - [ ] **Step 4: Install dependencies**
 
@@ -556,13 +560,13 @@ Expected: PASS — 2 tests passed. Note the test never imports NestJS or Prisma 
 Create `apps/api/src/modules/health/infrastructure/prisma-database-health.adapter.ts`:
 
 ```ts
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import type { DatabaseHealthPort } from "../application/ports/database-health.port.ts";
 import { PrismaService } from "../../../shared/prisma/prisma.service.ts";
 
 @Injectable()
 export class PrismaDatabaseHealthAdapter implements DatabaseHealthPort {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async isReachable(): Promise<boolean> {
     try {
@@ -574,6 +578,8 @@ export class PrismaDatabaseHealthAdapter implements DatabaseHealthPort {
   }
 }
 ```
+
+`@Inject(PrismaService)` is explicit here even though `PrismaService` is a class (not a Symbol token) — see the Global Constraints note on why implicit type-based injection silently fails under this project's test runner.
 
 - [ ] **Step 7: Write the failing e2e test for the controller**
 
@@ -622,12 +628,12 @@ Expected: FAIL — `Cannot find module '../health.module'`.
 Create `apps/api/src/modules/health/infrastructure/health.controller.ts`:
 
 ```ts
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Inject } from "@nestjs/common";
 import { CheckHealthUseCase } from "../application/use-cases/check-health.use-case.ts";
 
 @Controller("health")
 export class HealthController {
-  constructor(private readonly checkHealth: CheckHealthUseCase) {}
+  constructor(@Inject(CheckHealthUseCase) private readonly checkHealth: CheckHealthUseCase) {}
 
   @Get()
   async get() {
@@ -635,6 +641,8 @@ export class HealthController {
   }
 }
 ```
+
+`@Inject(CheckHealthUseCase)` is explicit for the same reason as `PrismaDatabaseHealthAdapter` above — see Global Constraints.
 
 - [ ] **Step 10: Wire the module**
 

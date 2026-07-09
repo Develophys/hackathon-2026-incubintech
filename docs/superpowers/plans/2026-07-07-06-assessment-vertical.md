@@ -17,6 +17,7 @@
 - Backend submission of an assessment is best-effort and must never block the user from seeing their score — if the network call fails, the score is still shown and the record is still saved locally (PRD's documented edge case: "Conexão instável... nenhum dado é perdido").
 - Requires Plans 01, 02, 03, 04 complete.
 - `apps/api` runs under Node's `NodeNext` ESM resolution (Plan 02) — every relative import between hand-written source files in Task 1/2 (backend) uses an explicit `.ts` extension (`allowImportingTsExtensions`/`rewriteRelativeImportExtensions`, rewritten to `.js` by `tsc`). `apps/web` (Tasks 3-6) is unaffected and stays CommonJS with extensionless imports. Neither `prisma migrate dev` nor `prisma migrate deploy` takes a `--schema` flag in Prisma 7 (Plan 02) — schema location comes from `apps/api/prisma.config.ts`.
+- Every NestJS constructor-injected parameter in Task 1/2 (backend) uses explicit `@Inject(Token)`, including class tokens — implicit type-based injection silently resolves to `undefined` under this project's Vitest/esbuild test runner (Plan 02's Global Constraints has the full explanation). `PrismaAssessmentRepository` and `AssessmentController` below both reflect this.
 
 ---
 
@@ -140,14 +141,14 @@ Expected: PASS — 1 new test passed.
 Create `apps/api/src/modules/assessment/infrastructure/persistence/prisma-assessment.repository.ts`:
 
 ```ts
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import type { Assessment } from "@zelo/domain";
 import type { AssessmentRepository } from "../../application/ports/assessment-repository.port.ts";
 import { PrismaService } from "../../../../shared/prisma/prisma.service.ts";
 
 @Injectable()
 export class PrismaAssessmentRepository implements AssessmentRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async save(assessment: Assessment): Promise<void> {
     await this.prisma.assessment.create({
@@ -278,13 +279,13 @@ Expected: FAIL — `Cannot find module './assessment.controller.ts'`.
 Create `apps/api/src/modules/assessment/infrastructure/assessment.controller.ts`:
 
 ```ts
-import { BadRequestException, Body, Controller, HttpCode, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, HttpCode, Inject, Post } from "@nestjs/common";
 import { AssessmentSchema } from "@zelo/domain";
 import { StoreEncryptedAssessmentUseCase } from "../application/use-cases/store-encrypted-assessment.use-case.ts";
 
 @Controller("assessments")
 export class AssessmentController {
-  constructor(private readonly storeAssessment: StoreEncryptedAssessmentUseCase) {}
+  constructor(@Inject(StoreEncryptedAssessmentUseCase) private readonly storeAssessment: StoreEncryptedAssessmentUseCase) {}
 
   @Post()
   @HttpCode(201)
