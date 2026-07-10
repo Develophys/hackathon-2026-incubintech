@@ -47,6 +47,12 @@
   --text-display--line-height: 1.1;
   --text-score: 64px;
   --text-score--line-height: 1;
+  --text-body-strong: 15px;
+  --text-body-strong--line-height: 1.5;
+  /* design-tokens.md specifies mono-data as a 12-13px range; 12px is the
+     concrete value every mono-data usage in the screen specs actually needs. */
+  --text-mono-data: 12px;
+  --text-mono-data--line-height: 1.5;
 
   --radius-pill: 999px;
   --radius-card: 22px;
