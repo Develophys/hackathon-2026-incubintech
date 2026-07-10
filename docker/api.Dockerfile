@@ -10,9 +10,8 @@ RUN npx turbo prune @zelo/api --docker
 FROM base AS installer
 WORKDIR /app
 COPY --from=pruner /app/out/json/ .
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
-ENV DATABASE_URL="postgresql://user:password@localhost:5432/db?schema=public"
 RUN pnpm --filter @zelo/api exec prisma generate
 RUN pnpm exec turbo run build --filter=@zelo/api
 
