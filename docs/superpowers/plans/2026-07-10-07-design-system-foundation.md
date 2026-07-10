@@ -4,9 +4,9 @@
 
 **Goal:** Stand up the "Sereno" design system (Tailwind tokens, fonts, global CSS) and the shared UI primitives that every one of the 13 Zelo screens is composed from, so later screen plans can consume them without redefining styling.
 
-**Architecture:** Pure presentation-layer addition to `apps/web`. Replaces the empty `tailwind.config.ts` / `src/app/index.css` with the token-backed versions from the spec, adds Google Fonts links, adds `lucide-react` for icons, and creates 8 leaf components under `src/presentation/{layout,ui}/`. No routing, store, or domain/use-case changes in this plan.
+**Architecture:** Pure presentation-layer addition to `apps/web`. Adopts Tailwind v4's CSS-first configuration: deletes the empty `tailwind.config.ts` and `postcss.config.js`, wires `@tailwindcss/vite` into `vite.config.ts`, and replaces `src/app/index.css` with an `@theme` block carrying every token from the spec. Adds Google Fonts links and `lucide-react` for icons, and creates 8 leaf components under `src/presentation/{layout,ui}/`. No routing, store, or domain/use-case changes in this plan.
 
-**Tech Stack:** React 19, Tailwind CSS 3.4, `lucide-react` (new dependency), Vitest + Testing Library (existing).
+**Tech Stack:** React 19, Tailwind CSS v4 (CSS-first `@theme` config via `@tailwindcss/vite`, no `tailwind.config.ts`/PostCSS), `lucide-react` (new dependency), Vitest + Testing Library (existing).
 
 ## Global Constraints
 
@@ -24,9 +24,11 @@
 ```
 apps/web/
   index.html                                   (edit: add font <link> tags)
-  package.json                                 (edit: add lucide-react dependency)
-  tailwind.config.ts                           (replace)
-  src/app/index.css                            (replace)
+  package.json                                 (edit: add lucide-react + @tailwindcss/vite, bump tailwindcss to v4, drop autoprefixer/postcss)
+  vite.config.ts                               (edit: register @tailwindcss/vite plugin)
+  tailwind.config.ts                           (delete — v4 CSS-first config replaces it)
+  postcss.config.js                            (delete — @tailwindcss/vite replaces the PostCSS pipeline)
+  src/app/index.css                            (replace: @import "tailwindcss" + @theme block)
   src/presentation/
     layout/
       PhoneShell.tsx                           (new)
@@ -52,20 +54,22 @@ Each primitive is a standalone leaf component — no primitive imports another s
 
 ---
 
-## Task 1: Tailwind tokens, global CSS, fonts, icon dependency
+## Task 1: Tailwind v4 tokens (CSS-first), global CSS, fonts, icon dependency
 
 **Files:**
 - Modify: `apps/web/index.html`
 - Modify: `apps/web/package.json`
-- Replace: `apps/web/tailwind.config.ts`
+- Modify: `apps/web/vite.config.ts`
+- Delete: `apps/web/tailwind.config.ts`
+- Delete: `apps/web/postcss.config.js`
 - Replace: `apps/web/src/app/index.css`
 
 **Interfaces:**
-- Produces: Tailwind utility classes for every token in `design-tokens.md` (`bg-brand`, `text-ink`, `font-serif`, `text-h1`, `rounded-pill`, `shadow-card`, etc.) — every later task and every later plan consumes these class names.
+- Produces: Tailwind utility classes for every token in `design-tokens.md` (`bg-brand`, `text-ink`, `font-serif`, `text-h1`, `rounded-pill`, `shadow-card`, etc.) — every later task and every later plan consumes these class names. Tailwind v4's CSS-first `@theme` block is the mechanism; the resulting class names are identical to what a v3 JS config would have produced, so nothing downstream of this task needs to know which config style was used.
 
-- [ ] **Step 1: Add `lucide-react` to `apps/web/package.json` dependencies**
+- [ ] **Step 1: Update `apps/web/package.json`**
 
-Edit the `"dependencies"` block:
+Add `lucide-react` to `"dependencies"`:
 
 ```json
 "dependencies": {
@@ -80,10 +84,33 @@ Edit the `"dependencies"` block:
   },
 ```
 
+In `"devDependencies"`, bump `tailwindcss` to v4, add `@tailwindcss/vite`, and remove `autoprefixer` and `postcss` (Tailwind v4's Vite plugin runs its own CSS pipeline via Lightning CSS — no separate PostCSS config or `autoprefixer` needed):
+
+```json
+"devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "@zelo/config": "workspace:*",
+    "dependency-cruiser": "^16.4.0",
+    "fake-indexeddb": "^6.0.0",
+    "jsdom": "^25.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0",
+    "vite-plugin-pwa": "^0.20.0",
+    "vitest": "^2.1.0"
+  }
+```
+
 - [ ] **Step 2: Install**
 
 Run: `pnpm install`
-Expected: lockfile updates, `lucide-react` resolves under `node_modules/.pnpm`.
+Expected: lockfile updates; `lucide-react` and `@tailwindcss/vite` resolve under `node_modules/.pnpm`; `autoprefixer` and the standalone `postcss` package are removed.
 
 - [ ] **Step 3: Add font links to `apps/web/index.html`**
 
@@ -98,68 +125,125 @@ Insert inside `<head>`, after the `viewport` meta tag and before `<title>`:
 />
 ```
 
-- [ ] **Step 4: Replace `apps/web/tailwind.config.ts`**
+- [ ] **Step 4: Register the Tailwind v4 Vite plugin in `apps/web/vite.config.ts`**
 
 ```ts
-import type { Config } from "tailwindcss";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { VitePWA } from "vite-plugin-pwa";
 
-export default {
-  content: ["./index.html", "./src/**/*.{ts,tsx}"],
-  theme: {
-    extend: {
-      colors: {
-        brand: { DEFAULT: "#2F6B5E", hover: "#1F5A4D", ink: "#21302B" },
-        surface: { DEFAULT: "#FFFFFF", brand: "#E3ECE7" },
-        canvas: { DEFAULT: "#F2F5F3", alt: "#EEF1EF" },
-        ink: { DEFAULT: "#21302B", 2: "#4A584F" },
-        muted: { DEFAULT: "#5C6B64", 2: "#7C8A83" },
-        faint: "#9AA7A1",
-        line: "#DFE4E1",
-        warn: { DEFAULT: "#A9711A", bg: "#F6EDDA", ink: "#8A6A1F" },
-        danger: { DEFAULT: "#A2453A", bg: "#F7EBE8", border: "#E3C9C3", ink: "#8A5248" },
-        "danger-strong": { DEFAULT: "#8F2F26", bg: "#F5E4E1" },
-        dark: { DEFAULT: "#0D1512", brand: "#A8D8C9" },
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["icon-192.png", "icon-512.png"],
+      manifest: {
+        name: "Zelo",
+        short_name: "Zelo",
+        description: "Triagem e suporte confidencial à saúde mental do médico",
+        theme_color: "#0f172a",
+        background_color: "#ffffff",
+        display: "standalone",
+        start_url: "/",
+        icons: [
+          { src: "icon-192.png", sizes: "192x192", type: "image/png" },
+          { src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" },
+        ],
       },
-      fontFamily: {
-        serif: ['"Newsreader"', "Georgia", "serif"],
-        sans: ['"Nunito Sans"', "system-ui", "sans-serif"],
-        mono: ['"IBM Plex Mono"', "ui-monospace", "monospace"],
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,png,svg}"],
       },
-      fontSize: {
-        eyebrow: ["12px", { lineHeight: "1", letterSpacing: "0.1em" }],
-        caption: ["13px", { lineHeight: "1.5" }],
-        label: ["14px", { lineHeight: "1.45" }],
-        body: ["15px", { lineHeight: "1.55" }],
-        h2: ["24px", { lineHeight: "1.3" }],
-        h1: ["28px", { lineHeight: "1.2" }],
-        display: ["40px", { lineHeight: "1.1" }],
-        score: ["64px", { lineHeight: "1" }],
-      },
-      borderRadius: {
-        pill: "999px",
-        card: "22px",
-        "card-lg": "26px",
-        icon: "14px",
-        input: "16px",
-      },
-      boxShadow: {
-        card: "0 8px 24px rgba(38,70,60,.06)",
-        "card-lg": "0 10px 28px rgba(38,70,60,.07)",
-        brand: "0 12px 26px -10px rgba(47,107,94,.7)",
-        hero: "0 16px 34px -12px rgba(47,107,94,.6)",
-      },
-    },
+    }),
+  ],
+  server: {
+    port: 5173,
   },
-  plugins: [],
-} satisfies Config;
+});
 ```
 
-- [ ] **Step 5: Replace `apps/web/src/app/index.css`**
+(only the `tailwindcss` import and its entry in `plugins` are new — the `VitePWA` config is copied verbatim from the existing file, unchanged.)
+
+- [ ] **Step 5: Delete the now-obsolete config files**
+
+```bash
+git rm apps/web/tailwind.config.ts apps/web/postcss.config.js
+```
+
+v4's `@tailwindcss/vite` plugin auto-detects content (no `content: [...]` array needed) and runs its own CSS transform pipeline, so neither file has a job anymore.
+
+- [ ] **Step 6: Replace `apps/web/src/app/index.css`**
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #2F6B5E;
+  --color-brand-hover: #1F5A4D;
+  --color-brand-ink: #21302B;
+  --color-surface: #FFFFFF;
+  --color-surface-brand: #E3ECE7;
+  --color-canvas: #F2F5F3;
+  --color-canvas-alt: #EEF1EF;
+  --color-ink: #21302B;
+  --color-ink-2: #4A584F;
+  --color-muted: #5C6B64;
+  --color-muted-2: #7C8A83;
+  --color-faint: #9AA7A1;
+  --color-line: #DFE4E1;
+  --color-warn: #A9711A;
+  --color-warn-bg: #F6EDDA;
+  --color-warn-ink: #8A6A1F;
+  --color-danger: #A2453A;
+  --color-danger-bg: #F7EBE8;
+  --color-danger-border: #E3C9C3;
+  --color-danger-ink: #8A5248;
+  --color-danger-strong: #8F2F26;
+  --color-danger-strong-bg: #F5E4E1;
+  --color-dark: #0D1512;
+  --color-dark-brand: #A8D8C9;
+
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-sans: "Nunito Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --text-eyebrow: 12px;
+  --text-eyebrow--line-height: 1;
+  --text-eyebrow--letter-spacing: 0.1em;
+  --text-caption: 13px;
+  --text-caption--line-height: 1.5;
+  --text-label: 14px;
+  --text-label--line-height: 1.45;
+  --text-body: 15px;
+  --text-body--line-height: 1.55;
+  --text-h2: 24px;
+  --text-h2--line-height: 1.3;
+  --text-h1: 28px;
+  --text-h1--line-height: 1.2;
+  --text-display: 40px;
+  --text-display--line-height: 1.1;
+  --text-score: 64px;
+  --text-score--line-height: 1;
+  --text-body-strong: 15px;
+  --text-body-strong--line-height: 1.5;
+  /* design-tokens.md specifies mono-data as a 12-13px range; 12px is the
+     concrete value every mono-data usage in the screen specs actually needs. */
+  --text-mono-data: 12px;
+  --text-mono-data--line-height: 1.5;
+
+  --radius-pill: 999px;
+  --radius-card: 22px;
+  --radius-card-lg: 26px;
+  --radius-icon: 14px;
+  --radius-input: 16px;
+
+  --shadow-card: 0 8px 24px rgba(38,70,60,.06);
+  --shadow-card-lg: 0 10px 28px rgba(38,70,60,.07);
+  --shadow-brand: 0 12px 26px -10px rgba(47,107,94,.7);
+  --shadow-hero: 0 16px 34px -12px rgba(47,107,94,.6);
+}
 
 @layer base {
   html { -webkit-tap-highlight-color: transparent; }
@@ -182,16 +266,18 @@ export default {
 }
 ```
 
-- [ ] **Step 6: Verify the build picks up the new tokens**
+> Each `--color-x-y` variable generates the same `bg-x-y`/`text-x-y`/`border-x-y` utilities a v3 `colors: { x: { y: "..." } }` nested config would have. `--text-{name}` plus its `--text-{name}--line-height` (and `--letter-spacing` for `eyebrow`) companion variables reproduce v3's `fontSize: { name: [size, { lineHeight, letterSpacing }] }` tuples exactly. `--radius-*` and `--shadow-*` map to `rounded-*`/`shadow-*` the same way. No component code written in any later task or plan changes because of this — same class names in, same class names out.
+
+- [ ] **Step 7: Verify the build picks up the new tokens**
 
 Run: `pnpm --filter web build`
-Expected: build succeeds with no Tailwind errors (unknown utility class errors would fail here first).
+Expected: build succeeds with no Tailwind errors (unknown utility class or unresolved `@theme` reference errors would fail here first).
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add apps/web/index.html apps/web/package.json apps/web/tailwind.config.ts apps/web/src/app/index.css pnpm-lock.yaml
-git commit -m "feat(web): add Sereno design tokens, fonts, and lucide-react"
+git add apps/web/index.html apps/web/package.json apps/web/vite.config.ts apps/web/src/app/index.css pnpm-lock.yaml
+git commit -m "feat(web): migrate to Tailwind v4 (CSS-first @theme), add Sereno design tokens, fonts, and lucide-react"
 ```
 
 ---
