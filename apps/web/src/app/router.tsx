@@ -1,8 +1,13 @@
-import { createBrowserRouter, Outlet } from "react-router";
+import { createBrowserRouter, Outlet, redirect } from "react-router";
 import { HomePage } from "../presentation/pages/HomePage";
 import { ChatPage } from "../presentation/pages/ChatPage";
 import { Phq9AssessmentPage } from "../presentation/pages/Phq9AssessmentPage";
 import { Gad7AssessmentPage } from "../presentation/pages/Gad7AssessmentPage";
+import { SplashPage } from "../presentation/pages/SplashPage";
+import { PrivacyPage } from "../presentation/pages/PrivacyPage";
+import { ConsentPage } from "../presentation/pages/ConsentPage";
+import { useConsentStore } from "../stores/consent.store";
+import { routes } from "../presentation/lib/routes";
 
 export const router = createBrowserRouter([
   {
@@ -12,6 +17,19 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
+        Component: SplashPage,
+        loader: () => (useConsentStore.getState().hasConsented ? redirect(routes.home) : null),
+      },
+      {
+        path: "privacy",
+        Component: PrivacyPage,
+      },
+      {
+        path: "consent",
+        Component: ConsentPage,
+      },
+      {
+        path: "home",
         Component: HomePage,
       },
       {
