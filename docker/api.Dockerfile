@@ -22,9 +22,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=installer /app .
 EXPOSE 3000
-# Default boot command: apply pending migrations, then start the app. This is
-# correct for docker-compose (local Postgres on the Docker network). Fly.io
-# overrides this via fly.toml's [processes] to skip the migrate step — Prisma's
-# migrate engine connects over raw Postgres TCP/TLS, which silently hangs on
-# Fly's egress path to Neon, so migrations against Neon must be run manually.
-CMD ["sh", "-c", "pnpm --filter @zelo/api exec prisma migrate deploy && node apps/api/dist/src/main.js"]
+# Migrations are NOT run on container boot — run
+# `pnpm --filter @zelo/api exec prisma migrate deploy` manually before deploying
+# any schema change. docker-compose overrides `command:` for the api service to
+# auto-migrate locally for convenience; this image's own CMD stays migration-free
+# so Fly.io's machine config matches a known-working reference app exactly
+# (native Docker CMD, no fly.toml [processes]/init.cmd override).
+CMD ["node", "apps/api/dist/src/main.js"]

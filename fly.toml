@@ -1,32 +1,19 @@
 app = "zelo-api"
-primary_region = "iad"
+primary_region = "gru"
 
 [build]
   dockerfile = "docker/api.Dockerfile"
 
-[processes]
-  # Skip the image's default "migrate deploy && node ..." boot command: Prisma's
-  # migrate engine connects over raw Postgres TCP/TLS, which hangs on Fly's
-  # egress path to this Neon project. Run migrations manually against
-  # DIRECT_DATABASE_URL before deploying any schema change.
-  app = "node apps/api/dist/src/main.js"
-
 [env]
   PORT = "3000"
 
-[[services]]
+[http_service]
   internal_port = 3000
-  protocol = "tcp"
-  processes = ["app"]
+  force_https = true
+  auto_stop_machines = false
+  min_machines_running = 1
 
-  [[services.ports]]
-    port = 443
-    handlers = ["tls", "http"]
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-
-[[services.http_checks]]
-  path = "/health"
-  interval = "15s"
-  timeout = "5s"
+  [[http_service.checks]]
+    path = "/health"
+    interval = "15s"
+    timeout = "5s"

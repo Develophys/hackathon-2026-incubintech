@@ -23,6 +23,9 @@ services:
     container_name: zelo-api
     restart: unless-stopped
     env_file: .env.docker
+    # Local-only convenience: auto-migrate on boot against the Docker-network
+    # Postgres. The image's own CMD stays migration-free (see api.Dockerfile).
+    command: sh -c "pnpm --filter @zelo/api exec prisma migrate deploy && node apps/api/dist/src/main.js"
     depends_on:
       postgres:
         condition: service_healthy

@@ -5,11 +5,9 @@ import type { AiChatPort } from "../../application/ports/ai-chat.port.ts";
 import type { AnonymizedMessage, ChatToken } from "@zelo/domain";
 
 /**
- * Second free-tier alternative to ClaudeAdapter/GeminiAdapter, added for cost
- * reasons during hackathon development — same provider-swap story (spec
- * Section D), no changes to SendChatMessageUseCase/ChatController. Groq's
- * chat-completions API is OpenAI-compatible, so AnonymizedMessage's
- * "user"/"assistant" roles map through unchanged (unlike Gemini's "model").
+ * Sole AI_CHAT_PORT implementation — free-tier, chosen for hackathon
+ * development cost reasons. Groq's chat-completions API is OpenAI-compatible,
+ * so AnonymizedMessage's "user"/"assistant" roles map through unchanged.
  */
 @Injectable()
 export class GroqAdapter implements AiChatPort {
