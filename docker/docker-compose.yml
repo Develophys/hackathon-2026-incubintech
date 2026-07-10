@@ -1,6 +1,10 @@
+name: zelo
+
 services:
   postgres:
     image: postgres:16-alpine
+    container_name: zelo-postgres
+    restart: unless-stopped
     env_file: .env.docker
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -16,6 +20,8 @@ services:
     build:
       context: ..
       dockerfile: docker/api.Dockerfile
+    container_name: zelo-api
+    restart: unless-stopped
     env_file: .env.docker
     depends_on:
       postgres:
@@ -29,6 +35,8 @@ services:
       dockerfile: docker/web.Dockerfile
       args:
         VITE_API_BASE_URL: http://localhost:3000
+    container_name: zelo-web
+    restart: unless-stopped
     depends_on:
       - api
     ports:
