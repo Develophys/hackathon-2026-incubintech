@@ -27,12 +27,12 @@ export function BottomNav({ active, onNavigate }: BottomNavProps) {
             aria-label={label}
             aria-current={isActive ? "page" : undefined}
             onClick={() => onNavigate(id)}
-            className="flex min-h-[44px] min-w-[44px] flex-col items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className={`flex min-h-[44px] min-w-[44px] flex-col items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+              isActive ? "text-brand" : "text-faint"
+            }`}
           >
             <Icon size={22} />
-            <span className={`font-sans text-[11px] font-semibold ${
-              isActive ? "text-brand" : "text-faint"
-            }`}>{label}</span>
+            <span className="font-sans text-[11px] font-semibold">{label}</span>
           </button>
         );
       })}

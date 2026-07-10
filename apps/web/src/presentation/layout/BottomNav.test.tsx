@@ -14,8 +14,8 @@ describe("BottomNav", () => {
 
   it("styles the active tab with brand color", () => {
     render(<BottomNav active="chat" onNavigate={vi.fn()} />);
-    expect(screen.getByText("Conversar")).toHaveClass("text-brand");
-    expect(screen.getByText("Início")).toHaveClass("text-faint");
+    expect(screen.getByText("Conversar").closest("button")).toHaveClass("text-brand");
+    expect(screen.getByText("Início").closest("button")).toHaveClass("text-faint");
   });
 
   it("calls onNavigate with the tapped tab", async () => {
