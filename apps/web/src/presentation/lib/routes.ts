@@ -1,0 +1,16 @@
+export const routes = {
+  splash: "/",
+  privacy: "/privacy",
+  consent: "/consent",
+  home: "/home",
+  assessment: "/assessment",
+  phq9: "/assessment/phq9",
+  gad7: "/assessment/gad7",
+  result: "/assessment/result",
+  crisis: "/crisis",
+  crisisConnect: "/crisis/connect",
+  crisisLine: "/crisis/line",
+  chat: "/chat",
+  peers: "/peers",
+  manager: "/manager",
+} as const;
