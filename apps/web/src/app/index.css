@@ -1,6 +1,64 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #2F6B5E;
+  --color-brand-hover: #1F5A4D;
+  --color-brand-ink: #21302B;
+  --color-surface: #FFFFFF;
+  --color-surface-brand: #E3ECE7;
+  --color-canvas: #F2F5F3;
+  --color-canvas-alt: #EEF1EF;
+  --color-ink: #21302B;
+  --color-ink-2: #4A584F;
+  --color-muted: #5C6B64;
+  --color-muted-2: #7C8A83;
+  --color-faint: #9AA7A1;
+  --color-line: #DFE4E1;
+  --color-warn: #A9711A;
+  --color-warn-bg: #F6EDDA;
+  --color-warn-ink: #8A6A1F;
+  --color-danger: #A2453A;
+  --color-danger-bg: #F7EBE8;
+  --color-danger-border: #E3C9C3;
+  --color-danger-ink: #8A5248;
+  --color-danger-strong: #8F2F26;
+  --color-danger-strong-bg: #F5E4E1;
+  --color-dark: #0D1512;
+  --color-dark-brand: #A8D8C9;
+
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-sans: "Nunito Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --text-eyebrow: 12px;
+  --text-eyebrow--line-height: 1;
+  --text-eyebrow--letter-spacing: 0.1em;
+  --text-caption: 13px;
+  --text-caption--line-height: 1.5;
+  --text-label: 14px;
+  --text-label--line-height: 1.45;
+  --text-body: 15px;
+  --text-body--line-height: 1.55;
+  --text-h2: 24px;
+  --text-h2--line-height: 1.3;
+  --text-h1: 28px;
+  --text-h1--line-height: 1.2;
+  --text-display: 40px;
+  --text-display--line-height: 1.1;
+  --text-score: 64px;
+  --text-score--line-height: 1;
+
+  --radius-pill: 999px;
+  --radius-card: 22px;
+  --radius-card-lg: 26px;
+  --radius-icon: 14px;
+  --radius-input: 16px;
+
+  --shadow-card: 0 8px 24px rgba(38,70,60,.06);
+  --shadow-card-lg: 0 10px 28px rgba(38,70,60,.07);
+  --shadow-brand: 0 12px 26px -10px rgba(47,107,94,.7);
+  --shadow-hero: 0 16px 34px -12px rgba(47,107,94,.6);
+}
 
 @layer base {
   html { -webkit-tap-highlight-color: transparent; }
