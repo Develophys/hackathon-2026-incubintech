@@ -24,6 +24,7 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://zelo:devpassword@localhost:5432/zelo?schema=public
+      DIRECT_DATABASE_URL: postgresql://zelo:devpassword@localhost:5432/zelo?schema=public
     steps:
       - name: Checkout
         uses: actions/checkout@v4
