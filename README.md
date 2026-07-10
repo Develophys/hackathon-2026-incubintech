@@ -49,3 +49,20 @@ docker compose up --build -d
 - Postgres: localhost:5432 (credentials in `docker/.env.docker`)
 
 Tear down with `docker compose down` (add `-v` to also wipe the Postgres volume).
+
+## Deployment
+
+`apps/api` deploys to Fly.io (`zelo-api`), backed by Neon Postgres. `main` pushes that pass CI auto-deploy via `.github/workflows/ci.yml`'s `deploy` job. Migrations are **not** run on container boot — apply them manually before deploying a schema change:
+
+```bash
+pnpm --filter @zelo/api exec prisma migrate deploy   # DIRECT_DATABASE_URL must point at Neon
+```
+
+## Rollback (Fly.io)
+
+If a deploy breaks production:
+
+1. `fly releases --app zelo-api` — lists prior releases with their image references.
+2. `fly deploy --image <previous-image-ref> --app zelo-api` — redeploys a specific prior image.
+
+Rollback is intentionally a manual command, not automated — treat it as a deliberate decision, especially close to the demo (2026-07-25).
