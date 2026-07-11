@@ -26,14 +26,14 @@ file references these token names, never raw values.
 | `ink` | `#21302B` | Primary text |
 | `ink-2` | `#4A584F` | Secondary text |
 | `muted` | `#5C6B64` | Body copy, descriptions |
-| `muted-2` | `#7C8A83` | Captions, mono labels, inactive |
+| `muted-2` | `#66726C` | Captions, mono labels, inactive |
 | `faint` | `#9AA7A1` | Placeholder text, disabled glyphs |
 | `line` | `#DFE4E1` | Borders, dividers, unselected option outline |
 
 ### Semantic
 | Token | Hex (fg / bg / border) | Use |
 |---|---|---|
-| `warn` | `#A9711A` / `#F6EDDA` / — | Moderate band, chart peak, AI disclaimer text (`#8A6A1F`) |
+| `warn` | `#A9711A` / `#F6EDDA` / — | Moderate band, chart peak, AI disclaimer text (`#85671E`) |
 | `danger` | `#A2453A` / `#F7EBE8` / `#E3C9C3` | Crisis callouts, "moderadamente grave" band, risk signal |
 | `danger-strong` | `#8F2F26` / `#F5E4E1` | "Grave" band |
 | `dark` | `#0D1512` | Phone frame, token/credential boxes |
