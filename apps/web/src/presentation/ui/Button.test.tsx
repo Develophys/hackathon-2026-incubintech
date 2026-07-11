@@ -25,12 +25,13 @@ describe("Button", () => {
     expect(onClick).toHaveBeenCalledOnce();
   });
 
-  it("disables the button and shows a spinner when loading", () => {
+  it("disables the button and shows a spinner when loading, while keeping an accessible name", () => {
     render(<Button loading>Enviar</Button>);
-    const button = screen.getByRole("button");
+    const button = screen.getByRole("button", { name: "Enviar" });
     expect(button).toBeDisabled();
+    expect(button).toHaveAttribute("aria-busy", "true");
     expect(screen.getByTestId("button-spinner")).toBeInTheDocument();
-    expect(screen.queryByText("Enviar")).not.toBeInTheDocument();
+    expect(screen.getByTestId("button-spinner")).toHaveAttribute("aria-hidden", "true");
   });
 
   it("is full width by default", () => {

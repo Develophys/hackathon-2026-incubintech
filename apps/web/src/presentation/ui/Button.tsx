@@ -32,16 +32,17 @@ export function Button({
         className,
       ].join(" ")}
       disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...rest}
     >
-      {loading ? (
+      {loading && (
         <span
+          aria-hidden="true"
           data-testid="button-spinner"
           className="mx-auto block h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent"
         />
-      ) : (
-        children
       )}
+      <span className={loading ? "sr-only" : undefined}>{children}</span>
     </button>
   );
 }
