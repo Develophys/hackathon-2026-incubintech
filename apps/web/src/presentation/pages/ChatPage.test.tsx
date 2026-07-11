@@ -1,23 +1,49 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Routes, Route } from "react-router";
 import { ChatPage } from "./ChatPage";
+import * as container from "../../app/container";
+
+function renderChat() {
+  return render(
+    <MemoryRouter initialEntries={["/chat"]}>
+      <Routes>
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/crisis" element={<div>Crisis offer screen</div>} />
+        <Route path="/home" element={<div>Home screen</div>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
+async function* fakeAssistantStream() {
+  yield { delta: "Oi, tudo bem?" };
+}
 
 describe("ChatPage", () => {
-  it("always shows the 'talk to a human' shortcut, and it works without any network call", async () => {
-    render(<ChatPage />);
-
-    const handoffButton = screen.getByRole("button", { name: /falar com uma pessoa real/i });
-    expect(handoffButton).toBeInTheDocument();
-
-    await userEvent.click(handoffButton);
-
-    expect(screen.getByText(/CVV - Centro de Valorização da Vida: 188/i)).toBeInTheDocument();
+  it("always shows the non-dismissable disclaimer and the handoff shortcut", () => {
+    renderChat();
+    expect(screen.getByText(/não substitui atendimento profissional/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /falar com uma pessoa real/i })).toBeInTheDocument();
   });
 
-  it("shows the permanent disclaimer that the chat does not replace professional care", () => {
-    render(<ChatPage />);
+  it("navigates to /crisis on the handoff shortcut, with no network call", async () => {
+    const user = userEvent.setup();
+    renderChat();
+    await user.click(screen.getByRole("button", { name: /falar com uma pessoa real/i }));
+    expect(screen.getByText("Crisis offer screen")).toBeInTheDocument();
+  });
 
-    expect(screen.getByText(/não substitui atendimento profissional/i)).toBeInTheDocument();
+  it("sends a message and streams the assistant reply into a styled bubble", async () => {
+    vi.spyOn(container.sendChatMessageUseCase, "execute").mockReturnValue(fakeAssistantStream());
+    const user = userEvent.setup();
+    renderChat();
+
+    await user.type(screen.getByPlaceholderText("Escreva como você está…"), "Estou bem");
+    await user.click(screen.getByRole("button", { name: "Enviar" }));
+
+    expect(await screen.findByText("Estou bem")).toBeInTheDocument();
+    expect(await screen.findByText("Oi, tudo bem?")).toBeInTheDocument();
   });
 });

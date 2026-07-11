@@ -1,41 +1,79 @@
-import { useState } from "react";
+import { HeartHandshake } from "lucide-react";
+import { useNavigate } from "react-router";
+import { PhoneShell } from "../layout/PhoneShell";
 import { useChatConversation } from "../hooks/useChatConversation";
-import { ChatMessageList } from "../components/ChatMessageList";
 import { ChatComposer } from "../components/ChatComposer";
-import { HumanHandoffPanel } from "../components/HumanHandoffPanel";
+import { routes } from "../lib/routes";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
 
 export function ChatPage() {
+  const navigate = useNavigate();
   const { messages, isStreaming, crisisFallback, providerError, sendMessage } =
     useChatConversation(CONVERSATION_ID);
-  const [isHandoffOpen, setIsHandoffOpen] = useState(false);
 
   return (
-    <div className="flex h-screen flex-col">
-      <div className="border-b bg-slate-50 p-3 text-center text-sm text-slate-600">
-        Este chat é acolhimento por IA e não substitui atendimento profissional.
-      </div>
+    <PhoneShell bg="surface">
+      <div className="flex min-h-full flex-col">
+        <div className="flex items-center gap-3 border-b border-surface-brand bg-surface p-[14px_20px]">
+          <button type="button" aria-label="Voltar" onClick={() => navigate(routes.home)} className="text-ink">
+            ←
+          </button>
+          <div>
+            <p className="text-body font-extrabold text-ink">Acolhimento</p>
+            <p className="font-mono text-[12px] text-muted-2">texto anonimizado antes do envio</p>
+          </div>
+        </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <ChatMessageList messages={messages} crisisFallback={crisisFallback} providerError={providerError} />
-      </div>
+        <div className="bg-warn-bg p-[9px] text-center text-[12.5px] text-warn-ink">
+          Acolhimento por IA — não substitui atendimento profissional.
+        </div>
 
-      <div className="border-t p-3 text-center">
+        <div className="no-scrollbar flex flex-1 flex-col gap-3 overflow-y-auto p-[18px_16px]">
+          {messages.map((message, index) =>
+            message.role === "user" ? (
+              <div
+                key={index}
+                className="max-w-[80%] self-end rounded-[20px] rounded-br-md bg-brand p-[13px_15px] text-[14.5px] leading-relaxed text-white"
+              >
+                {message.content}
+              </div>
+            ) : (
+              <div
+                key={index}
+                className="max-w-[80%] self-start rounded-[20px] rounded-bl-md bg-surface p-[13px_15px] text-[14.5px] leading-relaxed text-ink shadow-card"
+              >
+                {message.content}
+              </div>
+            ),
+          )}
+          {providerError && (
+            <p className="text-[13px] text-danger">
+              O acolhimento por IA está indisponível no momento. Tente novamente em instantes, ou use o
+              atalho "Falar com uma pessoa real" abaixo.
+            </p>
+          )}
+          {crisisFallback && (
+            <p className="text-[13px] text-danger">
+              Não conseguimos conectar você à IA agora. Se você está em risco, ligue para o CVV: 188.
+            </p>
+          )}
+        </div>
+
         <button
-          onClick={() => setIsHandoffOpen(true)}
-          className="text-sm font-semibold text-slate-700 underline"
+          type="button"
+          onClick={() => navigate(routes.crisis)}
+          className="mx-4 mb-3 flex items-center justify-center gap-2 rounded-2xl bg-surface-brand p-[13px] font-bold text-brand"
         >
+          <HeartHandshake size={18} />
           Falar com uma pessoa real
         </button>
+
+        {/* hasActiveRiskSignal is hardcoded false: real risk-signal detection is a separate,
+            not-yet-built feature. Feeding crisisFallback back in here would be circular — that
+            state only ever becomes true as a RESULT of hasActiveRiskSignal already being true. */}
+        <ChatComposer isStreaming={isStreaming} onSend={(text) => sendMessage(text, false)} />
       </div>
-
-      {/* hasActiveRiskSignal is hardcoded false: real risk-signal detection is a separate,
-          not-yet-built feature. Feeding crisisFallback back in here would be circular — that
-          state only ever becomes true as a RESULT of hasActiveRiskSignal already being true. */}
-      <ChatComposer isStreaming={isStreaming} onSend={(text) => sendMessage(text, false)} />
-
-      {isHandoffOpen && <HumanHandoffPanel onClose={() => setIsHandoffOpen(false)} />}
-    </div>
+    </PhoneShell>
   );
 }

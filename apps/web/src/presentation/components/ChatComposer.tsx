@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { ArrowUp } from "lucide-react";
 
 export function ChatComposer({
   isStreaming,
@@ -18,20 +19,21 @@ export function ChatComposer({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 border-t p-4">
+    <form onSubmit={handleSubmit} className="flex items-center gap-2 border-t border-surface-brand p-[14px_16px]">
       <input
         value={text}
         onChange={(event) => setText(event.target.value)}
-        placeholder="Como você está se sentindo?"
-        className="flex-1 rounded border px-3 py-2"
+        placeholder="Escreva como você está…"
         disabled={isStreaming}
+        className="flex-1 rounded-pill border border-line bg-surface p-[13px_18px] text-[14.5px] text-ink placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       />
       <button
         type="submit"
+        aria-label="Enviar"
         disabled={isStreaming}
-        className="rounded bg-slate-800 px-4 py-2 text-white disabled:opacity-50"
+        className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-full bg-brand text-white disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       >
-        Enviar
+        <ArrowUp size={20} />
       </button>
     </form>
   );
