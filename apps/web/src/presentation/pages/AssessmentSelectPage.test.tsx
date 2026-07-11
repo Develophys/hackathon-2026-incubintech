@@ -1,0 +1,48 @@
+import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Routes, Route } from "react-router";
+import { AssessmentSelectPage } from "./AssessmentSelectPage";
+
+function renderSelect() {
+  return render(
+    <MemoryRouter initialEntries={["/assessment"]}>
+      <Routes>
+        <Route path="/assessment" element={<AssessmentSelectPage />} />
+        <Route path="/assessment/phq9" element={<div>PHQ-9 screen</div>} />
+        <Route path="/assessment/gad7" element={<div>GAD-7 screen</div>} />
+        <Route path="/home" element={<div>Home screen</div>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
+describe("AssessmentSelectPage", () => {
+  it("renders the title, both active scales, and the disabled MBI-HSS row", () => {
+    renderSelect();
+    expect(screen.getByText("Autoavaliação")).toBeInTheDocument();
+    expect(screen.getByText("PHQ-9")).toBeInTheDocument();
+    expect(screen.getByText("Humor e sinais de depressão")).toBeInTheDocument();
+    expect(screen.getByText("GAD-7")).toBeInTheDocument();
+    expect(screen.getByText("Ansiedade")).toBeInTheDocument();
+    expect(screen.getByText("MBI-HSS")).toBeInTheDocument();
+    expect(screen.getByText("em breve")).toBeInTheDocument();
+  });
+
+  it("MBI-HSS is not a button and does not navigate anywhere", () => {
+    renderSelect();
+    expect(screen.queryByRole("button", { name: /MBI-HSS/i })).not.toBeInTheDocument();
+  });
+
+  it("navigates to PHQ-9 and GAD-7 correctly", async () => {
+    const user = userEvent.setup();
+    renderSelect();
+    await user.click(screen.getByRole("button", { name: /PHQ-9/i }));
+    expect(screen.getByText("PHQ-9 screen")).toBeInTheDocument();
+  });
+
+  it("shows the on-device trust line", () => {
+    renderSelect();
+    expect(screen.getByText("tudo processado no seu aparelho")).toBeInTheDocument();
+  });
+});
