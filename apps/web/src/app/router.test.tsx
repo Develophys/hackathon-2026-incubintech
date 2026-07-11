@@ -7,6 +7,8 @@ import { SplashPage } from "../presentation/pages/SplashPage";
 import { PrivacyPage } from "../presentation/pages/PrivacyPage";
 import { ConsentPage } from "../presentation/pages/ConsentPage";
 import { HomePage } from "../presentation/pages/HomePage";
+import { AssessmentSelectPage } from "../presentation/pages/AssessmentSelectPage";
+import { AssessmentResultPage } from "../presentation/pages/AssessmentResultPage";
 import { useConsentStore } from "../stores/consent.store";
 import { routes } from "../presentation/lib/routes";
 import * as container from "./container";
@@ -27,6 +29,8 @@ function buildTestRouter(initialPath: string) {
           { path: "privacy", Component: PrivacyPage },
           { path: "consent", Component: ConsentPage },
           { path: "home", Component: HomePage },
+          { path: "assessment", Component: AssessmentSelectPage },
+          { path: "assessment/result", Component: AssessmentResultPage },
         ],
       },
     ],
@@ -71,5 +75,14 @@ describe("onboarding router flow", () => {
     await waitFor(() => {
       expect(screen.queryByRole("button", { name: "Começar" })).not.toBeInTheDocument();
     });
+  });
+
+  it("Home's check-in CTA reaches the assessment selector through the real route table", async () => {
+    useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
+    buildTestRouter("/home");
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: "Fazer check-in" }));
+    expect(await screen.findByText("Autoavaliação")).toBeInTheDocument();
   });
 });
