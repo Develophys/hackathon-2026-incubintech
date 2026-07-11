@@ -9,6 +9,9 @@ import { ConsentPage } from "../presentation/pages/ConsentPage";
 import { HomePage } from "../presentation/pages/HomePage";
 import { AssessmentSelectPage } from "../presentation/pages/AssessmentSelectPage";
 import { AssessmentResultPage } from "../presentation/pages/AssessmentResultPage";
+import { CrisisOfferPage } from "../presentation/pages/CrisisOfferPage";
+import { CrisisAcceptPage } from "../presentation/pages/CrisisAcceptPage";
+import { CrisisDeclinePage } from "../presentation/pages/CrisisDeclinePage";
 import { useConsentStore } from "../stores/consent.store";
 import { routes } from "../presentation/lib/routes";
 import * as container from "./container";
@@ -31,6 +34,9 @@ function buildTestRouter(initialPath: string) {
           { path: "home", Component: HomePage },
           { path: "assessment", Component: AssessmentSelectPage },
           { path: "assessment/result", Component: AssessmentResultPage },
+          { path: "crisis", Component: CrisisOfferPage },
+          { path: "crisis/connect", Component: CrisisAcceptPage },
+          { path: "crisis/line", Component: CrisisDeclinePage },
         ],
       },
     ],
@@ -84,5 +90,15 @@ describe("onboarding router flow", () => {
 
     await user.click(await screen.findByRole("button", { name: "Fazer check-in" }));
     expect(await screen.findByText("Autoavaliação")).toBeInTheDocument();
+  });
+
+  it("the crisis fork is reachable and both branches resolve without dead-ends", async () => {
+    useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
+    const router = buildTestRouter("/crisis");
+    const user = userEvent.setup();
+
+    expect(await screen.findByRole("button", { name: "Agora não" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Agora não" }));
+    expect(await screen.findByText("Tudo bem. A escolha é sua.")).toBeInTheDocument();
   });
 });

@@ -8,6 +8,9 @@ import { PrivacyPage } from "../presentation/pages/PrivacyPage";
 import { ConsentPage } from "../presentation/pages/ConsentPage";
 import { AssessmentSelectPage } from "../presentation/pages/AssessmentSelectPage";
 import { AssessmentResultPage } from "../presentation/pages/AssessmentResultPage";
+import { CrisisOfferPage } from "../presentation/pages/CrisisOfferPage";
+import { CrisisAcceptPage } from "../presentation/pages/CrisisAcceptPage";
+import { CrisisDeclinePage } from "../presentation/pages/CrisisDeclinePage";
 import { useConsentStore } from "../stores/consent.store";
 import { routes } from "../presentation/lib/routes";
 
@@ -54,6 +57,9 @@ export const router = createBrowserRouter([
         path: "assessment/result",
         Component: AssessmentResultPage,
       },
+      { path: "crisis", Component: CrisisOfferPage },
+      { path: "crisis/connect", Component: CrisisAcceptPage },
+      { path: "crisis/line", Component: CrisisDeclinePage },
     ],
   },
 ]);
