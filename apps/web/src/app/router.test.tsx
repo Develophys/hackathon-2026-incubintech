@@ -1,23 +1,14 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createMemoryRouter, RouterProvider, redirect, Outlet } from "react-router";
+import { createMemoryRouter, RouterProvider, Outlet } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SplashPage } from "../presentation/pages/SplashPage";
-import { PrivacyPage } from "../presentation/pages/PrivacyPage";
-import { ConsentPage } from "../presentation/pages/ConsentPage";
-import { HomePage } from "../presentation/pages/HomePage";
-import { AssessmentSelectPage } from "../presentation/pages/AssessmentSelectPage";
-import { AssessmentResultPage } from "../presentation/pages/AssessmentResultPage";
-import { CrisisOfferPage } from "../presentation/pages/CrisisOfferPage";
-import { CrisisAcceptPage } from "../presentation/pages/CrisisAcceptPage";
-import { CrisisDeclinePage } from "../presentation/pages/CrisisDeclinePage";
-import { PeersPage } from "../presentation/pages/PeersPage";
-import { ManagerDashboardPage } from "../presentation/pages/ManagerDashboardPage";
+import { routeChildren } from "./router";
 import { useConsentStore } from "../stores/consent.store";
-import { routes } from "../presentation/lib/routes";
 import * as container from "./container";
 
+// Reuses router.tsx's own route tree (routeChildren) rather than duplicating
+// it, so this test can never silently drift from what actually ships.
 function buildTestRouter(initialPath: string) {
   const router = createMemoryRouter(
     [
@@ -25,23 +16,7 @@ function buildTestRouter(initialPath: string) {
         id: "root",
         path: "/",
         Component: () => <Outlet />,
-        children: [
-          {
-            index: true,
-            Component: SplashPage,
-            loader: () => (useConsentStore.getState().hasConsented ? redirect(routes.home) : null),
-          },
-          { path: "privacy", Component: PrivacyPage },
-          { path: "consent", Component: ConsentPage },
-          { path: "home", Component: HomePage },
-          { path: "assessment", Component: AssessmentSelectPage },
-          { path: "assessment/result", Component: AssessmentResultPage },
-          { path: "crisis", Component: CrisisOfferPage },
-          { path: "crisis/connect", Component: CrisisAcceptPage },
-          { path: "crisis/line", Component: CrisisDeclinePage },
-          { path: "peers", Component: PeersPage },
-          { path: "manager", Component: ManagerDashboardPage },
-        ],
+        children: routeChildren,
       },
     ],
     { initialEntries: [initialPath] },
@@ -98,7 +73,7 @@ describe("onboarding router flow", () => {
 
   it("the crisis fork is reachable and both branches resolve without dead-ends", async () => {
     useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
-    const router = buildTestRouter("/crisis");
+    buildTestRouter("/crisis");
     const user = userEvent.setup();
 
     expect(await screen.findByRole("button", { name: "Agora não" })).toBeInTheDocument();
@@ -106,7 +81,16 @@ describe("onboarding router flow", () => {
     expect(await screen.findByText("Tudo bem. A escolha é sua.")).toBeInTheDocument();
   });
 
-  it("Home's quick actions reach Peers and the Manager demo link reaches the dashboard", async () => {
+  it("Home's quick action reaches Peers", async () => {
+    useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
+    buildTestRouter("/home");
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: "Falar com um par" }));
+    expect(await screen.findByText("Pares anônimos")).toBeInTheDocument();
+  });
+
+  it("Home's Manager demo link reaches the dashboard", async () => {
     useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
     buildTestRouter("/home");
     const user = userEvent.setup();

@@ -1,3 +1,4 @@
+import type { RouteObject } from "react-router";
 import { createBrowserRouter, Outlet, redirect } from "react-router";
 import { HomePage } from "../presentation/pages/HomePage";
 import { ChatPage } from "../presentation/pages/ChatPage";
@@ -16,54 +17,59 @@ import { ManagerDashboardPage } from "../presentation/pages/ManagerDashboardPage
 import { useConsentStore } from "../stores/consent.store";
 import { routes } from "../presentation/lib/routes";
 
+// Single source of truth for the app's route tree. router.test.tsx imports
+// this directly (rather than hand-duplicating it) so the test router can
+// never silently drift from what actually ships.
+export const routeChildren: RouteObject[] = [
+  {
+    index: true,
+    Component: SplashPage,
+    loader: () => (useConsentStore.getState().hasConsented ? redirect(routes.home) : null),
+  },
+  {
+    path: "privacy",
+    Component: PrivacyPage,
+  },
+  {
+    path: "consent",
+    Component: ConsentPage,
+  },
+  {
+    path: "home",
+    Component: HomePage,
+  },
+  {
+    path: "chat",
+    Component: ChatPage,
+  },
+  {
+    path: "assessment",
+    Component: AssessmentSelectPage,
+  },
+  {
+    path: "assessment/phq9",
+    Component: Phq9AssessmentPage,
+  },
+  {
+    path: "assessment/gad7",
+    Component: Gad7AssessmentPage,
+  },
+  {
+    path: "assessment/result",
+    Component: AssessmentResultPage,
+  },
+  { path: "crisis", Component: CrisisOfferPage },
+  { path: "crisis/connect", Component: CrisisAcceptPage },
+  { path: "crisis/line", Component: CrisisDeclinePage },
+  { path: "peers", Component: PeersPage },
+  { path: "manager", Component: ManagerDashboardPage },
+];
+
 export const router = createBrowserRouter([
   {
     id: "root",
     path: "/",
     Component: () => <Outlet />,
-    children: [
-      {
-        index: true,
-        Component: SplashPage,
-        loader: () => (useConsentStore.getState().hasConsented ? redirect(routes.home) : null),
-      },
-      {
-        path: "privacy",
-        Component: PrivacyPage,
-      },
-      {
-        path: "consent",
-        Component: ConsentPage,
-      },
-      {
-        path: "home",
-        Component: HomePage,
-      },
-      {
-        path: "chat",
-        Component: ChatPage,
-      },
-      {
-        path: "assessment",
-        Component: AssessmentSelectPage,
-      },
-      {
-        path: "assessment/phq9",
-        Component: Phq9AssessmentPage,
-      },
-      {
-        path: "assessment/gad7",
-        Component: Gad7AssessmentPage,
-      },
-      {
-        path: "assessment/result",
-        Component: AssessmentResultPage,
-      },
-      { path: "crisis", Component: CrisisOfferPage },
-      { path: "crisis/connect", Component: CrisisAcceptPage },
-      { path: "crisis/line", Component: CrisisDeclinePage },
-      { path: "peers", Component: PeersPage },
-      { path: "manager", Component: ManagerDashboardPage },
-    ],
+    children: routeChildren,
   },
 ]);
