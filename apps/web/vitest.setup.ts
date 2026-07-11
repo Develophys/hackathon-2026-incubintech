@@ -1,6 +1,25 @@
 import "@testing-library/jest-dom/vitest";
-import { afterEach } from "vitest";
+import { afterEach, expect } from "vitest";
 import { cleanup } from "@testing-library/react";
+import { toHaveNoViolations } from "vitest-axe/dist/matchers.js";
+
+// vitest-axe@0.1.0 ships two ways to register the matcher, and neither
+// fully works against the installed vitest@2.1.x:
+//   - `vitest-axe/matchers`'s root .d.ts re-exports everything as
+//     `export type *`, so `toHaveNoViolations` can't be imported as a
+//     value from there (hence the deep `dist/matchers.js` import above).
+//   - `vitest-axe/extend-expect`'s type augmentation targets the pre-2.x
+//     `Vi.Assertion` global namespace; Vitest 2.x moved matcher types onto
+//     `Assertion<T>` in the "vitest" module itself, so that augmentation is
+//     a no-op here. This declaration re-adds the matcher's type directly,
+//     following the same pattern @testing-library/jest-dom/vitest.d.ts uses.
+declare module "vitest" {
+  interface Assertion<T> {
+    toHaveNoViolations(): T;
+  }
+}
+
+expect.extend({ toHaveNoViolations });
 
 /**
  * @testing-library/react's automatic post-test cleanup only self-registers

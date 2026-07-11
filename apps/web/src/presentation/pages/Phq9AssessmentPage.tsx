@@ -56,7 +56,10 @@ export function Phq9AssessmentPage() {
         <div className="flex items-center gap-3">
           <BackButton onClick={handleBack} />
           <div className="flex-1">
-            <ProgressBar value={((questionIndex + 1) / total) * 100} />
+            <ProgressBar
+              value={((questionIndex + 1) / total) * 100}
+              label={`Progresso da avaliação: pergunta ${questionIndex + 1} de ${total}`}
+            />
           </div>
           <span className="font-mono text-[12px] text-muted-2">
             {questionIndex + 1}/{total}
