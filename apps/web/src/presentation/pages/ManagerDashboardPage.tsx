@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
 import { BackButton } from "../ui/BackButton";
+import { PrivacyBadge } from "../ui/PrivacyBadge";
 import { SectionLabel } from "../ui/SectionLabel";
 import { Card } from "../ui/Card";
 import { routes } from "../lib/routes";
@@ -23,7 +24,10 @@ export function ManagerDashboardPage() {
   return (
     <PhoneShell bg="canvas-alt">
       <div className="pt-[26px]">
-        <BackButton label="Sair da demo" onClick={() => navigate(routes.home)} />
+        <div className="flex items-center justify-between">
+          <BackButton label="Sair da demo" onClick={() => navigate(routes.home)} />
+          <PrivacyBadge />
+        </div>
         <div className="mt-4">
           <SectionLabel>Painel do gestor</SectionLabel>
         </div>

@@ -23,6 +23,7 @@ describe("PeersPage", () => {
     expect(screen.getByText("plantão noturno · ● disponível")).toBeInTheDocument();
     expect(screen.getByText("Colega · Residência")).toBeInTheDocument();
     expect(screen.getByText("responde em ~1h")).toBeInTheDocument();
+    expect(screen.getByText("anônimo")).toBeInTheDocument();
   });
 
   it("shows the mutual-anonymity guarantee", () => {

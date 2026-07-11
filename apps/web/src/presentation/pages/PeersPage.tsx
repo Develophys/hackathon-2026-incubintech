@@ -2,6 +2,7 @@ import { Lock } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
 import { BackButton } from "../ui/BackButton";
+import { PrivacyBadge } from "../ui/PrivacyBadge";
 import { routes } from "../lib/routes";
 
 // TODO(week2): peer-matching gateway — this screen is designed UI over placeholder data.
@@ -16,7 +17,10 @@ export function PeersPage() {
   return (
     <PhoneShell>
       <div className="pt-[26px]">
-        <BackButton label="Início" onClick={() => navigate(routes.home)} />
+        <div className="flex items-center justify-between">
+          <BackButton label="Início" onClick={() => navigate(routes.home)} />
+          <PrivacyBadge />
+        </div>
         <h1 className="mt-4 text-h1 text-ink">Pares anônimos</h1>
         <p className="mt-1 text-caption text-muted">
           Médicos treinados para ouvir. Nem você nem seu par veem a identidade um do outro.

@@ -27,6 +27,7 @@ describe("AssessmentSelectPage", () => {
     expect(screen.getByText("Ansiedade")).toBeInTheDocument();
     expect(screen.getByText("MBI-HSS")).toBeInTheDocument();
     expect(screen.getByText("em breve")).toBeInTheDocument();
+    expect(screen.getByText("anônimo")).toBeInTheDocument();
   });
 
   it("MBI-HSS is not a button and does not navigate anywhere", () => {

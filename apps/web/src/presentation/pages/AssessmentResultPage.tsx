@@ -3,6 +3,7 @@ import { Lock } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
 import { Button } from "../ui/Button";
+import { PrivacyBadge } from "../ui/PrivacyBadge";
 import { ResultBandCard } from "../components/ResultBandCard";
 import { RiskSignalCallout } from "../components/RiskSignalCallout";
 import { bandFor } from "../lib/band-for";
@@ -47,9 +48,12 @@ export function AssessmentResultPage() {
   return (
     <PhoneShell>
       <div className="pt-7">
-        <div className="flex items-center justify-center gap-1">
-          <Lock size={12} className="text-muted-2" />
-          <span className="font-mono text-eyebrow uppercase text-muted-2">processado no seu aparelho</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <Lock size={12} className="text-muted-2" />
+            <span className="font-mono text-eyebrow uppercase text-muted-2">processado no seu aparelho</span>
+          </div>
+          <PrivacyBadge />
         </div>
 
         <div className="mt-4">

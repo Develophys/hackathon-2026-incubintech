@@ -24,6 +24,7 @@ describe("AssessmentResultPage", () => {
     expect(screen.getByText("12")).toBeInTheDocument();
     expect(screen.getByText("Moderado")).toBeInTheDocument();
     expect(screen.getByText(/sinal, não um diagnóstico/)).toBeInTheDocument();
+    expect(screen.getByText("anônimo")).toBeInTheDocument();
   });
 
   it("shows the risk callout when riskSignal is true without hiding the other CTAs", () => {

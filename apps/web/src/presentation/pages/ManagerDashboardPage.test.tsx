@@ -29,6 +29,7 @@ describe("ManagerDashboardPage", () => {
     expect(screen.getByText(/menos de 5 respostas ficam ocultos/)).toBeInTheDocument();
     expect(screen.getByText("41%")).toBeInTheDocument();
     expect(screen.getByText("111")).toBeInTheDocument();
+    expect(screen.getByText("anônimo")).toBeInTheDocument();
   });
 
   it("navigates to /home on back", async () => {
