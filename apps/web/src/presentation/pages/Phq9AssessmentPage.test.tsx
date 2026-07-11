@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -69,5 +69,24 @@ describe("Phq9AssessmentPage", () => {
       scaleType: "PHQ-9",
       answers: new Array(PHQ9_QUESTIONS.length).fill(0),
     });
+  });
+
+  it("guards against double-submit when the final question's option is clicked twice rapidly", async () => {
+    const user = userEvent.setup();
+    renderPhq9();
+
+    for (let i = 0; i < PHQ9_QUESTIONS.length - 1; i++) {
+      await user.click(screen.getByRole("button", { name: "Nenhuma vez" }));
+    }
+
+    const finalOption = screen.getByRole("button", { name: "Nenhuma vez" });
+    fireEvent.click(finalOption);
+    fireEvent.click(finalOption);
+
+    await waitFor(() => {
+      expect(screen.getByText("Result screen")).toBeInTheDocument();
+    });
+
+    expect(container.submitAssessmentUseCase.execute).toHaveBeenCalledTimes(1);
   });
 });

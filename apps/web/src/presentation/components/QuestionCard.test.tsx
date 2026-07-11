@@ -28,4 +28,10 @@ describe("QuestionCard", () => {
     expect(screen.getByRole("button", { name: "Nenhuma vez" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Vários dias" })).toHaveAttribute("aria-pressed", "false");
   });
+
+  it("disables every option button when disabled is true", () => {
+    render(<QuestionCard question="Q" options={OPTIONS} onSelect={vi.fn()} disabled />);
+    expect(screen.getByRole("button", { name: "Nenhuma vez" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Vários dias" })).toBeDisabled();
+  });
 });

@@ -10,11 +10,12 @@ import { routes } from "../lib/routes";
 
 export function Gad7AssessmentPage() {
   const navigate = useNavigate();
-  const { mutateAsync } = useSubmitAssessment();
+  const { mutateAsync, isPending } = useSubmitAssessment();
   const [answers, setAnswers] = useState<(number | undefined)[]>(() =>
     new Array(GAD7_QUESTIONS.length).fill(undefined),
   );
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [submitError, setSubmitError] = useState(false);
 
   const total = GAD7_QUESTIONS.length;
   const isLast = questionIndex === total - 1;
@@ -28,6 +29,7 @@ export function Gad7AssessmentPage() {
   };
 
   const handleSelect = async (value: number) => {
+    setSubmitError(false);
     const nextAnswers = [...answers];
     nextAnswers[questionIndex] = value;
     setAnswers(nextAnswers);
@@ -37,10 +39,14 @@ export function Gad7AssessmentPage() {
       return;
     }
 
-    const result = await mutateAsync({ scaleType: "GAD-7", answers: nextAnswers as number[] });
-    navigate(routes.result, {
-      state: { scaleType: "GAD-7", totalScore: result.totalScore, max: 21, riskSignal: result.riskSignal },
-    });
+    try {
+      const result = await mutateAsync({ scaleType: "GAD-7", answers: nextAnswers as number[] });
+      navigate(routes.result, {
+        state: { scaleType: "GAD-7", totalScore: result.totalScore, max: 21, riskSignal: result.riskSignal },
+      });
+    } catch {
+      setSubmitError(true);
+    }
   };
 
   return (
@@ -67,7 +73,14 @@ export function Gad7AssessmentPage() {
           options={FREQUENCY_RESPONSE_OPTIONS}
           selected={answers[questionIndex]}
           onSelect={handleSelect}
+          disabled={isPending}
         />
+
+        {submitError && (
+          <p className="mt-4 text-caption text-danger">
+            Não foi possível enviar. Toque em uma opção para tentar novamente.
+          </p>
+        )}
       </div>
     </PhoneShell>
   );
