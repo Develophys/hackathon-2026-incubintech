@@ -9,7 +9,7 @@
 - **Nível**: equipe do desafio (mesmo nível do escopo)
 - **Tipo de OKR**: committed (relacionado aos checkpoints eliminatórios, que não são opcionais) combinado com learning (hipóteses de produto ainda não validadas com usuários reais)
 - **Sinal de time empoderado**: feature-team — a equipe executa contra critérios de avaliação definidos externamente pela organização (edital), não contra uma estratégia que ela mesma definiu livremente
-- **Fonte de verdade**: backlog/board da equipe (ferramenta a definir — ex.: GitHub Projects, Linear, Trello)
+- **Fonte de verdade**: backlog/board da equipe — **GitHub Projects** (decidido em 11/07/2026)
 - **Input estratégico**: critérios de avaliação do edital (sustentabilidade, viabilidade técnica, criatividade/inovação, impacto social, viabilidade econômica, apresentação/clareza, escalabilidade) + métrica de sucesso do brief do desafio
 - **Premissas**: haverá acesso a mentoria e a pelo menos uma referência clínica para validar critérios de risco; o provedor de LLM escolhido responde dentro de limites de latência aceitáveis para uso em chat
 
@@ -106,9 +106,9 @@ Este conjunto de OKRs enquadra entregas pré-definidas pelo edital (checkpoints,
 
 ## Perguntas em Aberto
 
-1. Qual ferramenta será a "fonte de verdade" do backlog da equipe (GitHub Projects, Linear, Trello)?
+1. ~~Qual ferramenta será a "fonte de verdade" do backlog da equipe?~~ — **Resolvido em 11/07/2026**: GitHub Projects.
 2. As datas exatas dos 3 checkpoints semanais já foram publicadas pela organização, ou apenas o formato ("um por semana")? — **Confirmado pelo time em 07/07/2026**: 04/07, 11/07 e 18/07 (checkpoints) e 25/07 (final) permanecem válidas como planejamento interno. Ver `roadmap/README.md` para o detalhamento por pessoa.
-3. Existe algum piso mínimo de qualidade definido pela mentoria para considerar um checkpoint "aprovado", além do prazo de entrega?
+3. ~~Existe algum piso mínimo de qualidade definido pela mentoria para considerar um checkpoint "aprovado"?~~ — **Resolvido em 11/07/2026**: segundo Mauricio, o que importa é o prazo e o projeto não fugir muito do que a documentação enviada no edital pede. Não há um piso de qualidade formal adicional conhecido além disso.
 
 ## Próximo Passo Sugerido
 

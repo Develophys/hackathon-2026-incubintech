@@ -4,7 +4,7 @@
 
 ## Semana 1 — até 11/07/2026 (Checkpoint 2, foco Fase 2)
 
-- [ ] Definir, junto com Mauricio e Gui, a metodologia de anonimização/agregação e o limiar mínimo de respostas por segmento (n) no painel institucional, para evitar re-identificação por dedução (PRD FR-13, user-stories US-006 AC-2).
+- [ ] Definir, junto com Mauricio, a metodologia de anonimização/agregação e o limiar mínimo de respostas por segmento (n) no painel institucional, para evitar re-identificação por dedução (PRD FR-13, user-stories US-006 AC-2).
 - [ ] Iniciar a modelagem da estimativa de impacto: número de médicos potencialmente alcançados e custo de afastamento evitado (entregável obrigatório do checklist).
 - [ ] Orientar Yasmin na definição do formato de dados agregados/anonimizados que vão alimentar o painel.
 
@@ -21,5 +21,5 @@
 
 ## Pendências que dependem de decisão do time
 
-- Limiar mínimo (n) por segmento no painel — decisão técnica compartilhada com Mauricio/Gui.
+- Limiar mínimo (n) por segmento no painel — decisão técnica compartilhada com Mauricio.
 - Confirmação de parceiro clínico para validar critérios de risco agudo, que também impacta a credibilidade da estimativa de impacto.

@@ -25,7 +25,7 @@ Zelo é uma PWA mobile-first que permite a um médico realizar autoavaliação c
 ### Usuários-Alvo
 
 **Primário**: médico(a) com CRM ativo em regime de alta carga assistencial (ver Persona: Dra. Camila Andrade).
-**Secundário**: gestor(a) hospitalar / coordenação de saúde ocupacional, consumidor do painel agregado (persona ainda não documentada em detalhe).
+**Secundário**: gestor(a) hospitalar / coordenação de saúde ocupacional, consumidor do painel agregado (ver Persona: Dra. Beatriz Konder, `persona-gestor-hospitalar.md`, confiança: Proto).
 
 ## Objetivos & Métricas de Sucesso
 
@@ -110,7 +110,7 @@ Ver documento `user-stories` para critérios de aceite completos.
 - **FR-4**: O chat deve operar sob um system prompt de escuta ativa clínica, com guardrails explícitos contra emissão de diagnóstico.
 - **FR-5**: O sistema deve anonimizar o conteúdo enviado à API de IA de terceiro antes do envio (remover identificadores diretos do texto do usuário).
 - **FR-6**: O chat deve exibir aviso permanente e visível de que não substitui atendimento profissional.
-- **FR-6b** *(adicionado 07/07/2026, baseado em ENT-01 — entrevista com Dr. David Mendes)*: O chat deve exibir, de forma permanente e visível em qualquer ponto da conversa — não apenas quando o sistema detecta risco agudo —, um atalho para solicitar conexão com um humano (par médico treinado ou psicólogo). Esse atalho é independente do fluxo automático de escalonamento em crise (FR-7 a FR-10) e existe porque pesquisa com usuário indicou que a desconfiança de IA é, por si só, uma barreira de abandono tão relevante quanto o anonimato.
+- **FR-6b** *(adicionado 07/07/2026, baseado em ENT-01 — entrevista com Dr. David Mendes; destino definido em 11/07/2026)*: O chat deve exibir, de forma permanente e visível em qualquer ponto da conversa — não apenas quando o sistema detecta risco agudo —, um atalho para solicitar conexão com um humano. Ao acionar o atalho, o sistema **oferece escolha explícita** entre par médico treinado ou psicólogo — não leva direto a um dos dois. Esse atalho é independente do fluxo automático de escalonamento em crise (FR-7 a FR-10) e existe porque pesquisa com usuário indicou que a desconfiança de IA é, por si só, uma barreira de abandono tão relevante quanto o anonimato.
 
 #### Escalonamento em Crise
 
@@ -127,6 +127,7 @@ Ver documento `user-stories` para critérios de aceite completos.
 
 - **FR-12**: O painel deve exibir apenas métricas agregadas e anônimas (ex.: sinais de burnout por turno/setor), nunca dados vinculáveis a um indivíduo.
 - **FR-13**: O sistema deve impedir, por arquitetura (não apenas por política), que o painel consiga cruzar métricas agregadas com identidade individual.
+- **FR-16** *(adicionado 11/07/2026, ver `adr-001-fr16-nr1-painel-gestor.md`, status: Aceito)*: O painel agregado deve apresentar as métricas já existentes (FR-12) também rotuladas como fatores de risco psicossocial mapeáveis ao PGR da NR-1 (ex.: "sobrecarga", "jornada", "esgotamento por setor"), com exportação simples (PDF/CSV), sempre herdando as restrições de anonimato de FR-13. O rótulo e a documentação de apoio devem deixar explícito que isso é um insumo para a gestão de risco psicossocial do empregador, não uma certificação de conformidade NR-1 — essa distinção precisa ser validada com um parceiro jurídico/SST antes da fala final da banca.
 
 #### Privacidade & Segurança (transversal)
 
@@ -152,11 +153,11 @@ Fluxo mobile-first (PWA): abrir app → autoavaliação (< 5 min) → score imed
 ### Restrições
 
 - Privacy-by-design é requisito não negociável: score sempre calculado no dispositivo; servidor nunca recebe dado bruto em texto claro.
-- Uso de API de LLM de terceiro (ex.: Anthropic/OpenAI) para o chat de acolhimento, com anonimização do texto antes do envio — trade-off explícito assumido para viabilizar os 28 dias (ver Perguntas em Aberto).
+- Uso da API de LLM de terceiro **Groq** (decidido/em uso em 11/07/2026; Anthropic e Gemini descartados por bloqueio de billing/quota) para o chat de acolhimento, com anonimização do texto antes do envio — trade-off explícito assumido para viabilizar os 28 dias. Política de retenção de dados da API do Groq ainda precisa ser confirmada e documentada aqui.
 - Janela de 28 dias corridos com checkpoints eliminatórios semanais (edital) — qualquer requisito que não caiba nesse prazo vira "Consideração Futura".
 - LGPD (Lei nº 13.709/2018) aplica-se integralmente a qualquer dado pessoal tratado, mesmo em protótipo.
 - CID-11 reconhece burnout como fenômeno ocupacional desde 2022; NR-1 exige gestão de riscos psicossociais dos empregadores, com vigência fiscalizatória plena a partir de maio/2026 (fonte: checklist oficial do desafio).
-- Disponibilidade de parceiro clínico (psicólogo) para o caminho de crise não está confirmada — pode exigir simulação controlada na demo, documentada como tal para a banca.
+- Disponibilidade de parceiro clínico (psicólogo) para o caminho de crise: **confirmada em 11/07/2026** — dois psicólogos parceiros, a princípio em papel consultivo (feedback e parametrização de risco, ver `roteiro-entrevista-psicologos-parceiros.md`). O canal operacional do caminho de aceite em crise (quem atende de fato uma conexão ao vivo) ainda não está fechado — pode seguir exigindo simulação controlada na demo, documentada como tal para a banca, até essa conversa avançar.
 
 ### Pontos de Integração
 
@@ -175,9 +176,10 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 
 | Dependência | Responsável | Status | Impacto se atrasar |
 |---|---|---|---|
-| Parceiro clínico para validar critérios de risco agudo e escalas | Equipe / mentoria da Jornada | Não confirmado | Sem critério clínico validado, o escalonamento de crise vira uma regra hipotética não defensável perante a banca |
-| Psicólogo(a) parceiro(a) para o caminho de aceite | Equipe / ecossistema Incubintech | Não confirmado | Caminho de aceite precisa ser simulado/mockado na demo, com isso declarado explicitamente |
-| Escolha final do provedor de LLM | Equipe técnica | Em aberto | Sem decisão, o chat de acolhimento não pode ser implementado |
+| Parceiro clínico para validar critérios de risco agudo e escalas | Equipe (Mauricio) | Parceiros confirmados, validação em andamento — ver `roteiro-entrevista-psicologos-parceiros.md`, Bloco 1 | Sem critério clínico validado, o escalonamento de crise vira uma regra hipotética não defensável perante a banca |
+| Psicólogo(a) parceiro(a) para o caminho de aceite (canal operacional) | Equipe (Mauricio) | Parceiros confirmados em papel consultivo; canal operacional do caminho de aceite ainda a definir (Bloco 8 do roteiro) | Caminho de aceite pode precisar ser simulado/mockado na demo, com isso declarado explicitamente |
+| Escolha final do provedor de LLM | Equipe técnica (Mauricio) | **Resolvido**: Groq | — |
+| Revisão jurídica/SST do rótulo NR-1 do painel (FR-16) | Mauricio | Em busca de mentor na Jornada | Sem revisão, o rótulo "insumo para o PGR" fica sem validação externa antes da fala final |
 
 ### Riscos
 
@@ -202,20 +204,21 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 
 ## Perguntas em Aberto
 
-- [ ] Qual provedor de LLM será usado para o chat de acolhimento, e qual sua política de retenção de dados para as chamadas de API? — Responsável: Tech Lead
-- [ ] Existe parceiro clínico (psicólogo) confirmado para validar os critérios de risco agudo antes da final? — Responsável: Líder de equipe
-- [ ] O painel institucional terá uma persona "gestor hospitalar" documentada, ou fica fora do escopo de PM por ora? — Responsável: PM
-- [ ] Qual o limiar mínimo de respostas por segmento no painel agregado para evitar re-identificação por dedução? — Responsável: Tech Lead + PM
-- [ ] Qual o texto e a posição exata na tela do atalho "falar com uma pessoa real" (FR-6b), e ele leva direto a um par médico, a um psicólogo, ou oferece escolha? — Responsável: Mauricio (arquitetura) + Raquel (copy/UX de conteúdo)
-- [ ] O time ainda não tem uma função de PM/liderança de produto formalmente definida — os papéis atuais são Raquel (marketing/social media), Mauricio (dev full stack/arquitetura), Gui (devops), Yasmin e Kati (dados). Quem assume a coordenação de escopo e a comunicação oficial com a organização da Jornada? — Responsável: time (definir até o checkpoint de 11/07)
-- [ ] O painel do gestor (FR-12/FR-13, US-006) deve ganhar enquadramento explícito de conformidade NR-1 (PGR/GRO), conforme gap prioritário identificado em `differentiation-traceability.md`? Se sim, vira FR-16 formal nesta PRD; se não, registrar como "Consideração Futura" citando essa análise. — Responsável: time (decidir até o checkpoint de 18/07)
+- [x] ~~Qual provedor de LLM será usado, e qual sua política de retenção de dados?~~ — **Resolvido em 11/07/2026**: Groq. Política de retenção de dados da API ainda precisa ser confirmada e documentada.
+- [x] ~~Existe parceiro clínico (psicólogo) confirmado?~~ — **Resolvido em 11/07/2026**: sim, dois parceiros, papel consultivo por ora (ver `roteiro-entrevista-psicologos-parceiros.md`).
+- [x] ~~O painel institucional terá uma persona "gestor hospitalar" documentada?~~ — **Resolvido em 11/07/2026**: sim. Ver `persona-gestor-hospitalar.md` (Dra. Beatriz Konder, confiança: Proto — sem entrevista direta ainda).
+- [ ] Qual o limiar mínimo de respostas por segmento no painel agregado? — **Mantido como pendência intencional**: fica n≥5 como placeholder técnico até validação clínica/jurídica (`roteiro-entrevista-psicologos-parceiros.md`, Bloco 6). — Responsável: Mauricio + psicólogos parceiros
+- [x] ~~Qual o texto e a posição exata do atalho "falar com uma pessoa real" (FR-6b)?~~ — **Resolvido em 11/07/2026**: oferece escolha explícita entre par médico e psicólogo (ver FR-6b acima). Texto/posição exata de copy ainda com Raquel.
+- [x] ~~O time ainda não tem uma função de PM/liderança de produto formalmente definida~~ — **Resolvido em 11/07/2026**: Mauricio assume a coordenação de escopo do produto (além de dev full stack/arquitetura/DevOps). Raquel segue com marketing/social media; Yasmin e Kati com dados. A comunicação oficial com a organização da Jornada ainda precisa de um responsável definido — Mauricio decide escopo, mas isso não implica automaticamente ser o ponto de contato oficial com a Jornada.
+- [x] ~~O painel do gestor deve ganhar enquadramento explícito de conformidade NR-1 (PGR/GRO)?~~ — **Resolvido em 11/07/2026**: sim. Ver `adr-001-fr16-nr1-painel-gestor.md` (status: Aceito) e FR-16 acima.
 
 ## Apêndice
 
 ### Documentos Relacionados
 
 - Problem Statement — `problem-statement.docx` (mesmo pacote de entrega)
-- Persona — `persona.docx` (mesmo pacote de entrega)
+- Persona (médica usuária) — `persona.docx` (mesmo pacote de entrega)
+- Persona (gestor hospitalar) — `persona-gestor-hospitalar.md` (mesma pasta, criada 11/07/2026)
 - Lean Canvas — `lean-canvas.docx` (mesmo pacote de entrega)
 - OKRs — `okrs.docx` (mesmo pacote de entrega)
 - User Stories — `user-stories.docx` (mesmo pacote de entrega)
@@ -227,6 +230,9 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 - Roadmap de atividades por pessoa (`roadmap/`)
 - Análise Competitiva — `competitive-analysis.md` (mesma pasta)
 - Rastreabilidade de Diferenciação Competitiva — `differentiation-traceability.md` (mesma pasta)
+- ADR-001 (FR-16, NR-1 no painel do gestor) — `adr-001-fr16-nr1-painel-gestor.md` (mesma pasta)
+- Roteiro de entrevista com psicólogos parceiros — `roteiro-entrevista-psicologos-parceiros.md` (mesma pasta)
+- Diagrama de arquitetura de privacidade — `docs/superpowers/specs/privacy-architecture-diagram.md`
 
 ### Histórico de Revisões
 

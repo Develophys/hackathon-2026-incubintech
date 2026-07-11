@@ -36,7 +36,9 @@ Duas pontas distintas:
 
 ### Early Adopters
 
-2 a 3 hospitais/cooperativas de porte médio em Santa Catarina, dispostos a rodar um piloto guiado pela pré-incubação da Incubintech.
+2 a 3 hospitais/cooperativas de porte médio em Santa Catarina, dispostos a rodar um piloto guiado pela pré-incubação da Incubintech. **Nenhum hospital/cooperativa pagante está formalmente confirmado (11/07/2026)** — o demandante institucional do desafio segue hipotético.
+
+**Atualização (11/07/2026)**: embora não haja hospital pagante confirmado, a equipe do Dr. David Mendes (PS/UTI) vai testar o Zelo com logins reais, gerando uso real e feedback de médicos de verdade. Isso não substitui um piloto institucional pagante, mas é a primeira validação de produto com usuário final real dentro da janela dos 28 dias.
 
 **Confiança**: Média
 **Racional**: Segmento pagante descrito no pitch deck, mas nenhum hospital piloto formalmente confirmado até o momento. Gatilho comercial reforçado pelo checklist oficial do desafio: a NR-1 entra em vigência fiscalizatória plena em maio/2026, exigindo gestão de riscos psicossociais pelos empregadores — a ferramenta passa a atender também uma obrigação de conformidade legal do lado pagante, não só um benefício de bem-estar.
@@ -88,7 +90,7 @@ Uma plataforma de saúde mental do médico em que o empregador paga pela ferrame
 ## 6. Fontes de Receita
 
 - **Modelo**: SaaS B2B por médico ativo/mês, em tiers (básico vs. institucional com painel)
-- **Preço**: A definir — nenhum benchmark de mercado testado ainda (recomendado: pesquisa de precificação na pré-incubação)
+- **Preço**: Faixa hipotética definida em 11/07/2026 para uso no pitch: **R$15–20/médico/mês** no tier básico, com tier institucional (painel agregado + FR-16) mais caro. Ancorada abaixo do benchmark local conhecido (Zenklub, ~R$22–25/vida/mês) por ser produto novo/não validado. Nenhum benchmark de mercado testado com cliente real ainda (recomendado: pesquisa de precificação na pré-incubação).
 - **Volume (Ano 1)**: A definir — placeholder até piloto com 2-3 hospitais
 - **LTV**: A definir
 - **Matemática**: preço x volume = receita (fórmula válida, sem valores confiáveis ainda)
@@ -144,9 +146,9 @@ Pergunta em aberto. Ainda não há um fosso defensável comprovado. Candidato em
 
 ### Perguntas em Aberto
 
-- Qual tier de preço um hospital de médio porte em SC realmente pagaria por médico/mês?
-- Existe já algum hospital disposto a testar antes da final da Jornada?
-- Sindicatos médicos veem valor em endossar (não pagar) a ferramenta como canal de distribuição?
+- [x] ~~Qual tier de preço um hospital de médio porte em SC realmente pagaria por médico/mês?~~ — **Resolvido em 11/07/2026 (hipótese para o pitch)**: R$15–20/médico/mês, tier básico. Ver "Fontes de Receita" acima.
+- [x] ~~Existe já algum hospital disposto a testar antes da final da Jornada?~~ — **Resolvido em 11/07/2026**: nenhum hospital pagante confirmado, mas a equipe do Dr. David Mendes vai testar com logins reais. Ver "Early Adopters" acima.
+- [ ] Sindicatos médicos veem valor em endossar (não pagar) a ferramenta como canal de distribuição? — **Confirmado como hipótese não testada (11/07/2026)**: nenhuma conversa real ainda; mantido no radar como canal "Compounding" (ver "Canais" acima), sem validação.
 
 ### Governança
 

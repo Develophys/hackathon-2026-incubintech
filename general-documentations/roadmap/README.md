@@ -16,16 +16,19 @@ status: rascunho
 | Pessoa | Papel | Arquivo |
 |---|---|---|
 | Raquel Ritter | Marketing / social media | [`raquel-ritter.md`](./raquel-ritter.md) |
-| Mauricio Alexandre | Desenvolvedor full stack / arquiteto de software | [`mauricio.md`](./mauricio.md) |
-| Gui | DevOps | [`gui.md`](./gui.md) |
+| Mauricio Alexandre | Desenvolvedor full stack / arquiteto de software / DevOps | [`mauricio.md`](./mauricio.md) |
 | Yasmin | Data analytics — júnior | [`yasmin.md`](./yasmin.md) |
 | Kati | Data analytics — sênior | [`kati.md`](./kati.md) |
 
-**Nota em aberto**: o time ainda não tem uma pessoa formalmente responsável por PM / coordenação de escopo e comunicação oficial com a organização da Jornada. Até essa função ser definida, cada pessoa é responsável por reportar o próprio progresso nos checkpoints (ver `documentacao-produto/prd.md`, seção "Perguntas em Aberto").
+**Nota (11/07/2026)**: Mauricio assume a coordenação de escopo do produto, além de desenvolvedor full stack/arquiteto/DevOps (ver nota abaixo). A comunicação oficial com a organização da Jornada ainda não tem responsável definido — ver `documentacao-produto/prd.md`, "Perguntas em Aberto".
 
-## Linha do tempo confirmada (07/07/2026)
+**Nota (11/07/2026)**: Gui (DevOps) saiu do time. Mauricio confirmou que assume integralmente o papel de DevOps, além de desenvolvedor full stack/arquiteto — ver tarefas herdadas (🔧) em `mauricio.md`.
 
-Hoje é **07/07/2026**. Faltam 18 dias corridos para a final.
+**Decisão de escopo (11/07/2026)**: o painel do gestor ganha enquadramento de conformidade NR-1 (FR-16, versão mínima rotulada — não um certificado de compliance). Decidido por Mauricio; ver `documentacao-produto/adr-001-fr16-nr1-painel-gestor.md` (status: Aceito) e `documentacao-produto/user-stories.md` (US-006, AC-4).
+
+## Linha do tempo confirmada (07/07/2026, atualizada 11/07/2026)
+
+Hoje é **11/07/2026**. Faltam 14 dias corridos para a final; 7 dias corridos até o checkpoint 3 (18/07).
 
 | Data | Marco | Janela de trabalho |
 |---|---|---|
@@ -52,16 +55,44 @@ O chat de acolhimento por IA continua obrigatório (exigência do edital), mas p
 
 | Entregável | Dono principal | Apoio |
 |---|---|---|
-| Protótipo funcional da plataforma | Mauricio | Gui |
-| Documentação da arquitetura de privacidade (com diagrama de fluxo de dados) | Gui | Mauricio |
+| Protótipo funcional da plataforma | Mauricio | — |
+| Documentação da arquitetura de privacidade (com diagrama de fluxo de dados) | Mauricio | — |
 | Documentação do protocolo de escalonamento | Mauricio | Raquel (redação) |
 | Estimativa de impacto (médicos alcançados, custo de afastamento evitado) | Kati | Yasmin |
 | Modelo de sustentabilidade (financiamento, psicólogos conveniados) | Kati | Raquel |
 | Simulação de perfis (residente / plantonista) | Kati | Yasmin |
 | Pitch deck e apresentação final (até 4 min) | Raquel | Kati (dados), Mauricio (demo) |
 
+## Rodada de decisões — 11/07/2026
+
+Mauricio, como coordenador de escopo, respondeu de forma definitiva ou parcial as perguntas em aberto acumuladas nos documentos de produto. Resumo (detalhe completo em cada documento-fonte):
+
+| Decisão | Resultado | Documento-fonte |
+|---|---|---|
+| Coordenação de escopo | Mauricio assume | `documentacao-produto/prd.md` |
+| DevOps (após saída do Gui) | Mauricio assume integralmente | `mauricio.md` |
+| FR-16 / enquadramento NR-1 no painel | Aceito (versão mínima rotulada) | `documentacao-produto/adr-001-fr16-nr1-painel-gestor.md` |
+| Provedor de LLM | Groq | `documentacao-produto/prd.md` |
+| Parceiro psicólogo | 2 confirmados, papel consultivo | `documentacao-produto/roteiro-entrevista-psicologos-parceiros.md` |
+| Limiar k-anonimato (n) do painel | Pendência intencional — aguarda Bloco 6 do roteiro | `documentacao-produto/user-stories.md` (US-006) |
+| Destino do atalho humano (FR-6b) | Oferece escolha (par médico ou psicólogo) | `documentacao-produto/prd.md` |
+| Simulação do matching de pares | Perfis fictícios pré-cadastrados, rotulados como demo | `documentacao-produto/user-stories.md` (US-005) |
+| Revisão jurídica/SST do rótulo NR-1 | Mauricio busca mentor na Jornada | `mauricio.md` |
+| Demandante institucional real | Hipotético (nenhum confirmado) | `documentacao-produto/problem-statement.md` |
+| Piloto real | Equipe do Dr. David Mendes (PS/UTI), logins reais | `documentacao-produto/problem-statement.md`, `lean-canvas.md` |
+| Faixa de preço | R$15–20/médico/mês (hipótese para o pitch) | `documentacao-produto/lean-canvas.md` |
+| Sindicatos como canal | Hipótese não testada, mantida no radar | `documentacao-produto/lean-canvas.md` |
+| Persona gestor hospitalar | Criada (Dra. Beatriz Konder, confiança Proto) | `documentacao-produto/persona-gestor-hospitalar.md` |
+| Ferramenta de backlog | GitHub Projects | `documentacao-produto/okrs.md` |
+| Piso de qualidade do checkpoint | Prazo + aderência ao edital | `documentacao-produto/okrs.md` |
+
 ## Próximos passos abertos (não datados)
 
-- Confirmar com Dr. David Mendes se o time vai avançar com entrevistas à equipe médica dele antes do checkpoint de 18/07 (ele se ofereceu para viabilizar isso). Dono sugerido: Raquel.
+- ~~Confirmar com Dr. David Mendes se o time vai avançar com entrevistas à equipe médica dele~~ — **Resolvido e ampliado em 11/07/2026**: vira piloto de uso real com logins. Ver `raquel-ritter.md` e `mauricio.md` (provisionamento de login).
 - Confirmar status do Checkpoint 1 (04/07) com a organização da Jornada.
-- Definir quem assume a coordenação geral de escopo (ver nota acima).
+- ~~Definir quem assume a coordenação geral de escopo~~ — **Resolvido em 11/07/2026**: Mauricio.
+- ~~Reatribuir as tarefas de DevOps que eram do Gui~~ — **Resolvido em 11/07/2026**: Mauricio assumiu integralmente (infraestrutura de deploy da PWA, secrets management, documentação da arquitetura de privacidade/diagrama de fluxo de dados, canal cifrado médico-psicólogo, teste offline-first, ambiente da demo ao vivo). Ver tarefas marcadas 🔧 em `mauricio.md`.
+- Confirmar política de retenção de dados da API do Groq e documentar em `prd.md`.
+- Buscar mentor jurídico/SST na Jornada para revisar o rótulo NR-1 do painel (ver `mauricio.md`).
+- Marcar a conversa com os dois psicólogos parceiros usando `documentacao-produto/roteiro-entrevista-psicologos-parceiros.md` — priorizar Blocos 1–3 antes do checkpoint de 18/07.
+- Definir logística de provisionamento de login para a equipe do Dr. David Mendes (piloto real).

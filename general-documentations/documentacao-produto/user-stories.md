@@ -32,7 +32,7 @@ Estas 8 histórias cobrem o escopo "Dentro do Escopo" definido na PRD. Persona d
 **Notas Técnicas**: Cálculo via lógica local no client (PWA), sem uso de Web Crypto API nesta etapa específica (reservada à cifragem, ver US posteriores); nenhuma chamada de rede durante o preenchimento das respostas.
 **Dependências**: Nenhuma (US inicial).
 **Fora do Escopo**: Histórico longitudinal de múltiplas autoavaliações (considerar para painel/v2).
-**Perguntas em Aberto**: Qual subconjunto exato de escalas (PHQ-9 + GAD-7 + MBI-HSS completos ou reduzidos) cabe no prazo de 28 dias?
+**Perguntas em Aberto**: Qual subconjunto exato de escalas (PHQ-9 + GAD-7 + MBI-HSS completos ou reduzidos) cabe no prazo de 28 dias? — **Encaminhado em 11/07/2026**: pergunta direcionada aos psicólogos parceiros (`roteiro-entrevista-psicologos-parceiros.md`, Bloco 2, itens 5–6).
 
 ---
 
@@ -65,7 +65,7 @@ Estas 8 histórias cobrem o escopo "Dentro do Escopo" definido na PRD. Persona d
 **Notas Técnicas**: API de LLM de terceiro (provedor a definir) com anonimização client-side antes do envio; system prompt com guardrails revisado por mentor especializado.
 **Dependências**: US-001 (o chat também pode ser acessado de forma independente, mas o fluxo natural vem após o score).
 **Fora do Escopo**: Histórico de conversas entre sessões (avaliar implicação de privacidade antes de implementar).
-**Perguntas em Aberto**: Qual provedor de LLM e qual sua política de retenção de dados de API? Qual o destino exato do atalho humano (AC-4) — par médico, psicólogo, ou escolha do usuário?
+**Perguntas em Aberto**: ~~Qual provedor de LLM?~~ **Resolvido 11/07/2026: Groq** (política de retenção de dados da API ainda a confirmar). ~~Qual o destino exato do atalho humano (AC-4)?~~ **Resolvido 11/07/2026: oferece escolha** entre par médico e psicólogo.
 
 ---
 
@@ -95,7 +95,7 @@ Estas 8 histórias cobrem o escopo "Dentro do Escopo" definido na PRD. Persona d
 **Notas Técnicas**: Geração de token de sessão efêmero; canal de comunicação ao vivo (detalhado no documento de arquitetura técnica) isolado do restante da base de dados.
 **Dependências**: Definição dos critérios de risco agudo (parceiro clínico); disponibilidade de psicólogo parceiro (ou simulação para demo).
 **Fora do Escopo**: Histórico de sessões passadas com psicólogos.
-**Perguntas em Aberto**: Como a demo vai representar essa conexão se não houver psicólogo parceiro real disponível a tempo?
+**Perguntas em Aberto**: Como a demo vai representar essa conexão se não houver psicólogo parceiro real disponível a tempo? — **Atualizado 11/07/2026**: há dois psicólogos parceiros confirmados, por ora em papel consultivo (`roteiro-entrevista-psicologos-parceiros.md`). O canal operacional do caminho de aceite (quem atende de fato uma conexão ao vivo na demo) segue em aberto — ver Bloco 8 do roteiro.
 
 ---
 
@@ -125,7 +125,7 @@ Estas 8 histórias cobrem o escopo "Dentro do Escopo" definido na PRD. Persona d
 **Notas Técnicas**: Lista de linhas de crise configurável (permitir adicionar linha específica de SC além do CVV 188, se existir).
 **Dependências**: Nenhuma além do fluxo de detecção de risco (parte da US-001/US-003).
 **Fora do Escopo**: Acionamento automático de terceiros (ex.: SAMU) sem ação do usuário.
-**Perguntas em Aberto**: Existe uma linha de apoio específica ao médico em SC a incluir além do CVV 188?
+**Perguntas em Aberto**: Existe uma linha de apoio específica ao médico em SC a incluir além do CVV 188? — **Encaminhado em 11/07/2026**: pergunta direcionada aos psicólogos parceiros (`roteiro-entrevista-psicologos-parceiros.md`, Bloco 3, item 9).
 
 ---
 
@@ -152,10 +152,10 @@ Estas 8 histórias cobrem o escopo "Dentro do Escopo" definido na PRD. Persona d
 - *AC-3 — Encerramento a qualquer momento*: Dado que a conversa com o par está em andamento, quando qualquer uma das partes decide encerrar, então a conversa termina sem necessidade de justificativa e sem penalidade.
 
 **Notas de Design**: Deixar claro que o par é "treinado", não um profissional de saúde mental.
-**Notas Técnicas**: Para o hackathon, pode ser implementado com dados/pares simulados, desde que documentado como tal.
+**Notas Técnicas**: Para o hackathon, pode ser implementado com dados/pares simulados, desde que documentado como tal. **Decidido em 11/07/2026**: usar um pequeno conjunto de perfis fictícios pré-cadastrados, rotulados explicitamente como dado de demonstração na tela e na fala para a banca — não pares reais treinados.
 **Dependências**: US-002 (fluxo de chat concluído).
 **Fora do Escopo**: Curadoria e treinamento real de pares (processo institucional, fora do escopo técnico do PoC).
-**Perguntas em Aberto**: Como simular de forma honesta o matching na demo sem uma base real de pares treinados?
+**Perguntas em Aberto**: ~~Como simular de forma honesta o matching na demo sem uma base real de pares treinados?~~ **Resolvido em 11/07/2026** — ver Notas Técnicas.
 
 ---
 
@@ -180,12 +180,13 @@ Estas 8 histórias cobrem o escopo "Dentro do Escopo" definido na PRD. Persona d
 - *AC-1 — Nenhum dado individual*: Dado que o painel está sendo exibido, quando qualquer métrica é renderizada, então não é possível identificar, direta ou indiretamente, um médico específico.
 - *AC-2 — Limiar mínimo por segmento*: Dado que um segmento (ex.: turno) tem poucas respostas, quando o número de respostas está abaixo de um limiar mínimo definido, então a métrica desse segmento não é exibida, para evitar re-identificação por dedução.
 - *AC-3 — Métricas de tendência, não de evento único*: Dado que o gestor acessa o painel, quando ele visualiza os dados, então as métricas são apresentadas como tendências ao longo do tempo, não como eventos pontuais atribuíveis a um dia/turno específico com poucas pessoas.
+- *AC-4 — Rotulagem como insumo para o PGR (NR-1)* *(adicionada 11/07/2026, PRD FR-16, `adr-001-fr16-nr1-painel-gestor.md`)*: Dado que o gestor acessa o painel, quando ele visualiza as métricas agregadas, então elas também aparecem rotuladas como fatores de risco psicossocial mapeáveis ao PGR (ex.: "sobrecarga", "jornada", "esgotamento por setor"), com uma exportação simples (PDF/CSV) disponível, e com texto explícito de que isso é um insumo para a gestão de risco psicossocial do empregador — não uma certificação de conformidade NR-1.
 
-**Notas de Design**: O painel deve reforçar visualmente a mensagem "isso é agregado", por exemplo via rótulos e mínimos de amostra.
-**Notas Técnicas**: Para a demo, usar dados agregados simulados/anonimizados; nenhuma base real de médicos é necessária.
-**Dependências**: Volume mínimo de dados simulados suficiente para o limiar (AC-2) não esvaziar o painel na demo.
-**Fora do Escopo**: Exportação de dados, integração com sistemas de BI do hospital.
-**Perguntas em Aberto**: Qual o limiar mínimo de respostas por segmento (n=3? n=5?) e quem valida esse número (parceiro clínico/jurídico)?
+**Notas de Design**: O painel deve reforçar visualmente a mensagem "isso é agregado", por exemplo via rótulos e mínimos de amostra. Para AC-4, o rótulo de risco psicossocial deve ser visualmente distinto da métrica bruta, sem parecer um selo oficial de conformidade.
+**Notas Técnicas**: Para a demo, usar dados agregados simulados/anonimizados; nenhuma base real de médicos é necessária. AC-4 reaproveita os mesmos dados agregados de AC-1/AC-2 — é camada de rotulagem/exportação, não uma nova fonte de dado.
+**Dependências**: Volume mínimo de dados simulados suficiente para o limiar (AC-2) não esvaziar o painel na demo. AC-4 depende de revisão do texto do rótulo com um mentor jurídico/SST antes da fala final da banca (ver ADR-001).
+**Fora do Escopo**: Integração com sistemas de BI ou eSocial do hospital; qualquer alegação de "conformidade garantida" com a NR-1.
+**Perguntas em Aberto**: Qual o limiar mínimo de respostas por segmento (n=3? n=5?) e quem valida esse número (parceiro clínico/jurídico)? — **Mantido como pendência intencional (11/07/2026)**: n≥5 fica como placeholder técnico até validação nos psicólogos parceiros (`roteiro-entrevista-psicologos-parceiros.md`, Bloco 6). ~~Quem revisa o texto do rótulo de AC-4 com um mentor jurídico/SST antes do checkpoint de 18/07?~~ **Resolvido em 11/07/2026**: Mauricio busca esse mentor na Jornada.
 
 ---
 
