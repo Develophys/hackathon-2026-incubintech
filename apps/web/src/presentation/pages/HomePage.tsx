@@ -6,14 +6,44 @@ import { Card } from "../ui/Card";
 import { IconBadge } from "../ui/IconBadge";
 import { PrivacyBadge } from "../ui/PrivacyBadge";
 import { routes } from "../lib/routes";
+import { useAssessmentHistory } from "../hooks/useAssessmentHistory";
+import type { WeeklyHistoryPoint } from "../../use-cases/get-assessment-history.usecase";
 
-// TODO(history): placeholder until a history endpoint exists — do not fabricate a use-case.
-const HISTORY_BARS = [30, 45, 40, 70, 35, 55] as const;
-const PEAK_INDEX = 3;
-const LATEST_INDEX = HISTORY_BARS.length - 1;
+const EMPTY_POINTS: WeeklyHistoryPoint[] = Array.from({ length: 6 }, () => ({
+  weekStart: "",
+  severityFraction: null,
+}));
+
+const MIN_BAR_HEIGHT = 8;
+const EMPTY_BAR_HEIGHT = 6;
+
+function toBarHeights(points: WeeklyHistoryPoint[]): { height: number; hasData: boolean }[] {
+  return points.map((point) =>
+    point.severityFraction === null
+      ? { height: EMPTY_BAR_HEIGHT, hasData: false }
+      : { height: Math.max(MIN_BAR_HEIGHT, Math.round(point.severityFraction * 100)), hasData: true },
+  );
+}
+
+function findPeakIndex(points: WeeklyHistoryPoint[]): number {
+  let peakIndex = -1;
+  let peakValue = -1;
+  points.forEach((point, index) => {
+    if (point.severityFraction !== null && point.severityFraction > peakValue) {
+      peakValue = point.severityFraction;
+      peakIndex = index;
+    }
+  });
+  return peakIndex;
+}
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { data: history } = useAssessmentHistory();
+  const points = history ?? EMPTY_POINTS;
+  const bars = toBarHeights(points);
+  const latestIndex = points.length - 1;
+  const peakIndex = findPeakIndex(points);
 
   const handleNavigate = (tab: "home" | "checkin" | "chat" | "you") => {
     if (tab === "home") navigate(routes.home);
@@ -54,14 +84,20 @@ export function HomePage() {
               <p className="font-mono text-[12px] text-muted-2">últimas 6 semanas</p>
             </div>
             <div className="mt-3 flex h-14 items-end gap-2">
-              {HISTORY_BARS.map((height, index) => (
+              {bars.map((bar, index) => (
                 <div
                   key={index}
                   data-testid="history-bar"
                   className={`w-full rounded-md ${
-                    index === LATEST_INDEX ? "bg-brand" : index === PEAK_INDEX ? "bg-warn" : "bg-[#CDDBD4]"
+                    !bar.hasData
+                      ? "bg-line"
+                      : index === latestIndex
+                        ? "bg-brand"
+                        : index === peakIndex
+                          ? "bg-warn"
+                          : "bg-[#CDDBD4]"
                   }`}
-                  style={{ height: `${height}%` }}
+                  style={{ height: `${bar.height}%` }}
                 />
               ))}
             </div>
