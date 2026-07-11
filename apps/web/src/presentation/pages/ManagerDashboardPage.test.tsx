@@ -34,7 +34,7 @@ describe("ManagerDashboardPage", () => {
   it("navigates to /home on back", async () => {
     const user = userEvent.setup();
     renderManager();
-    await user.click(screen.getByRole("button", { name: "← Sair da demo" }));
+    await user.click(screen.getByRole("button", { name: "Sair da demo" }));
     expect(screen.getByText("Home screen")).toBeInTheDocument();
   });
 });

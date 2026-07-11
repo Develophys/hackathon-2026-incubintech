@@ -2,6 +2,7 @@ import { useState } from "react";
 import { UserRound } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
+import { BackButton } from "../ui/BackButton";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { generateEphemeralToken } from "../lib/generate-ephemeral-token";
@@ -16,13 +17,7 @@ export function CrisisAcceptPage() {
   return (
     <PhoneShell>
       <div className="flex min-h-full flex-col pt-[30px]">
-        <button
-          type="button"
-          onClick={() => navigate(routes.crisis)}
-          className="text-label font-semibold text-muted"
-        >
-          ← Voltar
-        </button>
+        <BackButton label="Voltar" onClick={() => navigate(routes.crisis)} />
         <h1 className="mb-2 mt-4 text-h1 text-ink">Conectando com segurança</h1>
         <p className="text-caption text-muted">
           Um token temporário foi criado só para esta conversa. Sua identidade não é armazenada.

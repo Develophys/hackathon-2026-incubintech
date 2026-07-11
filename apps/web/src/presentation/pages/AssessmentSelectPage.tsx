@@ -1,6 +1,7 @@
 import { Lock } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
+import { BackButton } from "../ui/BackButton";
 import { routes } from "../lib/routes";
 
 export function AssessmentSelectPage() {
@@ -9,9 +10,7 @@ export function AssessmentSelectPage() {
   return (
     <PhoneShell>
       <div className="pt-[26px]">
-        <button type="button" onClick={() => navigate(routes.home)} className="text-label font-semibold text-muted">
-          ← Início
-        </button>
+        <BackButton label="Início" onClick={() => navigate(routes.home)} />
         <h1 className="mt-4 text-h1 text-ink">Autoavaliação</h1>
         <p className="mt-1 text-caption text-muted">
           Escolha uma escala validada. Leva cerca de 5 minutos.

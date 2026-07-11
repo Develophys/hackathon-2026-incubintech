@@ -90,7 +90,7 @@ export function HomePage() {
         <button
           type="button"
           onClick={() => navigate(routes.manager)}
-          className="mt-4 text-label font-semibold text-muted underline"
+          className="mt-4 min-h-[44px] text-left text-label font-semibold text-muted underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           Ver painel do gestor (demo)
         </button>

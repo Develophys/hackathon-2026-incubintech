@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
+import { BackButton } from "../ui/BackButton";
 import { SectionLabel } from "../ui/SectionLabel";
 import { Card } from "../ui/Card";
 import { routes } from "../lib/routes";
@@ -22,9 +23,7 @@ export function ManagerDashboardPage() {
   return (
     <PhoneShell bg="canvas-alt">
       <div className="pt-[26px]">
-        <button type="button" onClick={() => navigate(routes.home)} className="text-label font-semibold text-muted">
-          ← Sair da demo
-        </button>
+        <BackButton label="Sair da demo" onClick={() => navigate(routes.home)} />
         <div className="mt-4">
           <SectionLabel>Painel do gestor</SectionLabel>
         </div>

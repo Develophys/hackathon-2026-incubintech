@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
+import { BackButton } from "../ui/BackButton";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { requestHumanHandoffUseCase } from "../../app/container";
@@ -13,13 +14,7 @@ export function CrisisDeclinePage() {
   return (
     <PhoneShell>
       <div className="flex min-h-full flex-col pt-[30px]">
-        <button
-          type="button"
-          onClick={() => navigate(routes.crisis)}
-          className="text-label font-semibold text-muted"
-        >
-          ← Voltar
-        </button>
+        <BackButton label="Voltar" onClick={() => navigate(routes.crisis)} />
         <h1 className="mb-2 mt-4 text-h1 text-ink">Tudo bem. A escolha é sua.</h1>
         <p className="text-body text-muted">
           A oferta continua aberta a qualquer momento — sem pressa e sem penalidade.

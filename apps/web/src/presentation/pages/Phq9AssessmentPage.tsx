@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
+import { BackButton } from "../ui/BackButton";
 import { ProgressBar } from "../ui/ProgressBar";
 import { QuestionCard } from "../components/QuestionCard";
 import { PHQ9_QUESTIONS } from "../../domain/assessment-scales/phq9";
@@ -53,9 +54,7 @@ export function Phq9AssessmentPage() {
     <PhoneShell>
       <div className="flex min-h-full flex-col pt-6">
         <div className="flex items-center gap-3">
-          <button type="button" aria-label="Voltar" onClick={handleBack} className="text-ink">
-            ←
-          </button>
+          <BackButton onClick={handleBack} />
           <div className="flex-1">
             <ProgressBar value={((questionIndex + 1) / total) * 100} />
           </div>

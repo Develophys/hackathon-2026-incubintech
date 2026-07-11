@@ -1,6 +1,7 @@
 import { HeartHandshake } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
+import { BackButton } from "../ui/BackButton";
 import { useChatConversation } from "../hooks/useChatConversation";
 import { ChatComposer } from "../components/ChatComposer";
 import { routes } from "../lib/routes";
@@ -16,9 +17,7 @@ export function ChatPage() {
     <PhoneShell bg="surface">
       <div className="flex min-h-full flex-col">
         <div className="flex items-center gap-3 border-b border-surface-brand bg-surface p-[14px_20px]">
-          <button type="button" aria-label="Voltar" onClick={() => navigate(routes.home)} className="text-ink">
-            ←
-          </button>
+          <BackButton onClick={() => navigate(routes.home)} />
           <div>
             <p className="text-body font-extrabold text-ink">Acolhimento</p>
             <p className="font-mono text-[12px] text-muted-2">texto anonimizado antes do envio</p>
@@ -63,7 +62,7 @@ export function ChatPage() {
         <button
           type="button"
           onClick={() => navigate(routes.crisis)}
-          className="mx-4 mb-3 flex items-center justify-center gap-2 rounded-2xl bg-surface-brand p-[13px] font-bold text-brand"
+          className="mx-4 mb-3 flex min-h-[44px] items-center justify-center gap-2 rounded-2xl bg-surface-brand p-[13px] font-bold text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           <HeartHandshake size={18} />
           Falar com uma pessoa real

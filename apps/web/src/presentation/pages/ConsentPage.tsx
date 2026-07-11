@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Check, Lock } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
+import { BackButton } from "../ui/BackButton";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { useConsentStore } from "../../stores/consent.store";
@@ -25,13 +26,7 @@ export function ConsentPage() {
   return (
     <PhoneShell>
       <div className="pt-[30px]">
-        <button
-          type="button"
-          onClick={() => navigate(routes.privacy)}
-          className="flex items-center gap-1 text-label font-semibold text-muted"
-        >
-          ← Voltar
-        </button>
+        <BackButton label="Voltar" onClick={() => navigate(routes.privacy)} />
         <h1 className="mb-[6px] mt-4 text-h1 text-ink">Seu consentimento</h1>
         <p className="text-caption text-muted">
           Confirme antes de entrar. Você pode revogar quando quiser.
