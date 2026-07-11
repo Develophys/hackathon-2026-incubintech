@@ -11,6 +11,8 @@ import { AssessmentResultPage } from "../presentation/pages/AssessmentResultPage
 import { CrisisOfferPage } from "../presentation/pages/CrisisOfferPage";
 import { CrisisAcceptPage } from "../presentation/pages/CrisisAcceptPage";
 import { CrisisDeclinePage } from "../presentation/pages/CrisisDeclinePage";
+import { PeersPage } from "../presentation/pages/PeersPage";
+import { ManagerDashboardPage } from "../presentation/pages/ManagerDashboardPage";
 import { useConsentStore } from "../stores/consent.store";
 import { routes } from "../presentation/lib/routes";
 
@@ -60,6 +62,8 @@ export const router = createBrowserRouter([
       { path: "crisis", Component: CrisisOfferPage },
       { path: "crisis/connect", Component: CrisisAcceptPage },
       { path: "crisis/line", Component: CrisisDeclinePage },
+      { path: "peers", Component: PeersPage },
+      { path: "manager", Component: ManagerDashboardPage },
     ],
   },
 ]);

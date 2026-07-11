@@ -12,6 +12,8 @@ import { AssessmentResultPage } from "../presentation/pages/AssessmentResultPage
 import { CrisisOfferPage } from "../presentation/pages/CrisisOfferPage";
 import { CrisisAcceptPage } from "../presentation/pages/CrisisAcceptPage";
 import { CrisisDeclinePage } from "../presentation/pages/CrisisDeclinePage";
+import { PeersPage } from "../presentation/pages/PeersPage";
+import { ManagerDashboardPage } from "../presentation/pages/ManagerDashboardPage";
 import { useConsentStore } from "../stores/consent.store";
 import { routes } from "../presentation/lib/routes";
 import * as container from "./container";
@@ -37,6 +39,8 @@ function buildTestRouter(initialPath: string) {
           { path: "crisis", Component: CrisisOfferPage },
           { path: "crisis/connect", Component: CrisisAcceptPage },
           { path: "crisis/line", Component: CrisisDeclinePage },
+          { path: "peers", Component: PeersPage },
+          { path: "manager", Component: ManagerDashboardPage },
         ],
       },
     ],
@@ -100,5 +104,14 @@ describe("onboarding router flow", () => {
     expect(await screen.findByRole("button", { name: "Agora não" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Agora não" }));
     expect(await screen.findByText("Tudo bem. A escolha é sua.")).toBeInTheDocument();
+  });
+
+  it("Home's quick actions reach Peers and the Manager demo link reaches the dashboard", async () => {
+    useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
+    buildTestRouter("/home");
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: "Ver painel do gestor (demo)" }));
+    expect(await screen.findByText("Tendências da equipe")).toBeInTheDocument();
   });
 });
