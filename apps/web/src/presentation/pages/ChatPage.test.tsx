@@ -18,7 +18,11 @@ function renderChat() {
 }
 
 async function* fakeAssistantStream() {
-  yield { delta: "Oi, tudo bem?" };
+  yield {
+    conversationId: "00000000-0000-4000-8000-000000000001",
+    delta: "Oi, tudo bem?",
+    done: true,
+  };
 }
 
 describe("ChatPage", () => {
