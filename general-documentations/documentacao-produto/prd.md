@@ -208,6 +208,7 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 - [ ] Qual o limiar mínimo de respostas por segmento no painel agregado para evitar re-identificação por dedução? — Responsável: Tech Lead + PM
 - [ ] Qual o texto e a posição exata na tela do atalho "falar com uma pessoa real" (FR-6b), e ele leva direto a um par médico, a um psicólogo, ou oferece escolha? — Responsável: Mauricio (arquitetura) + Raquel (copy/UX de conteúdo)
 - [ ] O time ainda não tem uma função de PM/liderança de produto formalmente definida — os papéis atuais são Raquel (marketing/social media), Mauricio (dev full stack/arquitetura), Gui (devops), Yasmin e Kati (dados). Quem assume a coordenação de escopo e a comunicação oficial com a organização da Jornada? — Responsável: time (definir até o checkpoint de 11/07)
+- [ ] O painel do gestor (FR-12/FR-13, US-006) deve ganhar enquadramento explícito de conformidade NR-1 (PGR/GRO), conforme gap prioritário identificado em `differentiation-traceability.md`? Se sim, vira FR-16 formal nesta PRD; se não, registrar como "Consideração Futura" citando essa análise. — Responsável: time (decidir até o checkpoint de 18/07)
 
 ## Apêndice
 
@@ -224,6 +225,8 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 - Checklist do Desafio 19 — Burnout Médico (`07_07_docs/CHECKLIST DO DESAFIO 19 – BURNOUT MÉDICO.docx`)
 - Entrevista com Dr. David Mendes, 02/07/2026 (`07_07_docs/Entrevista com Dr. David Mendes...docx`)
 - Roadmap de atividades por pessoa (`roadmap/`)
+- Análise Competitiva — `competitive-analysis.md` (mesma pasta)
+- Rastreabilidade de Diferenciação Competitiva — `differentiation-traceability.md` (mesma pasta)
 
 ### Histórico de Revisões
 
