@@ -25,7 +25,8 @@ the existing use-cases on submit.
 | `/crisis/line` | `CrisisDeclinePage` | CVV 188 |
 | `/chat` | `ChatPage` | Existing; restyled |
 | `/peers` | `PeersPage` | Anonymous peer list |
-| `/manager` | `ManagerDashboardPage` | Demo/aggregated (gate behind a role later) |
+| `/manager/login` | `ManagerLoginPage` | Shared-code gate for the manager dashboard (see §5) |
+| `/manager` | `ManagerDashboardPage` | Aggregated, k-anonymized; gated by `/manager/login`'s session (see §5) |
 
 > Keep the current data-router shape (`id: "root"`, `Component: () => <Outlet/>`). Add a
 > loader on `/` that checks the consent store and `redirect("/home")` if already consented.
@@ -40,6 +41,7 @@ Chat → Crisis            (persistent "falar com uma pessoa real")
 Crisis → Crisis/connect  (accept)  → Chat (secure)
 Crisis → Crisis/line     (decline) → Home
 Home → Chat | Peers | Manager
+Manager → Manager/login (if no valid session) → Manager (on correct code)
 ```
 
 ---
@@ -114,6 +116,64 @@ export const routes = {
   crisisLine: "/crisis/line", chat: "/chat", peers: "/peers", manager: "/manager",
 } as const;
 ```
+
+---
+
+## 5. Authentication: two different models, on purpose
+
+Zelo has **two completely separate notions of "logged in," never one shared login system.**
+This is a deliberate design choice, not an oversight — the two audiences have opposite
+requirements.
+
+### Doctors (common users): no login, ever
+
+A doctor never creates an account, never enters a password, never proves who they are to this
+app. The only gate is **consent** — `useConsentStore` (§2 above), a boolean + timestamp in
+`localStorage`. There is no server-side session, no identity token, nothing that could later be
+used to tie a person to their check-ins. This isn't a missing feature; it's the product's core
+privacy promise (Golden rule #6 in `AGENTS.md`: "Anonymity is visible, not just real"). A future
+"real" version of `PeersPage` would need *some* identity concept for peer matching — that design
+exists (`identity-and-aggregation.md`) but is deliberately unbuilt, pending a product decision
+about how much of the demo can stay mocked.
+
+### Managers: a real, server-enforced login
+
+`ManagerDashboardPage` shows aggregated trends *about* doctors — a fundamentally different kind
+of surface, so it gets a fundamentally different gate: a real login that the backend actually
+enforces, not just a client-side redirect a curious user could bypass by editing localStorage.
+
+- **`ManagerLoginPage`** (`/manager/login`) collects a single shared access code (one
+  institution, one code — not a per-manager account; see
+  `2026-07-11-manager-login-simulated-dashboard-design.md` §2 for why a full multi-account
+  system wasn't built for this scope) and calls `POST /manager/login`.
+- The backend compares the submitted code against `MANAGER_ACCESS_CODE` using
+  `crypto.timingSafeEqual` (not `===`, to avoid leaking the correct code one timing-measurable
+  byte at a time) and, on a match, issues an **HMAC-SHA256-signed opaque token** (8-hour
+  expiry) — not a JWT library, just `node:crypto`, since a single shared secret doesn't need
+  one.
+- The frontend stores `{ token, expiresAt }` in **`sessionStorage`** (`useManagerSessionStore`,
+  `apps/web/src/stores/manager-session.store.ts`) — deliberately not `localStorage`: a manager
+  session is meant to end when the tab/browser closes, unlike a doctor's consent which should
+  persist.
+- The `/manager` route carries a `loader` (same idiom as the `/` splash route's consent check
+  above) that redirects to `/manager/login` if `useManagerSessionStore.getState().isValid()` is
+  false — checked both before the page ever renders (the loader) and again if a call to
+  `GET /manager/signals` comes back `401` mid-session (token expired while the tab was open).
+- Every request to `GET /manager/signals` carries the token as a `Bearer` header and is
+  rejected server-side by `ManagerAuthGuard` if it's missing, malformed, expired, or doesn't
+  verify — the redirect on the frontend is a UX convenience, **not** the actual security
+  boundary. The boundary is server-side, always.
+
+### Why the asymmetry is correct, not inconsistent
+
+A doctor's anonymity is the thing being protected — adding a login would work *against* the
+product's purpose. A manager viewing aggregate data about doctors is the opposite case: here,
+keeping an unauthorized party *out* is the whole point, even though (today) the data behind the
+gate is simulated, not real per-doctor data — see
+`2026-07-11-manager-login-simulated-dashboard-design.md` §1 for why the manager dashboard
+structurally cannot read real assessment data anyway (it's end-to-end encrypted; the server
+never holds a key that can decrypt it). The login exists to make the *access control pattern*
+real and testable now, independent of whether the data behind it is real yet.
 
 ---
 

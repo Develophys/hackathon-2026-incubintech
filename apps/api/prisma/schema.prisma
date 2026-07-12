@@ -20,3 +20,15 @@ model Assessment {
 
   @@map("assessments")
 }
+
+model SimulatedSignal {
+  id         String   @id @default(cuid())
+  department String
+  weekStart  DateTime
+  checkIns   Int
+  concerning Int
+  createdAt  DateTime @default(now())
+
+  @@unique([department, weekStart])
+  @@map("simulated_signals")
+}
