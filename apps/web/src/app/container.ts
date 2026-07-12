@@ -11,6 +11,8 @@ import { GetAssessmentHistoryUseCase } from "../use-cases/get-assessment-history
 import { WebCryptoEncryptionAdapter } from "../infrastructure/crypto/web-crypto-encryption.adapter";
 import { IndexedDbAssessmentStoreAdapter } from "../infrastructure/storage/indexeddb-assessment-store.adapter";
 import { HttpAssessmentSubmissionAdapter } from "../infrastructure/http/http-assessment-submission.adapter";
+import { LoginManagerUseCase } from "../use-cases/login-manager.usecase";
+import { HttpManagerAuthAdapter } from "../infrastructure/http/http-manager-auth.adapter";
 
 export const checkApiHealthUseCase = new CheckApiHealthUseCase(new HttpApiHealthAdapter());
 export const sendChatMessageUseCase = new SendChatMessageUseCase(
@@ -29,3 +31,4 @@ export const getAssessmentHistoryUseCase = new GetAssessmentHistoryUseCase(
   new WebCryptoEncryptionAdapter(),
   new ScoreAssessmentUseCase(),
 );
+export const loginManagerUseCase = new LoginManagerUseCase(new HttpManagerAuthAdapter());

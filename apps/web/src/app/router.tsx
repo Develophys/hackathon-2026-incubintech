@@ -14,6 +14,7 @@ import { CrisisAcceptPage } from "../presentation/pages/CrisisAcceptPage";
 import { CrisisDeclinePage } from "../presentation/pages/CrisisDeclinePage";
 import { PeersPage } from "../presentation/pages/PeersPage";
 import { ManagerDashboardPage } from "../presentation/pages/ManagerDashboardPage";
+import { ManagerLoginPage } from "../presentation/pages/ManagerLoginPage";
 import { useConsentStore } from "../stores/consent.store";
 import { routes } from "../presentation/lib/routes";
 
@@ -62,6 +63,7 @@ export const routeChildren: RouteObject[] = [
   { path: "crisis/connect", Component: CrisisAcceptPage },
   { path: "crisis/line", Component: CrisisDeclinePage },
   { path: "peers", Component: PeersPage },
+  { path: "manager/login", Component: ManagerLoginPage },
   { path: "manager", Component: ManagerDashboardPage },
 ];
 

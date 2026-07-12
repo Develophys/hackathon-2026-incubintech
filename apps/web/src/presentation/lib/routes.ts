@@ -13,4 +13,5 @@ export const routes = {
   chat: "/chat",
   peers: "/peers",
   manager: "/manager",
+  managerLogin: "/manager/login",
 } as const;
