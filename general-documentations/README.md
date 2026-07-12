@@ -50,29 +50,36 @@ a anterior.
 10. [`documentacao-produto/adr-001-fr16-nr1-painel-gestor.md`](documentacao-produto/adr-001-fr16-nr1-painel-gestor.md)
     — decisão específica sobre o enquadramento de conformidade NR-1 no painel do gestor
     (contexto, opções consideradas, consequências).
-11. [`../docs/superpowers/specs/privacy-architecture-diagram.md`](../docs/superpowers/specs/privacy-architecture-diagram.md)
+11. [`documentacao-produto/adr-002-mbi-hss-direction.md`](documentacao-produto/adr-002-mbi-hss-direction.md)
+    — por que o MBI-HSS segue "em breve" (licenciamento Mind Garden), quais das fontes
+    trazidas em 12/07/2026 são seguras de citar, as bandas de escore de referência (não
+    validadas clinicamente) e a separação de nível de alerta em relação ao caminho de crise
+    agudo.
+12. [`../docs/superpowers/specs/privacy-architecture-diagram.md`](../docs/superpowers/specs/privacy-architecture-diagram.md)
     — o diagrama que prova, tecnicamente, a promessa central de privacidade do produto.
 
 ## Fase 4 — Execução: quem faz o quê, e o que falta
 
-12. [`documentacao-produto/okrs.md`](documentacao-produto/okrs.md) — objetivo do ciclo,
+13. [`documentacao-produto/okrs.md`](documentacao-produto/okrs.md) — objetivo do ciclo,
     resultados-chave, guardrails de integridade.
-13. Roadmaps individuais — tarefas por pessoa, semana a semana:
+14. Roadmaps individuais — tarefas por pessoa, semana a semana:
     [`roadmap/mauricio.md`](roadmap/mauricio.md) ·
     [`roadmap/raquel-ritter.md`](roadmap/raquel-ritter.md) ·
     [`roadmap/kati.md`](roadmap/kati.md) ·
     [`roadmap/yasmin.md`](roadmap/yasmin.md)
-14. [`documentacao-produto/roteiro-entrevista-psicologos-parceiros.md`](documentacao-produto/roteiro-entrevista-psicologos-parceiros.md)
+15. [`documentacao-produto/roteiro-entrevista-psicologos-parceiros.md`](documentacao-produto/roteiro-entrevista-psicologos-parceiros.md)
     — o trabalho pendente mais importante agora: valida os critérios clínicos ainda em aberto
-    (risco agudo, escalas, protocolo de escalonamento).
-15. [`documentacao-produto/2026-07-11_stakeholder-update-email-mentoria-parceiro-psicologo.md`](documentacao-produto/2026-07-11_stakeholder-update-email-mentoria-parceiro-psicologo.md)
+    (risco agudo, escalas, protocolo de escalonamento) — inclui as bandas de escore do
+    MBI-HSS registradas na ADR-002.
+16. [`documentacao-produto/2026-07-11_stakeholder-update-email-mentoria-parceiro-psicologo.md`](documentacao-produto/2026-07-11_stakeholder-update-email-mentoria-parceiro-psicologo.md)
     — e-mail pronto para a mentoria da Jornada, ainda não enviado (falta só o destinatário real).
 
 ## Fase 5 — Deep dive técnico (opcional, se for engenharia)
 
-16. [`../docs/superpowers/specs/`](../docs/superpowers/specs/) — telas, tokens de design,
-    arquitetura da PWA.
-17. [`../docs/superpowers/plans/`](../docs/superpowers/plans/) — planos de implementação por
+17. [`../docs/superpowers/specs/`](../docs/superpowers/specs/) — telas, tokens de design,
+    arquitetura da PWA (inclui `2026-07-12-mbi-hss-chat-direction-design.md`, o desenho
+    técnico da ADR-002).
+18. [`../docs/superpowers/plans/`](../docs/superpowers/plans/) — planos de implementação por
     vertical (fundação, backend, frontend, chat de IA, avaliação, etc.).
 
 ---
