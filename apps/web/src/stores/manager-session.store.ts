@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+// sessionStorage + Bearer token, not an HttpOnly cookie — deliberate,
+// see docs/superpowers/specs/technical-debt.md#td-001.
+
 interface ManagerSessionState {
   token: string | null;
   expiresAt: string | null;

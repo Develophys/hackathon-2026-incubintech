@@ -3,6 +3,8 @@ import type { CanActivate, ExecutionContext } from "@nestjs/common";
 import type { Request } from "express";
 import { ManagerTokenService } from "../application/services/manager-token.service.ts";
 
+// Verifies a Bearer token, not an HttpOnly cookie — deliberate,
+// see docs/superpowers/specs/technical-debt.md#td-001.
 @Injectable()
 export class ManagerAuthGuard implements CanActivate {
   constructor(@Inject(ManagerTokenService) private readonly tokenService: ManagerTokenService) {}
