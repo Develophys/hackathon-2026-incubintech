@@ -1,9 +1,14 @@
 # Identity & Aggregation — design spec (not yet implemented)
 
-**Status:** design-only. Nothing in this file is built. It exists so a future implementation
-plan has a concrete target instead of starting from a blank page, and so `PeersPage` /
-`ManagerDashboardPage` stay on their current `// TODO(week2)` placeholders *on purpose*, not
-because no one thought about what replaces them.
+**Status:** design-only, **partially superseded**. The full multi-user `User` model +
+magic-link auth designed below was never built. Instead, `ManagerDashboardPage` shipped with a
+narrower approach: real, server-enforced manager login (a single shared institutional code, no
+per-doctor accounts) gating simulated (not real-encrypted-doctor) aggregate data — see
+`2026-07-11-manager-login-simulated-dashboard-design.md` and `routing-and-state.md` §5 for what
+actually got built and why the narrower scope was sufficient. This file remains the design to
+pick back up if/when `PeersPage` (still on its `// TODO(week2)` placeholder) or a real
+per-doctor identity layer is greenlit — nothing below was invalidated, just not all of it was
+needed yet.
 
 **Why this is separate from the data-implementation plan being written alongside it:** that
 plan wires `HomePage`'s history chart to real (on-device) data with zero backend or auth

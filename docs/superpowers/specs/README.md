@@ -18,6 +18,7 @@ routing-and-state.md       ← route table, consent store, result hand-off
 screens/
   00-overview.md           ← screen map + per-screen template + global conventions
   01-splash.md … 13-manager.md
+  14-manager-login.md      ← added later, alongside real data for 13-manager.md
 ```
 
 ## What this spec assumes about the repo
