@@ -1,0 +1,62 @@
+import { describe, expect, it } from "vitest";
+import { GenerateManagerInsightUseCase } from "./generate-manager-insight.use-case.ts";
+import { GetManagerSignalsUseCase } from "./get-manager-signals.use-case.ts";
+import type { SimulatedSignalRepository, SimulatedSignalRow } from "../ports/simulated-signal-repository.port.ts";
+import type { AiInsightPort, ManagerInsightResponse } from "../ports/ai-insight.port.ts";
+import { MANAGER_INSIGHT_SYSTEM_PROMPT } from "../prompts/manager-insight-system-prompt.ts";
+
+class FakeSimulatedSignalRepository implements SimulatedSignalRepository {
+  constructor(private readonly rows: SimulatedSignalRow[]) {}
+  async findAll(): Promise<SimulatedSignalRow[]> {
+    return this.rows;
+  }
+}
+
+class FakeAiInsightPort implements AiInsightPort {
+  public lastParams: { summary: string; systemPrompt: string } | null = null;
+  constructor(private readonly result: ManagerInsightResponse) {}
+  async generateInsight(params: { summary: string; systemPrompt: string }): Promise<ManagerInsightResponse> {
+    this.lastParams = params;
+    return this.result;
+  }
+}
+
+const WEEK_1 = new Date("2026-06-15T00:00:00.000Z");
+const WEEK_2 = new Date("2026-06-22T00:00:00.000Z");
+
+describe("GenerateManagerInsightUseCase", () => {
+  it("formats the current ManagerSignalsResponse into a PT-BR summary and forwards it with the system prompt", async () => {
+    const signalsRepository = new FakeSimulatedSignalRepository([
+      { department: "UTI", weekStart: WEEK_1, checkIns: 10, concerning: 3 },
+      { department: "UTI", weekStart: WEEK_2, checkIns: 10, concerning: 6 },
+    ]);
+    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository);
+    const aiInsight = new FakeAiInsightPort({ interpretation: "texto", suggestedActions: ["ação 1"] });
+    const useCase = new GenerateManagerInsightUseCase(getManagerSignals, aiInsight);
+
+    const result = await useCase.execute();
+
+    expect(result).toEqual({ interpretation: "texto", suggestedActions: ["ação 1"] });
+    expect(aiInsight.lastParams?.systemPrompt).toBe(MANAGER_INSIGHT_SYSTEM_PROMPT);
+    expect(aiInsight.lastParams?.summary).toContain("Taxa geral de sinais preocupantes: 60%");
+    expect(aiInsight.lastParams?.summary).toContain("UTI: 60% (n=10)");
+    expect(aiInsight.lastParams?.summary).toContain(
+      "Tendência semanal (taxa de sinais preocupantes por semana, 2 semanas): 30%, 60%",
+    );
+  });
+
+  it("propagates whatever the AiInsightPort throws (e.g. InsightGenerationFailedError from the adapter)", async () => {
+    const signalsRepository = new FakeSimulatedSignalRepository([
+      { department: "UTI", weekStart: WEEK_2, checkIns: 10, concerning: 6 },
+    ]);
+    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository);
+    class ThrowingAiInsightPort implements AiInsightPort {
+      async generateInsight(): Promise<ManagerInsightResponse> {
+        throw new Error("boom");
+      }
+    }
+    const useCase = new GenerateManagerInsightUseCase(getManagerSignals, new ThrowingAiInsightPort());
+
+    await expect(useCase.execute()).rejects.toThrow("boom");
+  });
+});
