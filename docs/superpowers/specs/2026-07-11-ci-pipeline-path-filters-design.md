@@ -65,6 +65,8 @@ changes:
             - 'pnpm-workspace.yaml'
             - 'turbo.json'
             - 'fly.toml'
+            - 'docker/api.Dockerfile'
+            - '.dockerignore'
 ```
 
 The existing `deploy` job adds `changes` to `needs` and extends its `if`:
@@ -88,6 +90,8 @@ deploy:
 | `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml` | Dependency/workspace changes can affect the API build |
 | `turbo.json` | Changes to task pipeline definitions can affect API build/test behavior |
 | `fly.toml` | Fly.io deploy config lives here |
+| `docker/api.Dockerfile` | This is the actual Docker build recipe `fly.toml` delegates to |
+| `.dockerignore` | Controls what's included in the build context for that Dockerfile |
 
 ## Testing / Verification
 
@@ -102,3 +106,4 @@ Per [[feedback_turborepo_ci_verification]] (local `pnpm test` passing is not suf
 
 - `dorny/paths-filter` is a third-party action; pinning to a tagged major version (`@v3`) is the norm the repo doesn't currently follow for other third-party actions (e.g. `superfly/flyctl-actions/setup-flyctl@master` is pinned to `master`), so this is consistent with existing risk tolerance in this workflow.
 - If a future package is added that the API depends on, its path must be added to the `api` filter manually — no automatic dependency-graph detection (out of scope; turbo's `--filter` graph awareness could address this later if desired).
+- The workflow's `paths-ignore` at the trigger level means doc-only PRs never dispatch a run at all — if `main` branch protection is ever configured to require this CI check as a required status check, doc-only PRs could get stuck waiting for a status that never reports (a known GitHub Actions `paths-ignore` gotcha). As of this writing, `main` has no branch protection configured, so this is not a current risk, but should be checked again if branch protection is added later.

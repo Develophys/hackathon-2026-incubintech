@@ -3,7 +3,15 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore: &docs-ignore
+      - 'docs/**'
+      - 'general-documentations/**'
+      - 'imported-skills/**'
+      - '.claude/**'
+      - '.superpowers/**'
+      - '**/*.md'
   pull_request:
+    paths-ignore: *docs-ignore
 
 jobs:
   build-lint-test:
@@ -59,9 +67,37 @@ jobs:
       - name: Test
         run: pnpm test
 
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Filter changed paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'apps/api/**'
+              - 'packages/domain/**'
+              - 'packages/config/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'turbo.json'
+              - 'fly.toml'
+              - 'docker/api.Dockerfile'
+              - '.dockerignore'
+
   deploy:
-    needs: build-lint-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build-lint-test, changes]
+    if: >
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
