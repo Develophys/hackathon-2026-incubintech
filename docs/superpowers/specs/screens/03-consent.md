@@ -32,10 +32,17 @@ CTA: **"Aceitar e entrar"**
   prototype's one-tap accept). If product wants per-item checkboxes later, keep the store shape;
   for now tapping the CTA implies all three.
 - On CTA: `useConsentStore().grant()` then `navigate(routes.home, { replace: true })`.
+- The encryption note is a tappable button (accessible name "Saiba mais sobre a criptografia
+  AES-256") that opens `EncryptionInfoModal` — a non-technical explanation of what AES-256 is
+  and how it protects the user's anonymity, with a link to further reading
+  (`https://pt.wikipedia.org/wiki/Advanced_Encryption_Standard`). See
+  `2026-07-12-encryption-info-modal-design.md` for the full design and exact copy.
 
 ## Interactions
 - CTA → grant consent → Home.
 - Back → Privacy.
+- Tapping the encryption note → opens `EncryptionInfoModal`; closes via its close button,
+  backdrop click, or Escape.
 
 ## Acceptance criteria
 - Tapping "Aceitar e entrar" sets `zelo.consent` (`hasConsented: true`, timestamp set) and lands

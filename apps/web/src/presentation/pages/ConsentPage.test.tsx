@@ -43,4 +43,25 @@ describe("ConsentPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /voltar/i }));
     expect(screen.getByText("Privacy screen")).toBeInTheDocument();
   });
+
+  it("opens the encryption info modal when the encryption note is tapped", async () => {
+    renderConsent();
+
+    await userEvent.click(
+      screen.getByRole("button", { name: /Saiba mais sobre a criptografia AES-256/ }),
+    );
+
+    expect(screen.getByRole("dialog", { name: "Criptografia AES-256" })).toBeInTheDocument();
+  });
+
+  it("closes the encryption info modal from the close button", async () => {
+    renderConsent();
+    await userEvent.click(
+      screen.getByRole("button", { name: /Saiba mais sobre a criptografia AES-256/ }),
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Fechar" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
 });

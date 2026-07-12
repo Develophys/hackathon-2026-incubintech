@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { Check, Lock } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Check, ChevronRight, Lock } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
 import { BackButton } from "../ui/BackButton";
@@ -7,6 +7,7 @@ import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { useConsentStore } from "../../stores/consent.store";
 import { routes } from "../lib/routes";
+import { EncryptionInfoModal } from "../components/EncryptionInfoModal";
 
 const ROWS: ReactNode[] = [
   <>Entendo que o Zelo <strong>não emite diagnóstico</strong> e não substitui atendimento profissional.</>,
@@ -17,6 +18,7 @@ const ROWS: ReactNode[] = [
 export function ConsentPage() {
   const navigate = useNavigate();
   const grant = useConsentStore((state) => state.grant);
+  const [isEncryptionInfoOpen, setIsEncryptionInfoOpen] = useState(false);
 
   const handleAccept = () => {
     grant();
@@ -43,16 +45,28 @@ export function ConsentPage() {
             </Card>
           ))}
         </div>
-        <div className="mt-[14px] flex items-center gap-2 rounded-2xl bg-surface-brand p-[13px] font-mono text-[12.5px] leading-relaxed text-brand">
+        <button
+          type="button"
+          onClick={() => setIsEncryptionInfoOpen(true)}
+          aria-label="Saiba mais sobre a criptografia AES-256"
+          className="mt-[14px] flex w-full items-center gap-2 rounded-2xl bg-surface-brand p-[13px] font-mono text-[12.5px] leading-relaxed text-brand"
+        >
           <Lock size={16} />
-          Criptografia AES-256 no seu aparelho antes de qualquer envio.
-        </div>
+          <span className="flex-1 text-left">
+            Criptografia AES-256 no seu aparelho antes de qualquer envio.
+          </span>
+          <ChevronRight size={16} />
+        </button>
         <div className="mt-[24px]">
           <Button variant="primary" onClick={handleAccept}>
             Aceitar e entrar
           </Button>
         </div>
       </div>
+      <EncryptionInfoModal
+        isOpen={isEncryptionInfoOpen}
+        onClose={() => setIsEncryptionInfoOpen(false)}
+      />
     </PhoneShell>
   );
 }
