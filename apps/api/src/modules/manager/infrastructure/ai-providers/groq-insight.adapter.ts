@@ -27,16 +27,7 @@ export class GroqInsightAdapter implements AiInsightPort {
   }
 
   async generateInsight(params: { summary: string; systemPrompt: string }): Promise<ManagerInsightResponse> {
-    const completion = await this.client.chat.completions.create({
-      model: this.model,
-      max_tokens: 512,
-      temperature: 0.3,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: params.systemPrompt },
-        { role: "user", content: params.summary },
-      ],
-    });
+    const completion = await this.createCompletion(params);
 
     const content = completion.choices[0]?.message?.content;
     if (!content) {
@@ -56,5 +47,22 @@ export class GroqInsightAdapter implements AiInsightPort {
     }
 
     return result.data;
+  }
+
+  private async createCompletion(params: { summary: string; systemPrompt: string }) {
+    try {
+      return await this.client.chat.completions.create({
+        model: this.model,
+        max_tokens: 512,
+        temperature: 0.3,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: params.systemPrompt },
+          { role: "user", content: params.summary },
+        ],
+      });
+    } catch (error) {
+      throw new InsightGenerationFailedError("Groq API call failed", { cause: error });
+    }
   }
 }

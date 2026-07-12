@@ -79,4 +79,16 @@ describe("GroqInsightAdapter", () => {
       InsightGenerationFailedError,
     );
   });
+
+  it("throws InsightGenerationFailedError when the Groq API call itself fails (network/auth/rate-limit)", async () => {
+    createMock.mockRejectedValue(new Error("network error"));
+
+    const { GroqInsightAdapter } = await import("./groq-insight.adapter.ts");
+    const { InsightGenerationFailedError } = await import("../../application/ports/ai-insight.port.ts");
+    const adapter = new GroqInsightAdapter(fakeConfig());
+
+    await expect(adapter.generateInsight({ summary: "x", systemPrompt: "y" })).rejects.toBeInstanceOf(
+      InsightGenerationFailedError,
+    );
+  });
 });
