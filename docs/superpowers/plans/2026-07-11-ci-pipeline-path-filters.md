@@ -268,3 +268,4 @@ Do not merge without explicit user confirmation — merging to `main` triggers a
 - **Spec coverage:** Workflow-level `paths-ignore` → Task 1. Job-level `changes`/`dorny/paths-filter` → Task 2. Verification scenarios from spec's Testing section → Task 3 (all four scenarios covered: doc-only skip, web-only runs-but-no-deploy, api-only runs-and-deploys, shared-package runs-and-deploys). Risks section (third-party action pinning) is addressed by pinning `@v3` as designed.
 - **Placeholder scan:** No TBD/TODO; the one conditional note in Task 3 Step 3 (file may not exist) includes a concrete fallback instruction rather than "handle appropriately."
 - **Type/name consistency:** `needs.changes.outputs.api` matches the `outputs: api:` declared in the `changes` job in Task 2 Step 1, and matches the `filters: | api:` key. Consistent throughout.
+verify doc-only skip 2026-07-12T03:03:16Z
