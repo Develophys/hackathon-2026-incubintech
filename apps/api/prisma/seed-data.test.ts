@@ -1,0 +1,44 @@
+import { describe, expect, it } from "vitest";
+import { buildSeedRows, startOfIsoWeek } from "./seed-data.ts";
+
+describe("startOfIsoWeek", () => {
+  it("resolves a Wednesday back to that week's Monday", () => {
+    const wednesday = new Date("2026-07-08T15:00:00.000Z");
+    expect(startOfIsoWeek(wednesday).toISOString()).toBe("2026-07-06T00:00:00.000Z");
+  });
+
+  it("resolves a Sunday back to that same week's Monday, not forward", () => {
+    const sunday = new Date("2026-07-12T15:00:00.000Z");
+    expect(startOfIsoWeek(sunday).toISOString()).toBe("2026-07-06T00:00:00.000Z");
+  });
+});
+
+describe("buildSeedRows", () => {
+  const reference = new Date("2026-07-08T12:00:00.000Z"); // a Wednesday, week of 2026-07-06
+
+  it("produces 6 weeks x 4 departments = 24 rows", () => {
+    expect(buildSeedRows(reference)).toHaveLength(24);
+  });
+
+  it("keeps Ambulatório under the k=5 threshold every week", () => {
+    const rows = buildSeedRows(reference).filter((r) => r.department === "Ambulatório");
+    expect(rows.every((r) => r.checkIns < 5)).toBe(true);
+  });
+
+  it("UTI's concerning rate climbs from week 1 to week 6, ending at 60%", () => {
+    const rows = buildSeedRows(reference)
+      .filter((r) => r.department === "UTI")
+      .sort((a, b) => a.weekStart.getTime() - b.weekStart.getTime());
+
+    const firstRate = rows[0]!.concerning / rows[0]!.checkIns;
+    const lastRate = rows[5]!.concerning / rows[5]!.checkIns;
+    expect(lastRate).toBeGreaterThan(firstRate);
+    expect(lastRate).toBe(0.6);
+  });
+
+  it("the most recent week's weekStart is the Monday of the reference date's week", () => {
+    const rows = buildSeedRows(reference).filter((r) => r.department === "UTI");
+    const mostRecent = rows.reduce((a, b) => (a.weekStart > b.weekStart ? a : b));
+    expect(mostRecent.weekStart.toISOString()).toBe("2026-07-06T00:00:00.000Z");
+  });
+});

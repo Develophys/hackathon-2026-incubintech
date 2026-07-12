@@ -5,6 +5,7 @@ import { createMemoryRouter, RouterProvider, Outlet } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { routeChildren } from "./router";
 import { useConsentStore } from "../stores/consent.store";
+import { useManagerSessionStore } from "../stores/manager-session.store";
 import * as container from "./container";
 
 // Reuses router.tsx's own route tree (routeChildren) rather than duplicating
@@ -32,7 +33,9 @@ function buildTestRouter(initialPath: string) {
 describe("onboarding router flow", () => {
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     useConsentStore.setState({ hasConsented: false, consentedAt: null });
+    useManagerSessionStore.setState({ token: null, expiresAt: null });
     vi.spyOn(container.checkApiHealthUseCase, "execute").mockResolvedValue({ status: "ok", database: true });
   });
 
@@ -90,12 +93,27 @@ describe("onboarding router flow", () => {
     expect(await screen.findByText("Pares anônimos")).toBeInTheDocument();
   });
 
-  it("Home's Manager demo link reaches the dashboard", async () => {
+  it("Home's Manager demo link reaches the manager login screen when unauthenticated", async () => {
     useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
     buildTestRouter("/home");
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole("button", { name: "Ver painel do gestor (demo)" }));
+    expect(await screen.findByText("Acesso do gestor")).toBeInTheDocument();
+  });
+
+  it("an authenticated manager session reaches the dashboard directly", async () => {
+    useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
+    useManagerSessionStore.setState({ token: "abc.def", expiresAt: new Date(Date.now() + 60_000).toISOString() });
+    vi.spyOn(container.getManagerSignalsUseCase, "execute").mockResolvedValue({
+      overallConcerningRate: 0,
+      checkInsLast4Weeks: 0,
+      weeklyTrend: [],
+      segments: [],
+    });
+
+    buildTestRouter("/manager");
+
     expect(await screen.findByText("Tendências da equipe")).toBeInTheDocument();
   });
 });

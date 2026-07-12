@@ -29,6 +29,7 @@ describe("routes", () => {
       chat: "/chat",
       peers: "/peers",
       manager: "/manager",
+      managerLogin: "/manager/login",
     });
   });
 });
