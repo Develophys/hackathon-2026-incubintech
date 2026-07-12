@@ -18,6 +18,7 @@ import { CrisisDeclinePage } from "./CrisisDeclinePage";
 import { ChatPage } from "./ChatPage";
 import { PeersPage } from "./PeersPage";
 import { ManagerDashboardPage } from "./ManagerDashboardPage";
+import { ManagerLoginPage } from "./ManagerLoginPage";
 import { useConsentStore } from "../../stores/consent.store";
 
 const RESULT_STATE = { scaleType: "PHQ-9" as const, totalScore: 12, max: 27, riskSignal: true };
@@ -36,6 +37,7 @@ const SCREENS: { name: string; Component: ComponentType; path: string; state?: u
   { name: "CrisisDecline", Component: CrisisDeclinePage, path: "/crisis/line" },
   { name: "Chat", Component: ChatPage, path: "/chat" },
   { name: "Peers", Component: PeersPage, path: "/peers" },
+  { name: "ManagerLogin", Component: ManagerLoginPage, path: "/manager/login" },
   { name: "ManagerDashboard", Component: ManagerDashboardPage, path: "/manager" },
 ];
 
