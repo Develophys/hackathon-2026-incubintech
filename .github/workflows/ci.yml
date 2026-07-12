@@ -3,7 +3,15 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore: &docs-ignore
+      - 'docs/**'
+      - 'general-documentations/**'
+      - 'imported-skills/**'
+      - '.claude/**'
+      - '.superpowers/**'
+      - '**/*.md'
   pull_request:
+    paths-ignore: *docs-ignore
 
 jobs:
   build-lint-test:
