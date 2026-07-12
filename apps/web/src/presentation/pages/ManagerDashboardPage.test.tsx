@@ -41,10 +41,10 @@ describe("ManagerDashboardPage", () => {
   beforeEach(() => {
     sessionStorage.clear();
     useManagerSessionStore.setState({ token: "abc.def", expiresAt: new Date(Date.now() + 60_000).toISOString() });
+    vi.spyOn(container.getManagerSignalsUseCase, "execute").mockResolvedValue(SIGNALS_RESPONSE);
   });
 
   it("renders segments and trend bars from the real signals response, suppressing n<5 departments", async () => {
-    vi.spyOn(container.getManagerSignalsUseCase, "execute").mockResolvedValue(SIGNALS_RESPONSE);
     renderManager();
 
     await waitFor(() => {
@@ -59,7 +59,6 @@ describe("ManagerDashboardPage", () => {
   });
 
   it("navigates to /home on back", async () => {
-    vi.spyOn(container.getManagerSignalsUseCase, "execute").mockResolvedValue(SIGNALS_RESPONSE);
     const user = userEvent.setup();
     renderManager();
 
@@ -75,5 +74,42 @@ describe("ManagerDashboardPage", () => {
       expect(screen.getByText("Login screen")).toBeInTheDocument();
     });
     expect(useManagerSessionStore.getState().token).toBeNull();
+  });
+
+  it("generates and displays the AI insight when the manager clicks the button", async () => {
+    vi.spyOn(container.generateManagerInsightUseCase, "execute").mockResolvedValue({
+      interpretation: "A UTI mostra um padrão de aumento gradual nos sinais preocupantes.",
+      suggestedActions: ["Agendar conversa com a liderança da UTI", "Revisar a escala de plantões"],
+    });
+    const user = userEvent.setup();
+    renderManager();
+
+    await waitFor(() => {
+      expect(screen.getByText("Plantão noturno")).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole("button", { name: "Gerar análise" }));
+
+    expect(
+      await screen.findByText("A UTI mostra um padrão de aumento gradual nos sinais preocupantes."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Agendar conversa com a liderança da UTI")).toBeInTheDocument();
+    expect(screen.getByText("Revisar a escala de plantões")).toBeInTheDocument();
+  });
+
+  it("shows an inline retry message when insight generation fails, without breaking the rest of the page", async () => {
+    vi.spyOn(container.generateManagerInsightUseCase, "execute").mockRejectedValue(new Error("boom"));
+    const user = userEvent.setup();
+    renderManager();
+
+    await waitFor(() => {
+      expect(screen.getByText("Plantão noturno")).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole("button", { name: "Gerar análise" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent("Não foi possível gerar a análise agora.");
+    });
+    expect(screen.getByText("UTI")).toBeInTheDocument();
+    expect(screen.getAllByTestId("trend-bar")).toHaveLength(2);
   });
 });

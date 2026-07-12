@@ -5,8 +5,10 @@ import { BackButton } from "../ui/BackButton";
 import { PrivacyBadge } from "../ui/PrivacyBadge";
 import { SectionLabel } from "../ui/SectionLabel";
 import { Card } from "../ui/Card";
+import { Button } from "../ui/Button";
 import { routes } from "../lib/routes";
 import { useManagerSignals } from "../hooks/useManagerSignals";
+import { useManagerInsight } from "../hooks/useManagerInsight";
 import { useManagerSessionStore } from "../../stores/manager-session.store";
 import { UnauthorizedManagerError } from "../../ports/manager-signals.port";
 
@@ -20,6 +22,7 @@ export function ManagerDashboardPage() {
   const navigate = useNavigate();
   const clearSession = useManagerSessionStore((state) => state.clearSession);
   const { data, error, isError } = useManagerSignals();
+  const insight = useManagerInsight();
 
   useEffect(() => {
     if (isError && error instanceof UnauthorizedManagerError) {
@@ -93,6 +96,37 @@ export function ManagerDashboardPage() {
                 </div>
               ))}
             </div>
+          </Card>
+        </div>
+
+        <div className="mt-[14px]">
+          <Card>
+            <p className="text-body font-extrabold text-ink">Análise com IA</p>
+            {!insight.data && (
+              <div className="mt-3">
+                <Button variant="outline" full={false} loading={insight.isPending} onClick={() => insight.mutate()}>
+                  Gerar análise
+                </Button>
+                {insight.isError && (
+                  <p role="alert" className="mt-2 text-label text-danger">
+                    Não foi possível gerar a análise agora. Tente novamente.
+                  </p>
+                )}
+              </div>
+            )}
+            {insight.data && (
+              <div className="mt-3">
+                <p className="text-label text-ink-2">{insight.data.interpretation}</p>
+                <ul className="mt-3 flex flex-col gap-2">
+                  {insight.data.suggestedActions.map((action, index) => (
+                    <li key={index} className="flex items-start gap-2 text-label text-ink-2">
+                      <span className="text-brand">•</span>
+                      <span>{action}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </Card>
         </div>
       </div>
