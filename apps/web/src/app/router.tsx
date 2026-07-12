@@ -39,6 +39,7 @@ export const routeChildren: RouteObject[] = [
   {
     path: "home",
     Component: HomePage,
+    loader: () => (useConsentStore.getState().hasConsented ? null : redirect(routes.privacy)),
   },
   {
     path: "chat",

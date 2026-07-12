@@ -65,6 +65,13 @@ describe("onboarding router flow", () => {
     });
   });
 
+  it("an unconsented user hitting /home directly is redirected to Privacy via the loader", async () => {
+    buildTestRouter("/home");
+
+    expect(await screen.findByText("Como o Zelo protege você")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Fazer check-in" })).not.toBeInTheDocument();
+  });
+
   it("Home's check-in CTA reaches the assessment selector through the real route table", async () => {
     useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
     buildTestRouter("/home");
