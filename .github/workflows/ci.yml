@@ -89,6 +89,8 @@ jobs:
               - 'pnpm-workspace.yaml'
               - 'turbo.json'
               - 'fly.toml'
+              - 'docker/api.Dockerfile'
+              - '.dockerignore'
 
   deploy:
     needs: [build-lint-test, changes]
