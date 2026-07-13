@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { AssessmentResultPage } from "./AssessmentResultPage";
 
@@ -42,5 +43,28 @@ describe("AssessmentResultPage", () => {
   it("redirects to /assessment when there is no navigation state (deep link or refresh)", async () => {
     renderResult(null);
     expect(await screen.findByText("Assessment select screen")).toBeInTheDocument();
+  });
+
+  it("opens the encryption info modal when the on-device stamp is tapped", async () => {
+    const user = userEvent.setup();
+    renderResult({ scaleType: "PHQ-9", totalScore: 12, max: 27, riskSignal: false });
+
+    await user.click(
+      screen.getByRole("button", { name: /Saiba mais sobre a criptografia AES-256/ }),
+    );
+
+    expect(screen.getByRole("dialog", { name: "Criptografia AES-256" })).toBeInTheDocument();
+  });
+
+  it("closes the encryption info modal from the close button", async () => {
+    const user = userEvent.setup();
+    renderResult({ scaleType: "PHQ-9", totalScore: 12, max: 27, riskSignal: false });
+    await user.click(
+      screen.getByRole("button", { name: /Saiba mais sobre a criptografia AES-256/ }),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Fechar" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
