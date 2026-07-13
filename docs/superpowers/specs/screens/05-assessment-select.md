@@ -27,9 +27,15 @@ sinais de depressão" · GAD-7 "Ansiedade" · MBI-HSS "Burnout ocupacional" + "e
 - MBI-HSS **must not** be selectable — `ScoreAssessmentUseCase.execute("MBI-HSS", …)` throws by
   design. Render it disabled; do not route to it.
 - No data fetch here; scale metadata is static (`domain/assessment-scales`).
+- The trust footer ("tudo processado no seu aparelho") is a tappable button (accessible name
+  "Saiba mais sobre a criptografia AES-256") that opens `EncryptionInfoModal` — the same
+  non-technical AES-256/on-device explanation shown from the Consent screen. See
+  `2026-07-12-trust-footer-modal-reuse-design.md` for the reuse rationale.
 
 ## Interactions
 - PHQ-9 → `/assessment/phq9`; GAD-7 → `/assessment/gad7`; MBI-HSS → inert.
+- Tapping the trust footer → opens `EncryptionInfoModal`; closes via its close button, backdrop
+  click, or Escape.
 
 ## Acceptance criteria
 - MBI-HSS visibly disabled and non-interactive (no pointer cursor, no route).

@@ -46,4 +46,27 @@ describe("AssessmentSelectPage", () => {
     renderSelect();
     expect(screen.getByText("tudo processado no seu aparelho")).toBeInTheDocument();
   });
+
+  it("opens the encryption info modal when the trust footer is tapped", async () => {
+    const user = userEvent.setup();
+    renderSelect();
+
+    await user.click(
+      screen.getByRole("button", { name: /Saiba mais sobre a criptografia AES-256/ }),
+    );
+
+    expect(screen.getByRole("dialog", { name: "Criptografia AES-256" })).toBeInTheDocument();
+  });
+
+  it("closes the encryption info modal from the close button", async () => {
+    const user = userEvent.setup();
+    renderSelect();
+    await user.click(
+      screen.getByRole("button", { name: /Saiba mais sobre a criptografia AES-256/ }),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Fechar" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
 });

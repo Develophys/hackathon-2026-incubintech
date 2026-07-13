@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { Lock } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
 import { BackButton } from "../ui/BackButton";
 import { PrivacyBadge } from "../ui/PrivacyBadge";
 import { routes } from "../lib/routes";
+import { EncryptionInfoModal } from "../components/EncryptionInfoModal";
 
 export function AssessmentSelectPage() {
   const navigate = useNavigate();
+  const [isEncryptionInfoOpen, setIsEncryptionInfoOpen] = useState(false);
 
   return (
     <PhoneShell>
@@ -54,11 +57,20 @@ export function AssessmentSelectPage() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-center gap-1">
+        <button
+          type="button"
+          onClick={() => setIsEncryptionInfoOpen(true)}
+          aria-label="Saiba mais sobre a criptografia AES-256"
+          className="mt-6 flex w-full items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        >
           <Lock size={12} className="text-muted-2" />
           <span className="font-mono text-eyebrow uppercase text-muted-2">tudo processado no seu aparelho</span>
-        </div>
+        </button>
       </div>
+      <EncryptionInfoModal
+        isOpen={isEncryptionInfoOpen}
+        onClose={() => setIsEncryptionInfoOpen(false)}
+      />
     </PhoneShell>
   );
 }
