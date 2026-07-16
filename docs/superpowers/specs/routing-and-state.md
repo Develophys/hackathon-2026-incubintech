@@ -27,6 +27,7 @@ the existing use-cases on submit.
 | `/peers` | `PeersPage` | Anonymous peer list |
 | `/manager/login` | `ManagerLoginPage` | Shared-code gate for the manager dashboard (see §5) |
 | `/manager` | `ManagerDashboardPage` | Aggregated, k-anonymized; gated by `/manager/login`'s session (see §5) |
+| `/you` | `YouPage` | Consent status + revoke; added after the original 13 (see `screens/15-you.md`) |
 
 > Keep the current data-router shape (`id: "root"`, `Component: () => <Outlet/>`). Add a
 > loader on `/` that checks the consent store and `redirect("/home")` if already consented.
@@ -40,7 +41,8 @@ Result → Crisis          (only when riskSignal, or user taps)
 Chat → Crisis            (persistent "falar com uma pessoa real")
 Crisis → Crisis/connect  (accept)  → Chat (secure)
 Crisis → Crisis/line     (decline) → Home
-Home → Chat | Peers | Manager
+Home → Chat | Peers | Manager | Você
+Você → Splash        (after "Sim, revogar")
 Manager → Manager/login (if no valid session) → Manager (on correct code)
 ```
 
@@ -74,8 +76,8 @@ export const useConsentStore = create<ConsentState>()(
 );
 ```
 - **Do not** store anything identifying here. Consent is a boolean + timestamp only.
-- `revoke()` is surfaced later in a "Você/Profile" screen (out of scope for these 13, but leave
-  the store ready).
+- `revoke()` is surfaced on `/you` (`YouPage`, added after the original 13 — see
+  `screens/15-you.md`), the screen `BottomNav`'s "Você" tab links to.
 
 ---
 
@@ -184,3 +186,5 @@ real and testable now, independent of whether the data behind it is real yet.
 - Back button behaves: within PHQ-9 it steps to the previous question; at q1 it returns to the
   selector.
 - No route change ever posts `riskSignal` to the API (verify in network tab).
+- Revoking consent on `/you` clears `zelo.consent` in `localStorage` and lands the doctor back
+  on Splash as a cold start (verified via reload, not just React state — see `screens/15-you.md`).

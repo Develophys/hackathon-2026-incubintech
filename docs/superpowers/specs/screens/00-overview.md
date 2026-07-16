@@ -28,6 +28,16 @@
 | 12 | Peers | `/peers` | `12-peers.md` |
 | 13 | Manager dashboard | `/manager` | `13-manager.md` |
 
+## Screens added after the original 13
+
+Not covered by `AGENTS.md`'s Phase 0–7 build plan (written before these existed), but real
+routes with their own spec file, following the same template:
+
+| # | Screen | Route | File |
+|---|---|---|---|
+| 14 | Manager login | `/manager/login` | `14-manager-login.md` |
+| 15 | Você (consent status & revoke) | `/you` | `15-you.md` |
+
 ## Global conventions (apply to every screen)
 - Wrap in `PhoneShell`. Screen padding `px-6`.
 - Back affordance: `ChevronLeft` + text, `text-muted font-semibold text-label`, top-left, 16px
