@@ -21,15 +21,15 @@ export function SplashPage() {
   return (
     <PhoneShell bleed>
       <div
-        className="flex min-h-full flex-col items-center px-[34px] text-center"
+        className="flex min-h-screen flex-col items-center justify-center px-8.5 text-center"
         style={{ background: "linear-gradient(180deg,#EEF4F1,#F2F5F3)" }}
       >
         <div className="flex flex-1 flex-col items-center justify-center">
-          <div className="flex h-[88px] w-[88px] items-center justify-center rounded-[26px] bg-brand shadow-hero">
+          <div className="flex h-22 w-22 items-center justify-center rounded-[26px] bg-brand shadow-hero">
             <span className="font-serif text-[46px] text-white">z</span>
           </div>
-          <h1 className="mt-[26px] font-serif text-display text-ink">Zelo</h1>
-          <p className="mt-3 max-w-[250px] text-body text-ink-2">
+          <h1 className="mt-6.5 font-serif text-display text-ink">Zelo</h1>
+          <p className="mt-3 max-w-62.5 text-body text-ink-2">
             Cuidado confidencial para quem cuida.
           </p>
         </div>
