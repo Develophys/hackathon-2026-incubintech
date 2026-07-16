@@ -123,4 +123,24 @@ describe("onboarding router flow", () => {
 
     expect(await screen.findByText("Tendências da equipe")).toBeInTheDocument();
   });
+
+  it("Home's Você tab reaches the consent screen, and revoking returns to Splash", async () => {
+    useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
+    buildTestRouter("/home");
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: "Você" }));
+    expect(await screen.findByText("Consentimento ativo")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Revogar consentimento" }));
+    await user.click(screen.getByRole("button", { name: "Sim, revogar" }));
+
+    expect(await screen.findByRole("button", { name: "Começar" })).toBeInTheDocument();
+    expect(useConsentStore.getState().hasConsented).toBe(false);
+  });
+
+  it("an unconsented user hitting /you directly is redirected to Privacy via the loader", async () => {
+    buildTestRouter("/you");
+    expect(await screen.findByText("Como o Zelo protege você")).toBeInTheDocument();
+  });
 });
