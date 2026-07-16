@@ -38,10 +38,16 @@ com o acolhimento" · "Voltar ao início".
 - Read `useLocation().state` → `{ scaleType, totalScore, max, riskSignal }`. If null → redirect
   `/assessment`.
 - **Do not recompute** the score or refetch. `riskSignal` is display-only.
+- The on-device stamp ("processado no seu aparelho") is a tappable button (accessible name
+  "Saiba mais sobre a criptografia AES-256") that opens `EncryptionInfoModal` — the same
+  non-technical AES-256/on-device explanation shown from the Consent screen. See
+  `2026-07-12-trust-footer-modal-reuse-design.md` for the reuse rationale.
 
 ## Interactions
 - Risk button (if shown) → `/crisis`.
 - Primary → `/chat`. Ghost → `/home`.
+- Tapping the on-device stamp → opens `EncryptionInfoModal`; closes via its close button,
+  backdrop click, or Escape.
 
 ## Acceptance criteria
 - Correct band label + colors for the score (test boundary values 4/5, 9/10, 14/15, 19/20).

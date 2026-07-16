@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Lock } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
@@ -6,6 +6,7 @@ import { Button } from "../ui/Button";
 import { PrivacyBadge } from "../ui/PrivacyBadge";
 import { ResultBandCard } from "../components/ResultBandCard";
 import { RiskSignalCallout } from "../components/RiskSignalCallout";
+import { EncryptionInfoModal } from "../components/EncryptionInfoModal";
 import { bandFor } from "../lib/band-for";
 import { routes } from "../lib/routes";
 
@@ -31,6 +32,7 @@ export function AssessmentResultPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = isResultState(location.state) ? location.state : null;
+  const [isEncryptionInfoOpen, setIsEncryptionInfoOpen] = useState(false);
 
   useEffect(() => {
     if (!state) {
@@ -49,10 +51,15 @@ export function AssessmentResultPage() {
     <PhoneShell>
       <div className="pt-7">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setIsEncryptionInfoOpen(true)}
+            aria-label="Saiba mais sobre a criptografia AES-256"
+            className="flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          >
             <Lock size={12} className="text-muted-2" />
             <span className="font-mono text-eyebrow uppercase text-muted-2">processado no seu aparelho</span>
-          </div>
+          </button>
           <PrivacyBadge />
         </div>
 
@@ -79,6 +86,10 @@ export function AssessmentResultPage() {
           </Button>
         </div>
       </div>
+      <EncryptionInfoModal
+        isOpen={isEncryptionInfoOpen}
+        onClose={() => setIsEncryptionInfoOpen(false)}
+      />
     </PhoneShell>
   );
 }
