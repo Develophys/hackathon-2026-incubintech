@@ -30,6 +30,7 @@ describe("routes", () => {
       peers: "/peers",
       manager: "/manager",
       managerLogin: "/manager/login",
+      you: "/you",
     });
   });
 });

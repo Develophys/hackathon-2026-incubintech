@@ -49,7 +49,7 @@ export function HomePage() {
     if (tab === "home") navigate(routes.home);
     if (tab === "checkin") navigate(routes.assessment);
     if (tab === "chat") navigate(routes.chat);
-    // "you" tab: no destination yet — TODO(week2): profile/revoke-consent screen.
+    if (tab === "you") navigate(routes.you);
   };
 
   return (

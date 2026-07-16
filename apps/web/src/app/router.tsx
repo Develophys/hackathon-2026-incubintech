@@ -15,6 +15,7 @@ import { CrisisDeclinePage } from "../presentation/pages/CrisisDeclinePage";
 import { PeersPage } from "../presentation/pages/PeersPage";
 import { ManagerDashboardPage } from "../presentation/pages/ManagerDashboardPage";
 import { ManagerLoginPage } from "../presentation/pages/ManagerLoginPage";
+import { YouPage } from "../presentation/pages/YouPage";
 import { useConsentStore } from "../stores/consent.store";
 import { useManagerSessionStore } from "../stores/manager-session.store";
 import { routes } from "../presentation/lib/routes";
@@ -70,6 +71,11 @@ export const routeChildren: RouteObject[] = [
     path: "manager",
     Component: ManagerDashboardPage,
     loader: () => (useManagerSessionStore.getState().isValid() ? null : redirect(routes.managerLogin)),
+  },
+  {
+    path: "you",
+    Component: YouPage,
+    loader: () => (useConsentStore.getState().hasConsented ? null : redirect(routes.privacy)),
   },
 ];
 

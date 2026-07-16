@@ -17,6 +17,7 @@ function renderHome() {
           <Route path="/chat" element={<div>Chat screen</div>} />
           <Route path="/peers" element={<div>Peers screen</div>} />
           <Route path="/manager" element={<div>Manager screen</div>} />
+          <Route path="/you" element={<div>You screen</div>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -88,5 +89,12 @@ describe("HomePage", () => {
     vi.spyOn(container.getAssessmentHistoryUseCase, "execute").mockResolvedValue(SIX_NULL_POINTS);
     renderHome();
     expect(screen.getByRole("button", { name: "Início" })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("navigates to /you when the Você tab is tapped", async () => {
+    vi.spyOn(container.getAssessmentHistoryUseCase, "execute").mockResolvedValue(SIX_NULL_POINTS);
+    renderHome();
+    await userEvent.click(screen.getByRole("button", { name: "Você" }));
+    expect(screen.getByText("You screen")).toBeInTheDocument();
   });
 });
