@@ -32,3 +32,13 @@ model SimulatedSignal {
   @@unique([department, weekStart])
   @@map("simulated_signals")
 }
+
+model ManagerInsight {
+  id               String   @id @default(cuid())
+  interpretation   String
+  suggestedActions String[]
+  summary          String
+  generatedAt      DateTime @default(now())
+
+  @@map("manager_insights")
+}
