@@ -4,6 +4,7 @@ import { GetManagerSignalsUseCase } from "./get-manager-signals.use-case.ts";
 import type { SimulatedSignalRepository, SimulatedSignalRow } from "../ports/simulated-signal-repository.port.ts";
 import type { AiInsightPort, ManagerInsightResponse } from "../ports/ai-insight.port.ts";
 import { MANAGER_INSIGHT_SYSTEM_PROMPT } from "../prompts/manager-insight-system-prompt.ts";
+import type { ManagerInsightRepository, StoredManagerInsight } from "../ports/manager-insight-repository.port.ts";
 
 class FakeSimulatedSignalRepository implements SimulatedSignalRepository {
   constructor(private readonly rows: SimulatedSignalRow[]) {}
@@ -21,6 +22,20 @@ class FakeAiInsightPort implements AiInsightPort {
   }
 }
 
+class FakeManagerInsightRepository implements ManagerInsightRepository {
+  public savedEntries: { interpretation: string; suggestedActions: string[]; summary: string }[] = [];
+  public shouldFailSave = false;
+  async save(entry: { interpretation: string; suggestedActions: string[]; summary: string }): Promise<void> {
+    if (this.shouldFailSave) {
+      throw new Error("save failed");
+    }
+    this.savedEntries.push(entry);
+  }
+  async findAll(): Promise<StoredManagerInsight[]> {
+    return [];
+  }
+}
+
 const WEEK_1 = new Date("2026-06-15T00:00:00.000Z");
 const WEEK_2 = new Date("2026-06-22T00:00:00.000Z");
 
@@ -32,7 +47,8 @@ describe("GenerateManagerInsightUseCase", () => {
     ]);
     const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository);
     const aiInsight = new FakeAiInsightPort({ interpretation: "texto", suggestedActions: ["ação 1"] });
-    const useCase = new GenerateManagerInsightUseCase(getManagerSignals, aiInsight);
+    const insightRepository = new FakeManagerInsightRepository();
+    const useCase = new GenerateManagerInsightUseCase(getManagerSignals, aiInsight, insightRepository);
 
     const result = await useCase.execute();
 
@@ -55,8 +71,41 @@ describe("GenerateManagerInsightUseCase", () => {
         throw new Error("boom");
       }
     }
-    const useCase = new GenerateManagerInsightUseCase(getManagerSignals, new ThrowingAiInsightPort());
+    const insightRepository = new FakeManagerInsightRepository();
+    const useCase = new GenerateManagerInsightUseCase(getManagerSignals, new ThrowingAiInsightPort(), insightRepository);
 
     await expect(useCase.execute()).rejects.toThrow("boom");
+    expect(insightRepository.savedEntries).toEqual([]);
+  });
+
+  it("saves the generated insight to the repository after a successful generation", async () => {
+    const signalsRepository = new FakeSimulatedSignalRepository([
+      { department: "UTI", weekStart: WEEK_2, checkIns: 10, concerning: 6 },
+    ]);
+    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository);
+    const aiInsight = new FakeAiInsightPort({ interpretation: "texto", suggestedActions: ["ação 1"] });
+    const insightRepository = new FakeManagerInsightRepository();
+    const useCase = new GenerateManagerInsightUseCase(getManagerSignals, aiInsight, insightRepository);
+
+    await useCase.execute();
+
+    expect(insightRepository.savedEntries).toEqual([
+      { interpretation: "texto", suggestedActions: ["ação 1"], summary: aiInsight.lastParams?.summary },
+    ]);
+  });
+
+  it("still returns the generated insight even if saving to the repository fails", async () => {
+    const signalsRepository = new FakeSimulatedSignalRepository([
+      { department: "UTI", weekStart: WEEK_2, checkIns: 10, concerning: 6 },
+    ]);
+    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository);
+    const aiInsight = new FakeAiInsightPort({ interpretation: "texto", suggestedActions: ["ação 1"] });
+    const insightRepository = new FakeManagerInsightRepository();
+    insightRepository.shouldFailSave = true;
+    const useCase = new GenerateManagerInsightUseCase(getManagerSignals, aiInsight, insightRepository);
+
+    const result = await useCase.execute();
+
+    expect(result).toEqual({ interpretation: "texto", suggestedActions: ["ação 1"] });
   });
 });
