@@ -59,7 +59,7 @@ describe("ManagerInsightHistoryPage", () => {
   });
 
   it("triggers a PDF download when 'Baixar PDF' is clicked for an entry", async () => {
-    const pdfSpy = vi.spyOn(downloadHelper, "downloadInsightAsPdf").mockImplementation(() => {});
+    const pdfSpy = vi.spyOn(downloadHelper, "downloadInsightAsPdf").mockImplementation(async () => {});
     const user = userEvent.setup();
     renderHistory();
 

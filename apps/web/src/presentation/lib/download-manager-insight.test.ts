@@ -34,13 +34,15 @@ describe("downloadInsightAsPdf", () => {
     splitTextToSizeMock.mockClear();
   });
 
-  it("writes the interpretation and suggested actions into the PDF and saves it", () => {
-    downloadInsightAsPdf(ENTRY);
+  it("writes the interpretation and suggested actions into the PDF and saves it", async () => {
+    await downloadInsightAsPdf(ENTRY);
 
     expect(splitTextToSizeMock).toHaveBeenCalledWith("texto de interpretação", 180);
+    expect(splitTextToSizeMock).toHaveBeenCalledWith("- ação 1", 180);
+    expect(splitTextToSizeMock).toHaveBeenCalledWith("- ação 2", 180);
     expect(textMock).toHaveBeenCalledWith(["texto de interpretação"], 14, 40);
-    expect(textMock).toHaveBeenCalledWith("- ação 1", 14, 78);
-    expect(textMock).toHaveBeenCalledWith("- ação 2", 14, 86);
+    expect(textMock).toHaveBeenCalledWith(["- ação 1"], 14, 64);
+    expect(textMock).toHaveBeenCalledWith(["- ação 2"], 14, 72);
     expect(saveMock).toHaveBeenCalledWith("analise-zelo-abc123.pdf");
   });
 });

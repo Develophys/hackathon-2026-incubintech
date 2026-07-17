@@ -1,4 +1,3 @@
-import { jsPDF } from "jspdf";
 import type { StoredManagerInsight } from "../../ports/manager-insight-history.port";
 
 function formatDate(generatedAt: string): string {
@@ -30,16 +29,32 @@ export function downloadInsightAsText(entry: StoredManagerInsight): void {
   triggerDownload(blob, `analise-zelo-${entry.id}.txt`);
 }
 
-export function downloadInsightAsPdf(entry: StoredManagerInsight): void {
+export async function downloadInsightAsPdf(entry: StoredManagerInsight): Promise<void> {
+  const { jsPDF } = await import("jspdf");
   const doc = new jsPDF();
+  const LINE_HEIGHT = 6;
+  let y = 20;
+
   doc.setFontSize(16);
-  doc.text("Análise com IA — Zelo", 14, 20);
+  doc.text("Análise com IA — Zelo", 14, y);
+  y += 8;
+
   doc.setFontSize(11);
-  doc.text(formatDate(entry.generatedAt), 14, 28);
-  doc.text(doc.splitTextToSize(entry.interpretation, 180), 14, 40);
-  doc.text("Ações sugeridas:", 14, 70);
-  entry.suggestedActions.forEach((action, index) => {
-    doc.text(`- ${action}`, 14, 78 + index * 8);
+  doc.text(formatDate(entry.generatedAt), 14, y);
+  y += 12;
+
+  const interpretationLines = doc.splitTextToSize(entry.interpretation, 180);
+  doc.text(interpretationLines, 14, y);
+  y += interpretationLines.length * LINE_HEIGHT + 10;
+
+  doc.text("Ações sugeridas:", 14, y);
+  y += 8;
+
+  entry.suggestedActions.forEach((action) => {
+    const actionLines = doc.splitTextToSize(`- ${action}`, 180);
+    doc.text(actionLines, 14, y);
+    y += actionLines.length * LINE_HEIGHT + 2;
   });
+
   doc.save(`analise-zelo-${entry.id}.pdf`);
 }
