@@ -48,3 +48,24 @@ cheap and removes most of the practical risk.
   signals (i.e. the blast radius of a stolen token grows).
 - Post-hackathon hardening pass has time budget for the ~3-5h cookie
   migration described above.
+
+## TD-002: Manager insight history is shared across all managers, not per-manager
+
+- **Date:** 2026-07-12
+- **Area:** `apps/api/src/modules/manager/application/use-cases/get-manager-insight-history.use-case.ts`,
+  `apps/web/src/presentation/pages/ManagerInsightHistoryPage.tsx`
+- **Status:** Accepted, deferred
+
+**Decision.** `GET /manager/insights/history` returns every saved `ManagerInsight` row to any
+manager who authenticates — there is no per-manager scoping.
+
+**Why this is safe today.** Manager auth is a single shared institutional code, not individual
+accounts (see `identity-and-aggregation.md` — a full `User`/`Role.MANAGER` model was explicitly
+deferred). Every manager who has the code represents the same institution, and every saved
+insight is already anonymous, k-anonymized aggregate data — sharing it isn't a privacy issue, it's
+a UX limitation: one institution's history, not one person's.
+
+**Revisit when:** individual manager logins are built (per `identity-and-aggregation.md`'s
+deferred `User` model). At that point, `ManagerInsight` should gain a manager/team-scoping field
+and `GetManagerInsightHistoryUseCase` should filter by the authenticated manager's team, so each
+manager sees only their own team's saved analyses.

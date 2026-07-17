@@ -16,6 +16,7 @@ function renderManager() {
         <Routes>
           <Route path="/manager" element={<ManagerDashboardPage />} />
           <Route path="/manager/login" element={<div>Login screen</div>} />
+          <Route path="/manager/history" element={<div>History screen</div>} />
           <Route path="/home" element={<div>Home screen</div>} />
         </Routes>
       </MemoryRouter>
@@ -64,6 +65,18 @@ describe("ManagerDashboardPage", () => {
 
     await user.click(screen.getByRole("button", { name: "Sair da demo" }));
     expect(screen.getByText("Home screen")).toBeInTheDocument();
+  });
+
+  it("navigates to /manager/history via 'Ver histórico'", async () => {
+    const user = userEvent.setup();
+    renderManager();
+
+    await waitFor(() => {
+      expect(screen.getByText("Plantão noturno")).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole("link", { name: "Ver histórico" }));
+
+    expect(screen.getByText("History screen")).toBeInTheDocument();
   });
 
   it("clears the session and redirects to login on a 401", async () => {

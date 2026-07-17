@@ -27,6 +27,7 @@ the existing use-cases on submit.
 | `/peers` | `PeersPage` | Anonymous peer list |
 | `/manager/login` | `ManagerLoginPage` | Shared-code gate for the manager dashboard (see §5) |
 | `/manager` | `ManagerDashboardPage` | Aggregated, k-anonymized; gated by `/manager/login`'s session (see §5) |
+| `/manager/history` | `ManagerInsightHistoryPage` | Past AI-generated analyses, newest first; each downloadable as PDF or plain text (see `2026-07-12-manager-insight-history-design.md`) |
 | `/you` | `YouPage` | Consent status + revoke; added after the original 13 (see `screens/15-you.md`) |
 
 > Keep the current data-router shape (`id: "root"`, `Component: () => <Outlet/>`). Add a
@@ -116,6 +117,7 @@ export const routes = {
   assessment: "/assessment", phq9: "/assessment/phq9", gad7: "/assessment/gad7",
   result: "/assessment/result", crisis: "/crisis", crisisConnect: "/crisis/connect",
   crisisLine: "/crisis/line", chat: "/chat", peers: "/peers", manager: "/manager",
+  managerHistory: "/manager/history",
 } as const;
 ```
 

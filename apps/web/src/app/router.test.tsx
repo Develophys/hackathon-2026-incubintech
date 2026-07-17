@@ -124,6 +124,14 @@ describe("onboarding router flow", () => {
     expect(await screen.findByText("Tendências da equipe")).toBeInTheDocument();
   });
 
+  it("an unauthenticated visit to /manager/history redirects to the manager login screen", async () => {
+    useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
+
+    buildTestRouter("/manager/history");
+
+    expect(await screen.findByText("Acesso do gestor")).toBeInTheDocument();
+  });
+
   it("Home's Você tab reaches the consent screen, and revoking returns to Splash", async () => {
     useConsentStore.setState({ hasConsented: true, consentedAt: "2026-01-01T00:00:00.000Z" });
     buildTestRouter("/home");

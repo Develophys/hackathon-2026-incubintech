@@ -17,6 +17,8 @@ import { GetManagerSignalsUseCase } from "../use-cases/get-manager-signals.useca
 import { HttpManagerSignalsAdapter } from "../infrastructure/http/http-manager-signals.adapter";
 import { GenerateManagerInsightUseCase } from "../use-cases/generate-manager-insight.usecase";
 import { HttpManagerInsightAdapter } from "../infrastructure/http/http-manager-insight.adapter";
+import { GetManagerInsightHistoryUseCase } from "../use-cases/get-manager-insight-history.usecase";
+import { HttpManagerInsightHistoryAdapter } from "../infrastructure/http/http-manager-insight-history.adapter";
 
 export const checkApiHealthUseCase = new CheckApiHealthUseCase(new HttpApiHealthAdapter());
 export const sendChatMessageUseCase = new SendChatMessageUseCase(
@@ -38,3 +40,4 @@ export const getAssessmentHistoryUseCase = new GetAssessmentHistoryUseCase(
 export const loginManagerUseCase = new LoginManagerUseCase(new HttpManagerAuthAdapter());
 export const getManagerSignalsUseCase = new GetManagerSignalsUseCase(new HttpManagerSignalsAdapter());
 export const generateManagerInsightUseCase = new GenerateManagerInsightUseCase(new HttpManagerInsightAdapter());
+export const getManagerInsightHistoryUseCase = new GetManagerInsightHistoryUseCase(new HttpManagerInsightHistoryAdapter());
