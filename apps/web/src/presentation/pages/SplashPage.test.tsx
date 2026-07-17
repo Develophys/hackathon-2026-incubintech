@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { SplashPage } from "./SplashPage";
@@ -23,11 +23,21 @@ describe("SplashPage", () => {
   });
 
   it("renders the wordmark, tagline, CTA, and trust line", () => {
-    renderSplash();
-    expect(screen.getByText("Zelo")).toBeInTheDocument();
-    expect(screen.getByText("Cuidado confidencial para quem cuida.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Começar" })).toBeInTheDocument();
-    expect(screen.getByText("anônimo · criptografado · no seu controle")).toBeInTheDocument();
+    vi.useFakeTimers();
+    try {
+      renderSplash();
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
+      expect(screen.getByText("Zelo")).toBeInTheDocument();
+      expect(
+        screen.getAllByText("Cuidado confidencial para quem cuida.").length,
+      ).toBeGreaterThan(0);
+      expect(screen.getByRole("button", { name: "Começar" })).toBeInTheDocument();
+      expect(screen.getByText("anônimo · criptografado · no seu controle")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("navigates to /privacy when Começar is tapped", async () => {

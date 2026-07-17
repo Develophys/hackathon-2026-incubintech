@@ -21,6 +21,22 @@ declare module "vitest" {
 
 expect.extend({ toHaveNoViolations });
 
+// jsdom does not implement matchMedia; components that check
+// prefers-reduced-motion (e.g. SplashPage's typewriter effect) need a stub.
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }),
+});
+
 /**
  * @testing-library/react's automatic post-test cleanup only self-registers
  * when `afterEach` is a *global* (i.e. vitest's `test.globals: true`). This
