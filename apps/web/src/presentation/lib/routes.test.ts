@@ -31,6 +31,7 @@ describe("routes", () => {
       manager: "/manager",
       managerLogin: "/manager/login",
       you: "/you",
+      managerHistory: "/manager/history",
     });
   });
 });

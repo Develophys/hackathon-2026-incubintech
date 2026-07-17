@@ -8,11 +8,14 @@ import { ManagerAuthGuard } from "./manager-auth.guard.ts";
 import { LoginManagerUseCase } from "../application/use-cases/login-manager.use-case.ts";
 import { GetManagerSignalsUseCase } from "../application/use-cases/get-manager-signals.use-case.ts";
 import { GenerateManagerInsightUseCase } from "../application/use-cases/generate-manager-insight.use-case.ts";
+import { GetManagerInsightHistoryUseCase } from "../application/use-cases/get-manager-insight-history.use-case.ts";
 import { ManagerTokenService } from "../application/services/manager-token.service.ts";
 import { SIMULATED_SIGNAL_REPOSITORY } from "../application/ports/simulated-signal-repository.port.ts";
 import type { SimulatedSignalRepository, SimulatedSignalRow } from "../application/ports/simulated-signal-repository.port.ts";
 import { AI_INSIGHT_PORT, InsightGenerationFailedError } from "../application/ports/ai-insight.port.ts";
 import type { AiInsightPort, ManagerInsightResponse } from "../application/ports/ai-insight.port.ts";
+import { MANAGER_INSIGHT_REPOSITORY } from "../application/ports/manager-insight-repository.port.ts";
+import type { ManagerInsightRepository, StoredManagerInsight } from "../application/ports/manager-insight-repository.port.ts";
 
 class FakeSimulatedSignalRepository implements SimulatedSignalRepository {
   public rows: SimulatedSignalRow[] = [];
@@ -31,6 +34,16 @@ class FakeAiInsightPort implements AiInsightPort {
   }
 }
 
+class FakeManagerInsightRepository implements ManagerInsightRepository {
+  public rows: StoredManagerInsight[] = [];
+  async save(entry: { interpretation: string; suggestedActions: string[]; summary: string }): Promise<void> {
+    this.rows.unshift({ id: `id-${this.rows.length + 1}`, generatedAt: new Date(), ...entry });
+  }
+  async findAll(): Promise<StoredManagerInsight[]> {
+    return this.rows;
+  }
+}
+
 function fakeConfig(): ConfigService {
   const values: Record<string, string> = { MANAGER_ACCESS_CODE: "test-code", MANAGER_TOKEN_SECRET: "test-secret" };
   return { getOrThrow: (key: string) => values[key], get: () => undefined } as unknown as ConfigService;
@@ -40,20 +53,24 @@ describe("manager controller", () => {
   let app: INestApplication;
   let repository: FakeSimulatedSignalRepository;
   let aiInsightPort: FakeAiInsightPort;
+  let insightRepository: FakeManagerInsightRepository;
 
   beforeAll(async () => {
     repository = new FakeSimulatedSignalRepository();
     aiInsightPort = new FakeAiInsightPort();
+    insightRepository = new FakeManagerInsightRepository();
     const moduleRef = await Test.createTestingModule({
       controllers: [ManagerController],
       providers: [
         LoginManagerUseCase,
         GetManagerSignalsUseCase,
         GenerateManagerInsightUseCase,
+        GetManagerInsightHistoryUseCase,
         ManagerTokenService,
         ManagerAuthGuard,
         { provide: SIMULATED_SIGNAL_REPOSITORY, useValue: repository },
         { provide: AI_INSIGHT_PORT, useValue: aiInsightPort },
+        { provide: MANAGER_INSIGHT_REPOSITORY, useValue: insightRepository },
         { provide: ConfigService, useValue: fakeConfig() },
       ],
     }).compile();
@@ -134,5 +151,27 @@ describe("manager controller", () => {
 
     expect(response.status).toBe(502);
     aiInsightPort.shouldFail = false;
+  });
+
+  it("GET /manager/insights/history rejects a request with no token", async () => {
+    const response = await request(app.getHttpServer()).get("/manager/insights/history");
+
+    expect(response.status).toBe(401);
+  });
+
+  it("POST /manager/insights auto-saves to history, visible via GET /manager/insights/history", async () => {
+    insightRepository.rows = [];
+    aiInsightPort.shouldFail = false;
+    const token = await getToken();
+
+    await request(app.getHttpServer()).post("/manager/insights").set("Authorization", `Bearer ${token}`);
+    const response = await request(app.getHttpServer())
+      .get("/manager/insights/history")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      expect.objectContaining({ interpretation: "análise de teste", suggestedActions: ["ação de teste"] }),
+    ]);
   });
 });

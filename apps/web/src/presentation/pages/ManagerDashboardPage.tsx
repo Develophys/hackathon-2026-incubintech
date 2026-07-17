@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
 import { BackButton } from "../ui/BackButton";
 import { PrivacyBadge } from "../ui/PrivacyBadge";
@@ -101,7 +101,12 @@ export function ManagerDashboardPage() {
 
         <div className="mt-[14px]">
           <Card>
-            <p className="text-body font-extrabold text-ink">Análise com IA</p>
+            <div className="flex items-center justify-between">
+              <p className="text-body font-extrabold text-ink">Análise com IA</p>
+              <Link to={routes.managerHistory} className="text-label font-bold text-brand">
+                Ver histórico
+              </Link>
+            </div>
             {!insight.data && (
               <div className="mt-3">
                 <Button variant="outline" full={false} loading={insight.isPending} onClick={() => insight.mutate()}>

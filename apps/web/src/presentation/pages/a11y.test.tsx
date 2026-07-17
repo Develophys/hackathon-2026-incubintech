@@ -20,6 +20,7 @@ import { PeersPage } from "./PeersPage";
 import { ManagerDashboardPage } from "./ManagerDashboardPage";
 import { ManagerLoginPage } from "./ManagerLoginPage";
 import { YouPage } from "./YouPage";
+import { ManagerInsightHistoryPage } from "./ManagerInsightHistoryPage";
 import { useConsentStore } from "../../stores/consent.store";
 
 const RESULT_STATE = { scaleType: "PHQ-9" as const, totalScore: 12, max: 27, riskSignal: true };
@@ -41,6 +42,7 @@ const SCREENS: { name: string; Component: ComponentType; path: string; state?: u
   { name: "ManagerLogin", Component: ManagerLoginPage, path: "/manager/login" },
   { name: "ManagerDashboard", Component: ManagerDashboardPage, path: "/manager" },
   { name: "You", Component: YouPage, path: "/you" },
+  { name: "ManagerInsightHistory", Component: ManagerInsightHistoryPage, path: "/manager/history" },
 ];
 
 describe("automated accessibility pass (axe-core)", () => {
