@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { GenerateManagerInsightUseCase } from "./generate-manager-insight.use-case.ts";
 import { GetManagerSignalsUseCase } from "./get-manager-signals.use-case.ts";
 import type { SimulatedSignalRepository, SimulatedSignalRow } from "../ports/simulated-signal-repository.port.ts";
+import type { SimulatedFollowUpRepository, SimulatedFollowUpRow } from "../ports/simulated-follow-up-repository.port.ts";
 import type { AiInsightPort, ManagerInsightResponse } from "../ports/ai-insight.port.ts";
 import { MANAGER_INSIGHT_SYSTEM_PROMPT } from "../prompts/manager-insight-system-prompt.ts";
 import type { ManagerInsightRepository, StoredManagerInsight } from "../ports/manager-insight-repository.port.ts";
@@ -9,6 +10,13 @@ import type { ManagerInsightRepository, StoredManagerInsight } from "../ports/ma
 class FakeSimulatedSignalRepository implements SimulatedSignalRepository {
   constructor(private readonly rows: SimulatedSignalRow[]) {}
   async findAll(): Promise<SimulatedSignalRow[]> {
+    return this.rows;
+  }
+}
+
+class FakeSimulatedFollowUpRepository implements SimulatedFollowUpRepository {
+  constructor(private readonly rows: SimulatedFollowUpRow[] = []) {}
+  async findAll(): Promise<SimulatedFollowUpRow[]> {
     return this.rows;
   }
 }
@@ -45,7 +53,7 @@ describe("GenerateManagerInsightUseCase", () => {
       { department: "UTI", weekStart: WEEK_1, checkIns: 10, concerning: 3 },
       { department: "UTI", weekStart: WEEK_2, checkIns: 10, concerning: 6 },
     ]);
-    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository);
+    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository, new FakeSimulatedFollowUpRepository());
     const aiInsight = new FakeAiInsightPort({ interpretation: "texto", suggestedActions: ["ação 1"] });
     const insightRepository = new FakeManagerInsightRepository();
     const useCase = new GenerateManagerInsightUseCase(getManagerSignals, aiInsight, insightRepository);
@@ -65,7 +73,7 @@ describe("GenerateManagerInsightUseCase", () => {
     const signalsRepository = new FakeSimulatedSignalRepository([
       { department: "UTI", weekStart: WEEK_2, checkIns: 10, concerning: 6 },
     ]);
-    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository);
+    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository, new FakeSimulatedFollowUpRepository());
     class ThrowingAiInsightPort implements AiInsightPort {
       async generateInsight(): Promise<ManagerInsightResponse> {
         throw new Error("boom");
@@ -82,7 +90,7 @@ describe("GenerateManagerInsightUseCase", () => {
     const signalsRepository = new FakeSimulatedSignalRepository([
       { department: "UTI", weekStart: WEEK_2, checkIns: 10, concerning: 6 },
     ]);
-    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository);
+    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository, new FakeSimulatedFollowUpRepository());
     const aiInsight = new FakeAiInsightPort({ interpretation: "texto", suggestedActions: ["ação 1"] });
     const insightRepository = new FakeManagerInsightRepository();
     const useCase = new GenerateManagerInsightUseCase(getManagerSignals, aiInsight, insightRepository);
@@ -98,7 +106,7 @@ describe("GenerateManagerInsightUseCase", () => {
     const signalsRepository = new FakeSimulatedSignalRepository([
       { department: "UTI", weekStart: WEEK_2, checkIns: 10, concerning: 6 },
     ]);
-    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository);
+    const getManagerSignals = new GetManagerSignalsUseCase(signalsRepository, new FakeSimulatedFollowUpRepository());
     const aiInsight = new FakeAiInsightPort({ interpretation: "texto", suggestedActions: ["ação 1"] });
     const insightRepository = new FakeManagerInsightRepository();
     insightRepository.shouldFailSave = true;

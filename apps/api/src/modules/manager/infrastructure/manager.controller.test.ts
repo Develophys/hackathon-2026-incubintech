@@ -12,6 +12,8 @@ import { GetManagerInsightHistoryUseCase } from "../application/use-cases/get-ma
 import { ManagerTokenService } from "../application/services/manager-token.service.ts";
 import { SIMULATED_SIGNAL_REPOSITORY } from "../application/ports/simulated-signal-repository.port.ts";
 import type { SimulatedSignalRepository, SimulatedSignalRow } from "../application/ports/simulated-signal-repository.port.ts";
+import { SIMULATED_FOLLOW_UP_REPOSITORY } from "../application/ports/simulated-follow-up-repository.port.ts";
+import type { SimulatedFollowUpRepository, SimulatedFollowUpRow } from "../application/ports/simulated-follow-up-repository.port.ts";
 import { AI_INSIGHT_PORT, InsightGenerationFailedError } from "../application/ports/ai-insight.port.ts";
 import type { AiInsightPort, ManagerInsightResponse } from "../application/ports/ai-insight.port.ts";
 import { MANAGER_INSIGHT_REPOSITORY } from "../application/ports/manager-insight-repository.port.ts";
@@ -20,6 +22,13 @@ import type { ManagerInsightRepository, StoredManagerInsight } from "../applicat
 class FakeSimulatedSignalRepository implements SimulatedSignalRepository {
   public rows: SimulatedSignalRow[] = [];
   async findAll(): Promise<SimulatedSignalRow[]> {
+    return this.rows;
+  }
+}
+
+class FakeSimulatedFollowUpRepository implements SimulatedFollowUpRepository {
+  public rows: SimulatedFollowUpRow[] = [];
+  async findAll(): Promise<SimulatedFollowUpRow[]> {
     return this.rows;
   }
 }
@@ -52,11 +61,13 @@ function fakeConfig(): ConfigService {
 describe("manager controller", () => {
   let app: INestApplication;
   let repository: FakeSimulatedSignalRepository;
+  let followUpRepository: FakeSimulatedFollowUpRepository;
   let aiInsightPort: FakeAiInsightPort;
   let insightRepository: FakeManagerInsightRepository;
 
   beforeAll(async () => {
     repository = new FakeSimulatedSignalRepository();
+    followUpRepository = new FakeSimulatedFollowUpRepository();
     aiInsightPort = new FakeAiInsightPort();
     insightRepository = new FakeManagerInsightRepository();
     const moduleRef = await Test.createTestingModule({
@@ -69,6 +80,7 @@ describe("manager controller", () => {
         ManagerTokenService,
         ManagerAuthGuard,
         { provide: SIMULATED_SIGNAL_REPOSITORY, useValue: repository },
+        { provide: SIMULATED_FOLLOW_UP_REPOSITORY, useValue: followUpRepository },
         { provide: AI_INSIGHT_PORT, useValue: aiInsightPort },
         { provide: MANAGER_INSIGHT_REPOSITORY, useValue: insightRepository },
         { provide: ConfigService, useValue: fakeConfig() },

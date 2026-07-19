@@ -5,24 +5,34 @@ import {
   type SimulatedSignalRepository,
   type SimulatedSignalRow,
 } from "../ports/simulated-signal-repository.port.ts";
+import {
+  SIMULATED_FOLLOW_UP_REPOSITORY,
+  type SimulatedFollowUpRepository,
+} from "../ports/simulated-follow-up-repository.port.ts";
 
 export interface ManagerSignalsResponse {
   overallConcerningRate: number;
   checkInsLast4Weeks: number;
   weeklyTrend: { weekStart: string; concerningRate: number }[];
   segments: { label: string; value: number; n: number }[];
+  followUpResponseRate: number;
 }
 
 const RECENT_WEEKS_FOR_VOLUME = 4;
 
 @Injectable()
 export class GetManagerSignalsUseCase {
-  constructor(@Inject(SIMULATED_SIGNAL_REPOSITORY) private readonly repository: SimulatedSignalRepository) {}
+  constructor(
+    @Inject(SIMULATED_SIGNAL_REPOSITORY) private readonly repository: SimulatedSignalRepository,
+    @Inject(SIMULATED_FOLLOW_UP_REPOSITORY) private readonly followUpRepository: SimulatedFollowUpRepository,
+  ) {}
 
   async execute(): Promise<ManagerSignalsResponse> {
     const rows = await this.repository.findAll();
+    const followUpResponseRate = await this.computeFollowUpResponseRate();
+
     if (rows.length === 0) {
-      return { overallConcerningRate: 0, checkInsLast4Weeks: 0, weeklyTrend: [], segments: [] };
+      return { overallConcerningRate: 0, checkInsLast4Weeks: 0, weeklyTrend: [], segments: [], followUpResponseRate };
     }
 
     const weekTimes = [...new Set(rows.map((r) => r.weekStart.getTime()))].sort((a, b) => a - b);
@@ -69,6 +79,14 @@ export class GetManagerSignalsUseCase {
       };
     });
 
-    return { overallConcerningRate, checkInsLast4Weeks, weeklyTrend, segments };
+    return { overallConcerningRate, checkInsLast4Weeks, weeklyTrend, segments, followUpResponseRate };
+  }
+
+  private async computeFollowUpResponseRate(): Promise<number> {
+    const rows = await this.followUpRepository.findAll();
+    if (rows.length === 0) return 0;
+
+    const mostRecent = rows.reduce((latest, row) => (row.weekStart > latest.weekStart ? row : latest));
+    return mostRecent.sent === 0 ? 0 : mostRecent.responded / mostRecent.sent;
   }
 }

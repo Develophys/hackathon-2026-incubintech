@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { GetManagerSignalsUseCase } from "./get-manager-signals.use-case.ts";
 import type { SimulatedSignalRepository, SimulatedSignalRow } from "../ports/simulated-signal-repository.port.ts";
+import type { SimulatedFollowUpRepository, SimulatedFollowUpRow } from "../ports/simulated-follow-up-repository.port.ts";
 
 class FakeSimulatedSignalRepository implements SimulatedSignalRepository {
   constructor(private readonly rows: SimulatedSignalRow[]) {}
   async findAll(): Promise<SimulatedSignalRow[]> {
+    return this.rows;
+  }
+}
+
+class FakeSimulatedFollowUpRepository implements SimulatedFollowUpRepository {
+  constructor(private readonly rows: SimulatedFollowUpRow[]) {}
+  async findAll(): Promise<SimulatedFollowUpRow[]> {
     return this.rows;
   }
 }
@@ -22,7 +30,7 @@ describe("GetManagerSignalsUseCase", () => {
       { department: "C", weekStart: WEEK_2, checkIns: 4, concerning: 2 },
       { department: "B", weekStart: WEEK_1, checkIns: 10, concerning: 4 },
     ]);
-    const useCase = new GetManagerSignalsUseCase(repository);
+    const useCase = new GetManagerSignalsUseCase(repository, new FakeSimulatedFollowUpRepository([]));
 
     const result = await useCase.execute();
 
@@ -41,7 +49,7 @@ describe("GetManagerSignalsUseCase", () => {
       { department: "B", weekStart: WEEK_2, checkIns: 10, concerning: 4 },
       { department: "C", weekStart: WEEK_2, checkIns: 4, concerning: 2 },
     ]);
-    const useCase = new GetManagerSignalsUseCase(repository);
+    const useCase = new GetManagerSignalsUseCase(repository, new FakeSimulatedFollowUpRepository([]));
 
     const result = await useCase.execute();
 
@@ -57,7 +65,7 @@ describe("GetManagerSignalsUseCase", () => {
       { department: "C", weekStart: WEEK_1, checkIns: 4, concerning: 2 },
       { department: "C", weekStart: WEEK_2, checkIns: 4, concerning: 2 },
     ]);
-    const useCase = new GetManagerSignalsUseCase(repository);
+    const useCase = new GetManagerSignalsUseCase(repository, new FakeSimulatedFollowUpRepository([]));
 
     const result = await useCase.execute();
 
@@ -79,7 +87,7 @@ describe("GetManagerSignalsUseCase", () => {
     const repository = new FakeSimulatedSignalRepository(
       weeks.map((weekStart) => ({ department: "A", weekStart, checkIns: 10, concerning: 5 })),
     );
-    const useCase = new GetManagerSignalsUseCase(repository);
+    const useCase = new GetManagerSignalsUseCase(repository, new FakeSimulatedFollowUpRepository([]));
 
     const result = await useCase.execute();
 
@@ -91,7 +99,7 @@ describe("GetManagerSignalsUseCase", () => {
     const repository = new FakeSimulatedSignalRepository([
       { department: "Tiny", weekStart: WEEK_2, checkIns: 2, concerning: 1 },
     ]);
-    const useCase = new GetManagerSignalsUseCase(repository);
+    const useCase = new GetManagerSignalsUseCase(repository, new FakeSimulatedFollowUpRepository([]));
 
     const result = await useCase.execute();
 
@@ -102,7 +110,7 @@ describe("GetManagerSignalsUseCase", () => {
 
   it("returns all-zero/empty output for an unseeded (empty) database, without crashing", async () => {
     const repository = new FakeSimulatedSignalRepository([]);
-    const useCase = new GetManagerSignalsUseCase(repository);
+    const useCase = new GetManagerSignalsUseCase(repository, new FakeSimulatedFollowUpRepository([]));
 
     const result = await useCase.execute();
 
@@ -111,6 +119,42 @@ describe("GetManagerSignalsUseCase", () => {
       checkInsLast4Weeks: 0,
       weeklyTrend: [],
       segments: [],
+      followUpResponseRate: 0,
     });
+  });
+});
+
+describe("GetManagerSignalsUseCase - followUpResponseRate", () => {
+  it("computes the rate from the most recent week only", async () => {
+    const repository = new FakeSimulatedSignalRepository([]);
+    const followUpRepository = new FakeSimulatedFollowUpRepository([
+      { weekStart: WEEK_1, sent: 20, responded: 5 },
+      { weekStart: WEEK_2, sent: 20, responded: 15 },
+    ]);
+    const useCase = new GetManagerSignalsUseCase(repository, followUpRepository);
+
+    const result = await useCase.execute();
+
+    expect(result.followUpResponseRate).toBe(0.75); // WEEK_2 (most recent): 15/20
+  });
+
+  it("returns 0, not NaN, when the most recent week's sent is 0", async () => {
+    const repository = new FakeSimulatedSignalRepository([]);
+    const followUpRepository = new FakeSimulatedFollowUpRepository([{ weekStart: WEEK_2, sent: 0, responded: 0 }]);
+    const useCase = new GetManagerSignalsUseCase(repository, followUpRepository);
+
+    const result = await useCase.execute();
+
+    expect(result.followUpResponseRate).toBe(0);
+  });
+
+  it("returns 0 when there is no follow-up data at all", async () => {
+    const repository = new FakeSimulatedSignalRepository([]);
+    const followUpRepository = new FakeSimulatedFollowUpRepository([]);
+    const useCase = new GetManagerSignalsUseCase(repository, followUpRepository);
+
+    const result = await useCase.execute();
+
+    expect(result.followUpResponseRate).toBe(0);
   });
 });
