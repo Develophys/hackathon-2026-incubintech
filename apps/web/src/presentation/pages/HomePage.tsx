@@ -3,11 +3,16 @@ import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
 import { BottomNav } from "../layout/BottomNav";
 import { Card } from "../ui/Card";
+import { Button } from "../ui/Button";
 import { IconBadge } from "../ui/IconBadge";
 import { PrivacyBadge } from "../ui/PrivacyBadge";
 import { routes } from "../lib/routes";
 import { useAssessmentHistory } from "../hooks/useAssessmentHistory";
 import type { WeeklyHistoryPoint } from "../../use-cases/get-assessment-history.usecase";
+import { ShouldShowFollowUpPromptUseCase } from "../../use-cases/should-show-followup-prompt.usecase";
+import { useFollowUpStore } from "../../stores/followup.store";
+
+const shouldShowFollowUpPromptUseCase = new ShouldShowFollowUpPromptUseCase();
 
 const EMPTY_POINTS: WeeklyHistoryPoint[] = Array.from({ length: 6 }, () => ({
   weekStart: "",
@@ -37,6 +42,12 @@ function findPeakIndex(points: WeeklyHistoryPoint[]): number {
   return peakIndex;
 }
 
+function mostRecentAssessmentDate(points: WeeklyHistoryPoint[]): Date | null {
+  const withData = points.filter((point) => point.severityFraction !== null && point.weekStart !== "");
+  if (withData.length === 0) return null;
+  return new Date(withData[withData.length - 1]!.weekStart);
+}
+
 export function HomePage() {
   const navigate = useNavigate();
   const { data: history } = useAssessmentHistory();
@@ -44,6 +55,14 @@ export function HomePage() {
   const bars = toBarHeights(points);
   const latestIndex = points.length - 1;
   const peakIndex = findPeakIndex(points);
+
+  const answer = useFollowUpStore((state) => state.answer);
+  const recordAnswer = useFollowUpStore((state) => state.recordAnswer);
+  const showFollowUpPrompt = shouldShowFollowUpPromptUseCase.execute({
+    mostRecentAssessmentAt: mostRecentAssessmentDate(points),
+    alreadyAnswered: answer !== null,
+    now: new Date(),
+  });
 
   const handleNavigate = (tab: "home" | "checkin" | "chat" | "you") => {
     if (tab === "home") navigate(routes.home);
@@ -62,6 +81,22 @@ export function HomePage() {
           </div>
           <PrivacyBadge />
         </div>
+
+        {showFollowUpPrompt && (
+          <div className="mt-4">
+            <Card>
+              <p className="text-body font-extrabold text-ink">Como você está, um tempo depois?</p>
+              <div className="mt-3 flex gap-3">
+                <Button variant="outline" full={false} onClick={() => recordAnswer("yes")}>
+                  Estou bem
+                </Button>
+                <Button variant="outline" full={false} onClick={() => recordAnswer("no")}>
+                  Não estou bem
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
 
         <div className="mt-5">
           <Card size="lg" tone="brand">

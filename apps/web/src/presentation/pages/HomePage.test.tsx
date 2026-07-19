@@ -1,10 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HomePage } from "./HomePage";
 import * as container from "../../app/container";
+import { useFollowUpStore } from "../../stores/followup.store";
 
 function renderHome() {
   const queryClient = new QueryClient();
@@ -26,7 +27,39 @@ function renderHome() {
 
 const SIX_NULL_POINTS = Array.from({ length: 6 }, () => ({ weekStart: "", severityFraction: null }));
 
+const OLD_ENOUGH_WEEK_START = (() => {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 10); // well past FOLLOWUP_INTERVAL_DAYS (3)
+  return d.toISOString();
+})();
+
 describe("HomePage", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    useFollowUpStore.setState({ answer: null, answeredAt: null });
+  });
+
+  it("shows the follow-up prompt when the most recent assessment is old enough and unanswered", async () => {
+    vi.spyOn(container.getAssessmentHistoryUseCase, "execute").mockResolvedValue([
+      { weekStart: OLD_ENOUGH_WEEK_START, severityFraction: 0.4 },
+    ]);
+    renderHome();
+    expect(await screen.findByText("Como você está, um tempo depois?")).toBeInTheDocument();
+  });
+
+  it("hides the prompt after answering, and does not write to any network", async () => {
+    vi.spyOn(container.getAssessmentHistoryUseCase, "execute").mockResolvedValue([
+      { weekStart: OLD_ENOUGH_WEEK_START, severityFraction: 0.4 },
+    ]);
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const user = userEvent.setup();
+    renderHome();
+    await screen.findByText("Como você está, um tempo depois?");
+    await user.click(screen.getByRole("button", { name: "Estou bem" }));
+    expect(screen.queryByText("Como você está, um tempo depois?")).not.toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it("renders the greeting, privacy badge, and hero check-in CTA", () => {
     vi.spyOn(container.getAssessmentHistoryUseCase, "execute").mockResolvedValue(SIX_NULL_POINTS);
     renderHome();
