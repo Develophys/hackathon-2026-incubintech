@@ -1,54 +1,72 @@
 import { useState } from "react";
-import { UserRound } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "../layout/PhoneShell";
 import { BackButton } from "../ui/BackButton";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
-import { generateEphemeralToken } from "../lib/generate-ephemeral-token";
 import { routes } from "../lib/routes";
+import { requestHumanHandoffUseCase } from "../../app/container";
+import { GetCrisisDirectionUseCase, type ProfessionalBond } from "../../use-cases/get-crisis-direction.usecase";
 
-// TODO(week2): real provider matching + secure channel. Until then this screen is a
-// designed placeholder — the token is illustrative and is never persisted or sent anywhere.
+const getCrisisDirectionUseCase = new GetCrisisDirectionUseCase();
+
 export function CrisisAcceptPage() {
   const navigate = useNavigate();
-  const [token] = useState(generateEphemeralToken);
+  const [bond, setBond] = useState<ProfessionalBond | null>(null);
+  const handoff = requestHumanHandoffUseCase.execute();
+  // The use-case's label is the long form ("CVV - Centro de Valorização da Vida");
+  // the short form before " - " is what the spec's "CVV · 188" copy expects.
+  const shortLabel = handoff.externalCrisisLine.label.split(" - ")[0];
+  const direction = bond ? getCrisisDirectionUseCase.execute(bond) : null;
 
   return (
     <PhoneShell>
       <div className="flex min-h-full flex-col pt-[30px]">
         <BackButton label="Voltar" onClick={() => navigate(routes.crisis)} />
-        <h1 className="mb-2 mt-4 text-h1 text-ink">Conectando com segurança</h1>
-        <p className="text-caption text-muted">
-          Um token temporário foi criado só para esta conversa. Sua identidade não é armazenada.
-        </p>
+        <h1 className="mb-2 mt-4 text-h1 text-ink">Vamos te direcionar</h1>
 
-        <div className="mt-5 rounded-2xl bg-dark p-[18px]">
-          <p className="font-mono text-dark-brand">token: {token}</p>
-          <p className="mt-1 font-mono text-[12px] text-[#6F8F84]">
-            expira ao fim da sessão · sem vínculo com CRM
-          </p>
-        </div>
+        {!direction && (
+          <>
+            <p className="text-caption text-muted">
+              Você é atendido pelo SUS ou por um plano de saúde/rede privada?
+            </p>
+            <div className="mt-4 flex flex-col gap-3">
+              <Button variant="outline" onClick={() => setBond("sus")}>
+                SUS
+              </Button>
+              <Button variant="outline" onClick={() => setBond("private")}>
+                Plano de saúde / rede privada
+              </Button>
+            </div>
+          </>
+        )}
+
+        {direction && (
+          <div className="mt-4">
+            <Card>
+              <p className="text-body font-extrabold text-ink">{direction.title}</p>
+              <p className="mt-2 text-caption text-muted">{direction.message}</p>
+            </Card>
+          </div>
+        )}
 
         <div className="mt-4">
-          <Card>
-            <div className="flex items-center gap-3">
-              <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-surface-brand text-brand">
-                <UserRound size={22} />
-              </div>
-              <div>
-                <p className="text-body font-extrabold text-ink">Psicólogo(a) parceiro(a)</p>
-                <p className="text-caption text-brand">● disponível agora</p>
-              </div>
-            </div>
+          <Card tone="brand-tint">
+            <p className="font-mono text-label text-ink-2">sempre disponível</p>
+            <p className="text-body-strong text-ink">
+              {shortLabel} · {handoff.externalCrisisLine.phone}
+            </p>
+            <p className="text-caption text-muted">Ligação gratuita e sigilosa, 24h.</p>
           </Card>
         </div>
 
         <div className="flex-1" />
 
-        <Button variant="primary" onClick={() => navigate(routes.chat)}>
-          Iniciar conversa segura
-        </Button>
+        {direction && (
+          <Button variant="primary" onClick={() => navigate(routes.home)}>
+            Entendi
+          </Button>
+        )}
       </div>
     </PhoneShell>
   );
