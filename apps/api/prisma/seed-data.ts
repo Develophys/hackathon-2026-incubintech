@@ -47,3 +47,34 @@ export function buildSeedRows(referenceDate: Date): SimulatedSignalSeedRow[] {
 
   return rows;
 }
+
+export interface SimulatedFollowUpSeedRow {
+  weekStart: Date;
+  sent: number;
+  responded: number;
+}
+
+const FOLLOW_UP_WEEKS_TO_SEED = 6;
+// oldest week first; last entry is the current week. Chosen to read as a believable,
+// improving-but-imperfect response rate for the demo (see seed-data.test.ts).
+const FOLLOW_UP_SCENARIO: { sent: number; responded: number }[] = [
+  { sent: 20, responded: 9 },
+  { sent: 22, responded: 11 },
+  { sent: 25, responded: 13 },
+  { sent: 26, responded: 15 },
+  { sent: 28, responded: 17 },
+  { sent: 30, responded: 21 },
+];
+
+export function buildFollowUpSeedRows(referenceDate: Date): SimulatedFollowUpSeedRow[] {
+  const currentWeekStart = startOfIsoWeek(referenceDate);
+  const rows: SimulatedFollowUpSeedRow[] = [];
+
+  for (let i = 0; i < FOLLOW_UP_WEEKS_TO_SEED; i++) {
+    const weekStart = new Date(currentWeekStart);
+    weekStart.setUTCDate(weekStart.getUTCDate() - (FOLLOW_UP_WEEKS_TO_SEED - 1 - i) * 7);
+    rows.push({ weekStart, sent: FOLLOW_UP_SCENARIO[i]!.sent, responded: FOLLOW_UP_SCENARIO[i]!.responded });
+  }
+
+  return rows;
+}

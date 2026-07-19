@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSeedRows, startOfIsoWeek } from "./seed-data.ts";
+import { buildFollowUpSeedRows, buildSeedRows, startOfIsoWeek } from "./seed-data.ts";
 
 describe("startOfIsoWeek", () => {
   it("resolves a Wednesday back to that week's Monday", () => {
@@ -40,5 +40,26 @@ describe("buildSeedRows", () => {
     const rows = buildSeedRows(reference).filter((r) => r.department === "UTI");
     const mostRecent = rows.reduce((a, b) => (a.weekStart > b.weekStart ? a : b));
     expect(mostRecent.weekStart.toISOString()).toBe("2026-07-06T00:00:00.000Z");
+  });
+});
+
+describe("buildFollowUpSeedRows", () => {
+  const reference = new Date("2026-07-08T12:00:00.000Z"); // a Wednesday, week of 2026-07-06
+
+  it("produces exactly 6 weeks of rows", () => {
+    expect(buildFollowUpSeedRows(reference)).toHaveLength(6);
+  });
+
+  it("the most recent week's rate is neither 0% nor 100% (demo credibility)", () => {
+    const rows = buildFollowUpSeedRows(reference).sort((a, b) => a.weekStart.getTime() - b.weekStart.getTime());
+    const mostRecent = rows[rows.length - 1]!;
+    const rate = mostRecent.responded / mostRecent.sent;
+    expect(rate).toBeGreaterThan(0);
+    expect(rate).toBeLessThan(1);
+  });
+
+  it("the most recent week's weekStart is the Monday of the reference date's week", () => {
+    const rows = buildFollowUpSeedRows(reference).sort((a, b) => a.weekStart.getTime() - b.weekStart.getTime());
+    expect(rows[rows.length - 1]!.weekStart.toISOString()).toBe("2026-07-06T00:00:00.000Z");
   });
 });

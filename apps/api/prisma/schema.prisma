@@ -42,3 +42,14 @@ model ManagerInsight {
 
   @@map("manager_insights")
 }
+
+model SimulatedFollowUp {
+  id         String   @id @default(cuid())
+  weekStart  DateTime
+  sent       Int
+  responded  Int
+  createdAt  DateTime @default(now())
+
+  @@unique([weekStart])
+  @@map("simulated_follow_ups")
+}
