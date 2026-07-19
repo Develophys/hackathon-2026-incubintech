@@ -1,8 +1,8 @@
 ---
 artefato: prd
-versão: "1.1"
+versão: "1.2"
 criado: 2026-07-02
-atualizado: 2026-07-07
+atualizado: 2026-07-19
 status: rascunho
 ---
 
@@ -101,9 +101,9 @@ Ver documento `user-stories` para critérios de aceite completos.
 
 #### Autoavaliação e Triagem
 
-- **FR-1**: O sistema deve aplicar PHQ-9, GAD-7 e MBI-HSS (ou subconjunto validado com parceiro clínico) como questionário estruturado no app.
+- **FR-1** *(revisado 19/07/2026, baseado na resposta da ACM à pergunta 1.3 — ver "Perguntas em Aberto")*: O sistema deve aplicar, como primeiro filtro, GAD-2 e PHQ-2 (dois questionários validados, de apenas duas perguntas cada, para rastreio de ansiedade e depressão). Em caso de pontuação positiva (≥3) em qualquer um dos dois, o sistema deve abrir os questionários ampliados GAD-7 e PHQ-9 para uma triagem mais aprofundada. MBI-HSS permanece fora de escopo nesta janela (ver `adr-002-mbi-hss-direction.md`) — a ACM não cita essa escala como necessária para a PoC, o que reforça essa decisão em vez de revertê-la.
 - **FR-2**: O score de cada escala deve ser calculado localmente, no dispositivo do usuário, sem envio do dado bruto de respostas ao servidor.
-- **FR-3**: O sistema deve identificar automaticamente sinais de risco agudo (ex.: item 9 do PHQ-9 positivo) segundo critérios definidos com parceiro clínico.
+- **FR-3** *(revisado 19/07/2026)*: O sistema deve identificar automaticamente sinais de risco agudo a partir do resultado do primeiro filtro (GAD-2/PHQ-2) e/ou dos questionários ampliados (GAD-7/PHQ-9, ex.: item 9 do PHQ-9 positivo), segundo critérios definidos com parceiro clínico.
 
 #### Chat de Acolhimento por IA
 
@@ -114,8 +114,10 @@ Ver documento `user-stories` para critérios de aceite completos.
 
 #### Escalonamento em Crise
 
-- **FR-7**: Ao identificar risco agudo, o sistema deve oferecer — nunca forçar — conexão com psicólogo parceiro humano.
-- **FR-8**: Caso o médico aceite se identificar, o sistema deve gerar um token de sessão efêmero que conecta ao psicólogo, sem persistir a identidade em texto claro no banco de dados.
+> **Revisado em 19/07/2026** — ver `adr-003-crisis-protocol-rescope-peer-chat-differentiator.md`. A ACM confirmou (resposta 1.2) que "não é esperada integração técnica direta" com serviços de emergência nesta fase; o essencial é "o direcionamento correto e imediato". FR-7–FR-10 abaixo substituem a arquitetura anterior de conexão ao vivo com token de sessão efêmero sobre canal cifrado dedicado. Esta simplificação é específica ao protocolo de crise (canais de emergência externos) e não se aplica ao atalho humano do chat de acolhimento (FR-6b), que permanece inalterado — ver ADR-003 para a distinção.
+
+- **FR-7** *(revisado 19/07/2026)*: Ao identificar risco agudo, o sistema deve oferecer — nunca forçar — sinalização e direcionamento imediato a um canal de apoio humano (psicólogo parceiro ou linha de serviço já existente).
+- **FR-8** *(revisado 19/07/2026)*: O direcionamento deve ser diferenciado conforme o vínculo do profissional (rede SUS ou plano de saúde/rede privada), sem integração técnica direta com esses serviços de emergência nesta fase — o sistema comunica/indica o canal correto, não estabelece uma conexão ao vivo dedicada nem persiste identidade em texto claro no banco de dados.
 - **FR-9**: Caso o médico recuse, o sistema deve exibir imediatamente linhas de crise externas (ex.: CVV 188), mantendo anonimato total.
 - **FR-10**: A oferta de conexão humana pode reaparecer em interações futuras, sem bloquear o uso do app caso seja recusada.
 
@@ -128,6 +130,10 @@ Ver documento `user-stories` para critérios de aceite completos.
 - **FR-12**: O painel deve exibir apenas métricas agregadas e anônimas (ex.: sinais de burnout por turno/setor), nunca dados vinculáveis a um indivíduo.
 - **FR-13**: O sistema deve impedir, por arquitetura (não apenas por política), que o painel consiga cruzar métricas agregadas com identidade individual.
 - **FR-16** *(adicionado 11/07/2026, ver `adr-001-fr16-nr1-painel-gestor.md`, status: Aceito)*: O painel agregado deve apresentar as métricas já existentes (FR-12) também rotuladas como fatores de risco psicossocial mapeáveis ao PGR da NR-1 (ex.: "sobrecarga", "jornada", "esgotamento por setor"), com exportação simples (PDF/CSV), sempre herdando as restrições de anonimato de FR-13. O rótulo e a documentação de apoio devem deixar explícito que isso é um insumo para a gestão de risco psicossocial do empregador, não uma certificação de conformidade NR-1 — essa distinção precisa ser validada com um parceiro jurídico/SST antes da fala final da banca.
+
+#### Acompanhamento (Follow-up)
+
+- **FR-17** *(adicionado 19/07/2026, ver `user-stories.md` US-009)*: Após a interação inicial (autoavaliação e/ou direcionamento), o sistema deve disparar um único contato de reengajamento perguntando como o médico está, e registrar de forma agregada e anonimizada se houve resposta, para compor duas métricas no painel do gestor: (1) número de questionários/autoavaliações respondidos e (2) taxa de resposta da pesquisa de seguimento (follow-up) — herdando as mesmas restrições de anonimato e limiar mínimo por segmento de FR-13. Fonte: resposta da ACM (Dr. Marcello Alberton Herdt, Diretor de Inovação) de 19/07/2026: *"os KPIs prioritários para esta fase são, essencialmente, o número de questionários respondidos e a taxa de resposta da pesquisa de seguimento (follow-up)"*; e *"o critério de avaliação está na robustez desse fluxo de triagem → direcionamento → follow-up"*.
 
 #### Privacidade & Segurança (transversal)
 
@@ -211,6 +217,8 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 - [x] ~~Qual o texto e a posição exata do atalho "falar com uma pessoa real" (FR-6b)?~~ — **Resolvido em 11/07/2026**: oferece escolha explícita entre par médico e psicólogo (ver FR-6b acima). Texto/posição exata de copy ainda com Raquel.
 - [x] ~~O time ainda não tem uma função de PM/liderança de produto formalmente definida~~ — **Resolvido em 11/07/2026**: Mauricio assume a coordenação de escopo do produto (além de dev full stack/arquitetura/DevOps). Raquel segue com marketing/social media; Yasmin e Kati com dados. A comunicação oficial com a organização da Jornada ainda precisa de um responsável definido — Mauricio decide escopo, mas isso não implica automaticamente ser o ponto de contato oficial com a Jornada.
 - [x] ~~O painel do gestor deve ganhar enquadramento explícito de conformidade NR-1 (PGR/GRO)?~~ — **Resolvido em 11/07/2026**: sim. Ver `adr-001-fr16-nr1-painel-gestor.md` (status: Aceito) e FR-16 acima.
+- [x] ~~Qual subconjunto de escalas cabe no prazo de 28 dias, e qual é o critério de avaliação da PoC?~~ — **Resolvido em 19/07/2026**: a ACM (Dr. Marcello Alberton Herdt, Diretor de Inovação) confirmou, em resposta formal (`Perguntas encaminhadas a ACM.pdf`), que o critério de avaliação está na "robustez desse fluxo de triagem (GAD-2/PHQ-2) → direcionamento (SUS/privado) → follow-up", e recomendou GAD-2/PHQ-2 como primeiro filtro, expandindo para GAD-7/PHQ-9 em caso de pontuação positiva. Não é necessário desenvolver os quatro formulários originalmente mencionados na documentação do desafio. Ver FR-1, FR-3, FR-7–FR-10, FR-17 acima e `adr-003-crisis-protocol-rescope-peer-chat-differentiator.md`.
+- [ ] Qual o intervalo exato entre a interação inicial e o disparo do follow-up (FR-17)? — Pendência intencional, mesma registrada em `user-stories.md` (US-009). Responsável: Mauricio, a decidir antes do início da implementação (timebox de 2 dias, ver `roadmap/mauricio.md`, Semana 3).
 
 ## Apêndice
 
@@ -231,6 +239,10 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 - Análise Competitiva — `competitive-analysis.md` (mesma pasta)
 - Rastreabilidade de Diferenciação Competitiva — `differentiation-traceability.md` (mesma pasta)
 - ADR-001 (FR-16, NR-1 no painel do gestor) — `adr-001-fr16-nr1-painel-gestor.md` (mesma pasta)
+- ADR-002 (direção do MBI-HSS) — `adr-002-mbi-hss-direction.md` (mesma pasta)
+- ADR-003 (re-escopo do protocolo de crise e preservação do chat entre pares como diferencial) — `adr-003-crisis-protocol-rescope-peer-chat-differentiator.md` (mesma pasta)
+- Respostas da ACM às perguntas do time (19/07/2026) — `general-documentations/Perguntas encaminhadas a ACM.pdf`
+- Plano de ação priorizado a partir das respostas da ACM — `2026-07-19-action-plan-respostas-acm.md` (mesma pasta)
 - Roteiro de entrevista com psicólogos parceiros — `roteiro-entrevista-psicologos-parceiros.md` (mesma pasta)
 - Diagrama de arquitetura de privacidade — `docs/superpowers/specs/privacy-architecture-diagram.md`
 
@@ -240,3 +252,4 @@ Dado bruto de autoavaliação nunca sai do dispositivo em texto claro. Apenas ci
 |---|---|---|---|
 | 1.0 | 2026-07-02 | Rascunho gerado via pm-skills a partir do edital, brief, pitch deck e fluxo de crise fornecidos; revisão da equipe pendente | Versão inicial |
 | 1.1 | 2026-07-07 | Atualizado a partir da entrevista com Dr. David Mendes e dos documentos de 07/07 (checklist oficial, resumos revisados) | Adicionado FR-6b (atalho humano visível no chat de IA); adicionados marcos legais CID-11/NR-1; registrada decisão de produto sobre IA humanizada vs. desconfiança de IA |
+| 1.2 | 2026-07-19 | Atualizado a partir das respostas formais da ACM (Dr. Marcello Alberton Herdt, Diretor de Inovação) a perguntas encaminhadas pelo time | FR-1/FR-3 revisados (triagem em duas etapas GAD-2/PHQ-2 → GAD-7/PHQ-9); FR-7–FR-10 simplificados (sinalização + direcionamento SUS/privado, sem integração técnica direta — ver ADR-003); adicionado FR-17 (acompanhamento/follow-up, ver US-009); registrado o critério de avaliação da PoC confirmado pela ACM em "Perguntas em Aberto" |

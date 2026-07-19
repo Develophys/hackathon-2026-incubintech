@@ -247,3 +247,34 @@ Estas 8 histórias cobrem o escopo "Dentro do Escopo" definido na PRD. Persona d
 **Dependências**: Nenhuma (primeira tela do produto).
 **Fora do Escopo**: Onboarding personalizado por perfil de usuário.
 **Perguntas em Aberto**: Nenhuma.
+
+---
+
+## US-009 — Acompanhamento (follow-up) pós-interação inicial
+
+| Campo | Valor |
+|---|---|
+| ID | US-009 |
+| Persona | Médica usuária (Dra. Camila Andrade) |
+| Prioridade | P0 |
+| Épico | Acompanhamento (Follow-up) |
+| Estimativa | S |
+
+**Como** médica que já respondeu a uma autoavaliação e, se aplicável, foi direcionada a um canal de apoio,
+**eu quero** receber um único contato de reengajamento perguntando como estou depois dessa interação,
+**para que** o time por trás do Zelo (e o hospital que financia a ferramenta) saibam se o encaminhamento inicial teve continuidade, sem que isso vire vigilância contínua sobre mim.
+
+**Contexto**: Adicionada em 19/07/2026 a partir das respostas da ACM (Dr. Marcello Alberton Herdt, Diretor de Inovação) a perguntas formais do time (`general-documentations/Perguntas encaminhadas a ACM.pdf`): *"os KPIs prioritários para esta fase são, essencialmente, o número de questionários respondidos e a taxa de resposta da pesquisa de seguimento (follow-up) — ou seja, o quanto conseguimos acompanhar como o profissional está após a interação inicial e o encaminhamento"*, e *"o critério de avaliação está na robustez desse fluxo de triagem → direcionamento → follow-up"*. Até esta data não havia nenhuma história cobrindo acompanhamento pós-interação no backlog — é o gap mais crítico identificado no plano de ação `2026-07-19-action-plan-respostas-acm.md` (Esforço P2) e registrado em `adr-003-crisis-protocol-rescope-peer-chat-differentiator.md`.
+
+**Critérios de Aceite**
+
+- *AC-1 — Disparo do follow-up*: Dado que a médica concluiu uma autoavaliação (US-001) e, se aplicável, foi direcionada a um canal de apoio (US-003/US-004), quando o intervalo de tempo definido para acompanhamento é atingido, então o sistema dispara um único contato de reengajamento (notificação/mensagem no app) perguntando de forma simples como ela está.
+- *AC-2 — Registro de resposta sem identificação individual no painel*: Dado que o contato de follow-up foi enviado, quando a médica responde (ou não responde) dentro da janela definida, então o sistema registra esse evento de forma anonimizada e agregada, suficiente para calcular taxa de resposta, sem vincular a resposta individual a nenhuma visualização identificável no painel do gestor.
+- *AC-3 — Métricas agregadas no painel do gestor*: Dado que existem respostas de follow-up registradas, quando o gestor acessa o painel (US-006), então ele vê duas métricas agregadas: (1) número de autoavaliações/questionários respondidos e (2) taxa de resposta da pesquisa de follow-up — ambas herdando as mesmas restrições de anonimato e limiar mínimo por segmento já definidas em US-006 (AC-1, AC-2).
+- *AC-4 — Sem penalidade por não resposta*: Dado que a médica não responde ao contato de follow-up, quando ela volta a usar o app normalmente, então nenhuma funcionalidade fica bloqueada ou degradada por causa disso.
+
+**Notas de Design**: O contato de follow-up deve ter o mesmo tom de acolhimento do restante do produto (ver US-002) — uma pergunta aberta e simples, não um formulário longo nem um lembrete de cobrança.
+**Notas Técnicas**: Para o hackathon, um único follow-up agendado por interação é suficiente (não recorrente); intervalo de disparo pode ser simulado/acelerado na demo, desde que documentado como tal, no mesmo padrão já usado em US-005/US-006.
+**Dependências**: US-001 (autoavaliação concluída); US-003/US-004 (quando o follow-up decorre de um episódio de crise); US-006 (painel do gestor, para exibição das métricas).
+**Fora do Escopo**: Acompanhamento longitudinal contínuo/recorrente (múltiplos follow-ups ao longo do tempo) — considerar como evolução pós-hackathon, mesmo padrão de honestidade de escopo já usado em `adr-001-fr16-nr1-painel-gestor.md` e `adr-002-mbi-hss-direction.md`.
+**Perguntas em Aberto**: Qual o intervalo exato entre a interação inicial e o disparo do follow-up (ex.: 48h? 7 dias?) — decisão de produto pendente, a resolver por Mauricio antes do início da implementação (timebox de 2 dias, ver `roadmap/mauricio.md`, Semana 3).

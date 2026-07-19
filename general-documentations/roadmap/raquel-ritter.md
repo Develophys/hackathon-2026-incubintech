@@ -18,6 +18,9 @@
 ## Semana 3 — 19/07 a 25/07/2026 (Fase 4 + preparação final)
 
 - [ ] Finalizar o pitch deck e o roteiro de apresentação (até 4 minutos, conforme edital).
+- [ ] **Insumo de pitch (19/07/2026)** — ver `documentacao-produto/2026-07-19-action-plan-respostas-acm.md`, Esforço P5: incorporar ao roteiro, com citação direta, o critério de avaliação que a própria ACM definiu por escrito (Dr. Marcello Alberton Herdt, Diretor de Inovação): *"o critério de avaliação está na robustez desse fluxo de triagem → direcionamento → follow-up"*. Vale estruturar a demo/pitch em torno dessas três palavras (triagem, direcionamento, follow-up), não em torno da lista de features. Dois pontos extras para o roteiro:
+  - A ACM citou **Zenklub (Psicologia Viva)** como benchmark (resposta 3.2) — o mesmo benchmark que já está em `competitive-analysis.md`. Vale dizer explicitamente no pitch que essa validação de mercado veio de forma independente do próprio demandante, não só da pesquisa do time.
+  - A ACM também trouxe o enquadramento: *"como comunicar acolhimento em um serviço novo, sem histórico de confiança já construído"* (resposta 2.3) — essa frase encaixa bem como abertura do pitch, já que é exatamente a barreira que a decisão de humanizar o chat de IA (FR-6b) e manter o atalho para pessoa real endereça.
 - [ ] Coordenar a entrega final: conferir se todos os entregáveis obrigatórios do checklist estão prontos antes do prazo de 25/07.
 - [ ] Preparar materiais de comunicação para divulgação, caso o time avance para a pré-incubação.
 

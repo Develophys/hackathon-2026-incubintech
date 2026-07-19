@@ -26,9 +26,9 @@ status: rascunho
 
 **Decisão de escopo (11/07/2026)**: o painel do gestor ganha enquadramento de conformidade NR-1 (FR-16, versão mínima rotulada — não um certificado de compliance). Decidido por Mauricio; ver `documentacao-produto/adr-001-fr16-nr1-painel-gestor.md` (status: Aceito) e `documentacao-produto/user-stories.md` (US-006, AC-4).
 
-## Linha do tempo confirmada (07/07/2026, atualizada 11/07/2026)
+## Linha do tempo confirmada (07/07/2026, atualizada 19/07/2026)
 
-Hoje é **11/07/2026**. Faltam 14 dias corridos para a final; 7 dias corridos até o checkpoint 3 (18/07).
+Hoje é **19/07/2026**. **Correção (19/07/2026, via `jornada-checkpoints/checkpoint-3/checkpoint_3_guide.md`)**: o Checkpoint 3 NÃO passou — o prazo real e oficial é **21/07/2026 às 23h59 (Brasília)**, um PDF eliminatório (`CP3_<NOME_EQUIPE>.pdf` + upload do roteiro/slides), critério "Apta / Apta com ressalvas / Não Apta". Faltam **2 dias** até esse gate e **6 dias corridos** até a final (25/07/2026) — a semana mais apertada do projeto até agora, com Mauricio ainda como único responsável técnico (dev full stack + arquitetura + DevOps).
 
 | Data | Marco | Janela de trabalho |
 |---|---|---|
@@ -86,6 +86,19 @@ Mauricio, como coordenador de escopo, respondeu de forma definitiva ou parcial a
 | Ferramenta de backlog | GitHub Projects | `documentacao-produto/okrs.md` |
 | Piso de qualidade do checkpoint | Prazo + aderência ao edital | `documentacao-produto/okrs.md` |
 
+## Rodada de decisões — 19/07/2026 (respostas da ACM)
+
+A ACM (Dr. Marcello Alberton Herdt, Diretor de Inovação) respondeu formalmente às perguntas do time (`Perguntas encaminhadas a ACM.pdf`). Resumo das decisões derivadas (detalhe completo em `documentacao-produto/2026-07-19-action-plan-respostas-acm.md` e `documentacao-produto/adr-003-crisis-protocol-rescope-peer-chat-differentiator.md`):
+
+| Decisão | Resultado | Documento-fonte |
+|---|---|---|
+| Escala de triagem inicial | GAD-2/PHQ-2 como primeiro filtro; expande para GAD-7/PHQ-9 se pontuação ≥3 | `documentacao-produto/prd.md` (FR-1, FR-3) |
+| Protocolo de crise (FR-7–FR-10) | Simplificado: sinalização + direcionamento SUS/privado, sem integração técnica ao vivo | `documentacao-produto/adr-003-crisis-protocol-rescope-peer-chat-differentiator.md` |
+| Chat anônimo entre pares (FR-6b) | Mantido como diferencial deliberado (evidência: entrevista Dr. David Mendes), não é resposta a pedido da ACM | `documentacao-produto/adr-003-crisis-protocol-rescope-peer-chat-differentiator.md` |
+| Matching de pares standalone (US-005) | Não recebe polimento adicional; primeiro item a cortar se o follow-up atrasar | `documentacao-produto/adr-003-crisis-protocol-rescope-peer-chat-differentiator.md` |
+| Métrica de follow-up (nova) | Aceita como FR-17/US-009, prioridade máxima da Semana 3 | `documentacao-produto/prd.md` (FR-17), `documentacao-produto/user-stories.md` (US-009) |
+| Critério de avaliação da PoC | Confirmado: robustez do fluxo triagem → direcionamento → follow-up | `documentacao-produto/prd.md`, "Perguntas em Aberto" |
+
 ## Próximos passos abertos (não datados)
 
 - ~~Confirmar com Dr. David Mendes se o time vai avançar com entrevistas à equipe médica dele~~ — **Resolvido e ampliado em 11/07/2026**: vira piloto de uso real com logins. Ver `raquel-ritter.md` e `mauricio.md` (provisionamento de login).
@@ -94,5 +107,8 @@ Mauricio, como coordenador de escopo, respondeu de forma definitiva ou parcial a
 - ~~Reatribuir as tarefas de DevOps que eram do Gui~~ — **Resolvido em 11/07/2026**: Mauricio assumiu integralmente (infraestrutura de deploy da PWA, secrets management, documentação da arquitetura de privacidade/diagrama de fluxo de dados, canal cifrado médico-psicólogo, teste offline-first, ambiente da demo ao vivo). Ver tarefas marcadas 🔧 em `mauricio.md`.
 - Confirmar política de retenção de dados da API do Groq e documentar em `prd.md`.
 - Buscar mentor jurídico/SST na Jornada para revisar o rótulo NR-1 do painel (ver `mauricio.md`).
-- Marcar a conversa com os dois psicólogos parceiros usando `documentacao-produto/roteiro-entrevista-psicologos-parceiros.md` — priorizar Blocos 1–3 antes do checkpoint de 18/07.
+- ~~Marcar a conversa com os dois psicólogos parceiros [...] priorizar Blocos 1–3 antes do checkpoint de 18/07~~ — checkpoint já passou; status a confirmar com o time.
 - Definir logística de provisionamento de login para a equipe do Dr. David Mendes (piloto real).
+- **Novo (19/07/2026)**: enviar e-mail de esclarecimento à ACM (hudsonsilva@acm.org.br, cc preincubadora.fln@ifsc.edu.br) sobre lista concreta de canais SUS/privado para o direcionamento de crise (FR-8) — ver `documentacao-produto/2026-07-19-action-plan-respostas-acm.md`, Esforço P4. Não bloqueia o restante do trabalho da semana.
+- **Novo (19/07/2026)**: definir o intervalo exato de disparo do follow-up (FR-17/US-009) antes de iniciar a implementação — pendência intencional, responsável Mauricio.
+- **Novo (19/07/2026)**: incorporar o critério de avaliação da ACM e o benchmark Zenklub (já citado de forma independente pela própria ACM) na narrativa do pitch final — ver `documentacao-produto/2026-07-19-action-plan-respostas-acm.md`, Esforço P5 (apoio: Raquel).

@@ -18,17 +18,18 @@
 
 ## Semana 2 — 12/07 a 18/07/2026 (Checkpoint 3, foco Fase 3)
 
-- [ ] Implementar o fluxo de escalonamento em crise: aceite (token de sessão efêmero, identidade não persistida em texto claro) e recusa (exibição imediata de linha externa, ex. CVV 188) — PRD FR-7 a FR-10.
+- [ ] Implementar o fluxo de escalonamento em crise **simplificado** (ver `documentacao-produto/adr-003-crisis-protocol-rescope-peer-chat-differentiator.md`, 19/07/2026): sinalização de risco agudo + direcionamento diferenciado e imediato por vínculo (SUS vs. plano de saúde/rede privada) e recusa (exibição imediata de linha externa, ex. CVV 188) — PRD FR-7 a FR-10 revisados. **Não inclui mais** conexão ao vivo com token de sessão efêmero.
 - [ ] Implementar matching anônimo de pares (pode usar dados simulados, desde que documentado como tal) — PRD FR-11.
 - [ ] Implementar tela de crise e o painel de monitoramento longitudinal local (gráfico de evolução pessoal).
 - [ ] Construir o diagrama de fluxo de dados / arquitetura de privacidade (entregável obrigatório do checklist) — antes dividido com Gui, agora integralmente com Mauricio.
 - [ ] Registrar consentimento explícito e contextual antes de qualquer momento de possível exposição de identidade (PRD FR-15).
 - [ ] Implementar a rotulagem de fatores de risco psicossocial (NR-1/PGR) sobre as métricas já agregadas do painel, com exportação simples (PDF/CSV) — PRD FR-16, user-stories US-006 AC-4, decisão registrada em `adr-001-fr16-nr1-painel-gestor.md`. Revisar o texto do rótulo com um mentor jurídico/SST antes da fala final da banca.
-- [ ] 🔧 Configurar o canal cifrado de ponta a ponta usado na conexão ao vivo médico–psicólogo (token de sessão efêmero) no caminho de crise.
+- ~~[ ] 🔧 Configurar o canal cifrado de ponta a ponta usado na conexão ao vivo médico–psicólogo (token de sessão efêmero) no caminho de crise.~~ **Superada em 19/07/2026** por `adr-003-crisis-protocol-rescope-peer-chat-differentiator.md` — a ACM confirmou que integração técnica direta não é esperada nesta fase; substituída pelo item de direcionamento simplificado acima.
 - [ ] 🔧 Rodar testes básicos de latência da API de LLM usada no chat de acolhimento.
 
 ## Semana 3 — 19/07 a 25/07/2026 (Fase 4 + preparação final)
 
+- [ ] **Prioridade máxima da semana** (ver `documentacao-produto/2026-07-19-action-plan-respostas-acm.md`, Esforço P2): implementar o mecanismo mínimo de acompanhamento (follow-up) — contato de reengajamento após a interação inicial + registro local de resposta (sim/não) — e expor as duas métricas que a ACM citou como KPI prioritário (nº de questionários respondidos + taxa de resposta do follow-up) no painel do gestor. Escopo estritamente limitado a essas duas métricas; qualquer coisa além disso vira Consideração Futura na PRD (ver US-009, `user-stories.md`, e FR-17, `prd.md`). Timebox: 2 dias.
 - [ ] Implementar a biblioteca de conteúdo (com curadoria de temas feita por Raquel).
 - [ ] Ajustes finais de UX e performance para a demo ao vivo — funcionamento offline-first, mobile, autoavaliação em menos de 5 minutos.
 - [ ] Testar o painel institucional com o limiar mínimo por segmento (n) definido por Kati, para evitar re-identificação por dedução.
