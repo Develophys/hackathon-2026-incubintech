@@ -117,6 +117,7 @@ describe("onboarding router flow", () => {
       checkInsLast4Weeks: 0,
       weeklyTrend: [],
       segments: [],
+      followUpResponseRate: 0,
     });
 
     buildTestRouter("/manager");

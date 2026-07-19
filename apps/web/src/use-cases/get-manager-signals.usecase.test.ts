@@ -8,6 +8,7 @@ const SAMPLE_RESPONSE: ManagerSignalsResponse = {
   checkInsLast4Weeks: 111,
   weeklyTrend: [{ weekStart: "2026-06-01T00:00:00.000Z", concerningRate: 0.3 }],
   segments: [{ label: "UTI", value: 44, n: 9 }],
+  followUpResponseRate: 0.7,
 };
 
 class FakeManagerSignalsPort implements ManagerSignalsPort {

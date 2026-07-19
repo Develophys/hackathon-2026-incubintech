@@ -36,6 +36,7 @@ const SIGNALS_RESPONSE = {
     { label: "Pronto-socorro", value: 38, n: 24 },
     { label: "UTI", value: 44, n: 9 },
   ],
+  followUpResponseRate: 0.7,
 };
 
 describe("ManagerDashboardPage", () => {
@@ -124,5 +125,22 @@ describe("ManagerDashboardPage", () => {
     });
     expect(screen.getByText("UTI")).toBeInTheDocument();
     expect(screen.getAllByTestId("trend-bar")).toHaveLength(2);
+  });
+
+  it("renders the follow-up response rate KPI card", async () => {
+    renderManager();
+    await waitFor(() => {
+      expect(screen.getByText("Plantão noturno")).toBeInTheDocument();
+    });
+    expect(screen.getByText("70%")).toBeInTheDocument();
+    expect(screen.getByText("taxa de resposta do follow-up")).toBeInTheDocument();
+  });
+
+  it("labels the existing check-ins card as questionários respondidos", async () => {
+    renderManager();
+    await waitFor(() => {
+      expect(screen.getByText("Plantão noturno")).toBeInTheDocument();
+    });
+    expect(screen.getByText("questionários respondidos (4 semanas)")).toBeInTheDocument();
   });
 });

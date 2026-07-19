@@ -36,6 +36,7 @@ export function ManagerDashboardPage() {
   const segments = data?.segments ?? [];
   const overallConcerningRate = data?.overallConcerningRate ?? 0;
   const checkInsLast4Weeks = data?.checkInsLast4Weeks ?? 0;
+  const followUpResponseRate = data?.followUpResponseRate ?? 0;
 
   return (
     <PhoneShell bg="canvas-alt">
@@ -60,7 +61,14 @@ export function ManagerDashboardPage() {
           </Card>
           <Card className="flex-1 text-center">
             <p className="font-serif text-[30px] text-brand">{checkInsLast4Weeks}</p>
-            <p className="text-caption text-muted">check-ins nas últimas 4 semanas</p>
+            <p className="text-caption text-muted">questionários respondidos (4 semanas)</p>
+          </Card>
+        </div>
+
+        <div className="mt-3">
+          <Card className="text-center">
+            <p className="font-serif text-[30px] text-brand">{Math.round(followUpResponseRate * 100)}%</p>
+            <p className="text-caption text-muted">taxa de resposta do follow-up</p>
           </Card>
         </div>
 

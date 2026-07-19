@@ -5,6 +5,7 @@ export const ManagerSignalsResponseSchema = z.object({
   checkInsLast4Weeks: z.number(),
   weeklyTrend: z.array(z.object({ weekStart: z.string(), concerningRate: z.number() })),
   segments: z.array(z.object({ label: z.string(), value: z.number(), n: z.number() })),
+  followUpResponseRate: z.number(),
 });
 export type ManagerSignalsResponse = z.infer<typeof ManagerSignalsResponseSchema>;
 
