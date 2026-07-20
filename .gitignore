@@ -183,6 +183,9 @@ common/temp/
 .vercel
 .netlify
 
+# ---------- Git worktrees ----------
+.worktrees/
+
 node_modules/
 dist/
 .turbo/
