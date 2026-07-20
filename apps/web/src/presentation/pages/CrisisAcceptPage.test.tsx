@@ -44,8 +44,10 @@ describe("CrisisAcceptPage", () => {
     const user = userEvent.setup();
     renderAccept();
     expect(screen.getByText(/188/)).toBeInTheDocument();
+    expect(screen.getByText(/CVV\s*·\s*188/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "SUS" }));
     expect(screen.getByText(/188/)).toBeInTheDocument();
+    expect(screen.getByText(/CVV\s*·\s*188/)).toBeInTheDocument();
   });
 
   it("never implies a live connection (no session/token/'available now' language)", async () => {
