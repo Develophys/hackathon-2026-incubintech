@@ -4,10 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ManagerInsightHistoryPage } from "./ManagerInsightHistoryPage";
-import { useManagerSessionStore } from "../../stores/manager-session.store";
-import * as container from "../../app/container";
-import * as downloadHelper from "../lib/download-manager-insight";
-import { UnauthorizedManagerError } from "../../ports/manager-signals.port";
+import { useManagerSessionStore } from "@/stores/manager-session.store";
+import * as container from "@/app/container";
+import * as downloadHelper from "@/presentation/lib/download-manager-insight";
+import { UnauthorizedManagerError } from "@/ports/manager-signals.port";
 
 function renderHistory() {
   const queryClient = new QueryClient();

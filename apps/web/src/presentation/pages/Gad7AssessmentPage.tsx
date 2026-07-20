@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BackButton } from "../ui/BackButton";
-import { ProgressBar } from "../ui/ProgressBar";
-import { QuestionCard } from "../components/QuestionCard";
-import { GAD7_QUESTIONS } from "../../domain/assessment-scales/gad7";
-import { FREQUENCY_RESPONSE_OPTIONS } from "../../domain/assessment-scales/frequency-scale";
-import { useSubmitAssessment } from "../hooks/useSubmitAssessment";
-import { routes } from "../lib/routes";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BackButton } from "@/presentation/ui/BackButton";
+import { ProgressBar } from "@/presentation/ui/ProgressBar";
+import { QuestionCard } from "@/presentation/components/QuestionCard";
+import { GAD7_QUESTIONS } from "@/domain/assessment-scales/gad7";
+import { FREQUENCY_RESPONSE_OPTIONS } from "@/domain/assessment-scales/frequency-scale";
+import { useSubmitAssessment } from "@/presentation/hooks/useSubmitAssessment";
+import { routes } from "@/presentation/lib/routes";
 
 export function Gad7AssessmentPage() {
   const navigate = useNavigate();

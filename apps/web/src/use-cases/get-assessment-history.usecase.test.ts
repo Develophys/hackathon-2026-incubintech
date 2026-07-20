@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { GetAssessmentHistoryUseCase, startOfIsoWeek } from "./get-assessment-history.usecase";
 import { ScoreAssessmentUseCase } from "./score-assessment.usecase";
-import type { EncryptionPort } from "../ports/encryption.port";
-import type { LocalAssessmentStorePort } from "../ports/local-assessment-store.port";
-import type { AssessmentRecord } from "../domain/assessment-record";
+import type { EncryptionPort } from "@/ports/encryption.port";
+import type { LocalAssessmentStorePort } from "@/ports/local-assessment-store.port";
+import type { AssessmentRecord } from "@/domain/assessment-record";
 
 class FakeEncryptionPort implements EncryptionPort {
   async encrypt(plaintext: string): Promise<string> {

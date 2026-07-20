@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { LoginManagerUseCase } from "./login-manager.usecase";
-import type { ManagerAuthPort, ManagerLoginResult } from "../ports/manager-auth.port";
-import { InvalidManagerCodeError } from "../ports/manager-auth.port";
+import type { ManagerAuthPort, ManagerLoginResult } from "@/ports/manager-auth.port";
+import { InvalidManagerCodeError } from "@/ports/manager-auth.port";
 
 class FakeManagerAuthPort implements ManagerAuthPort {
   constructor(private readonly result: ManagerLoginResult | Error) {}

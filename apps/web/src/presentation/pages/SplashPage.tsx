@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { Button } from "../ui/Button";
-import { SectionLabel } from "../ui/SectionLabel";
-import { useConsentStore } from "../../stores/consent.store";
-import { routes } from "../lib/routes";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { Button } from "@/presentation/ui/Button";
+import { SectionLabel } from "@/presentation/ui/SectionLabel";
+import { useConsentStore } from "@/stores/consent.store";
+import { routes } from "@/presentation/lib/routes";
 
 const SUBTITLE = "Cuidado confidencial\npara quem cuida.";
 const TYPING_START_DELAY_MS = 1000;

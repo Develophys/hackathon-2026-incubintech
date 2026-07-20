@@ -1,4 +1,4 @@
-import type { ManagerInsightHistoryPort, StoredManagerInsight } from "../ports/manager-insight-history.port";
+import type { ManagerInsightHistoryPort, StoredManagerInsight } from "@/ports/manager-insight-history.port";
 
 export class GetManagerInsightHistoryUseCase {
   constructor(private readonly historyPort: ManagerInsightHistoryPort) {}

@@ -1,5 +1,5 @@
 import type { AnonymizedMessage } from "@zelo/domain";
-import type { ChatGatewayPort, ChatStreamEvent } from "../../ports/chat-gateway.port";
+import type { ChatGatewayPort, ChatStreamEvent } from "@/ports/chat-gateway.port";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
 

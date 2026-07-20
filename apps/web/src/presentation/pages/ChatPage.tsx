@@ -1,10 +1,10 @@
 import { HeartHandshake } from "lucide-react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BackButton } from "../ui/BackButton";
-import { useChatConversation } from "../hooks/useChatConversation";
-import { ChatComposer } from "../components/ChatComposer";
-import { routes } from "../lib/routes";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BackButton } from "@/presentation/ui/BackButton";
+import { useChatConversation } from "@/presentation/hooks/useChatConversation";
+import { ChatComposer } from "@/presentation/components/ChatComposer";
+import { routes } from "@/presentation/lib/routes";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
 

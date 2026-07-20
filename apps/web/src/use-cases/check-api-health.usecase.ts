@@ -1,4 +1,4 @@
-import type { ApiHealthPort, ApiHealthResult } from "../ports/api-health.port";
+import type { ApiHealthPort, ApiHealthResult } from "@/ports/api-health.port";
 
 export class CheckApiHealthUseCase {
   constructor(private readonly apiHealth: ApiHealthPort) {}

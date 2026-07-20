@@ -1,5 +1,5 @@
-import type { LocalAssessmentStorePort } from "../ports/local-assessment-store.port";
-import type { EncryptionPort } from "../ports/encryption.port";
+import type { LocalAssessmentStorePort } from "@/ports/local-assessment-store.port";
+import type { EncryptionPort } from "@/ports/encryption.port";
 import type { ScoreAssessmentUseCase } from "./score-assessment.usecase";
 
 export interface WeeklyHistoryPoint {

@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider, Outlet } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { routeChildren } from "./router";
-import { useConsentStore } from "../stores/consent.store";
-import { useManagerSessionStore } from "../stores/manager-session.store";
+import { useConsentStore } from "@/stores/consent.store";
+import { useManagerSessionStore } from "@/stores/manager-session.store";
 import * as container from "./container";
 
 // Reuses router.tsx's own route tree (routeChildren) rather than duplicating

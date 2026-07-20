@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { loginManagerUseCase } from "../../app/container";
-import { useManagerSessionStore } from "../../stores/manager-session.store";
+import { loginManagerUseCase } from "@/app/container";
+import { useManagerSessionStore } from "@/stores/manager-session.store";
 
 export function useManagerLogin() {
   const setSession = useManagerSessionStore((state) => state.setSession);

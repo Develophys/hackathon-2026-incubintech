@@ -1,16 +1,16 @@
 import { MessageCircle, Users } from "lucide-react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BottomNav } from "../layout/BottomNav";
-import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
-import { IconBadge } from "../ui/IconBadge";
-import { PrivacyBadge } from "../ui/PrivacyBadge";
-import { routes } from "../lib/routes";
-import { useAssessmentHistory } from "../hooks/useAssessmentHistory";
-import type { WeeklyHistoryPoint } from "../../use-cases/get-assessment-history.usecase";
-import { ShouldShowFollowUpPromptUseCase } from "../../use-cases/should-show-followup-prompt.usecase";
-import { useFollowUpStore } from "../../stores/followup.store";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BottomNav } from "@/presentation/layout/BottomNav";
+import { Card } from "@/presentation/ui/Card";
+import { Button } from "@/presentation/ui/Button";
+import { IconBadge } from "@/presentation/ui/IconBadge";
+import { PrivacyBadge } from "@/presentation/ui/PrivacyBadge";
+import { routes } from "@/presentation/lib/routes";
+import { useAssessmentHistory } from "@/presentation/hooks/useAssessmentHistory";
+import type { WeeklyHistoryPoint } from "@/use-cases/get-assessment-history.usecase";
+import { ShouldShowFollowUpPromptUseCase } from "@/use-cases/should-show-followup-prompt.usecase";
+import { useFollowUpStore } from "@/stores/followup.store";
 
 const shouldShowFollowUpPromptUseCase = new ShouldShowFollowUpPromptUseCase();
 
@@ -87,10 +87,10 @@ export function HomePage() {
             <Card>
               <p className="text-body font-extrabold text-ink">Como você está, um tempo depois?</p>
               <div className="mt-3 flex gap-3">
-                <Button variant="outline" full={false} onClick={() => recordAnswer("yes")}>
+                <Button className="p-2" variant="outline" full={false} onClick={() => recordAnswer("yes")}>
                   Estou bem
                 </Button>
-                <Button variant="outline" full={false} onClick={() => recordAnswer("no")}>
+                <Button className="p-2" variant="outline" full={false} onClick={() => recordAnswer("no")}>
                   Não estou bem
                 </Button>
               </div>

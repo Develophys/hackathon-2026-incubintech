@@ -1,25 +1,25 @@
 import type { RouteObject } from "react-router";
 import { createBrowserRouter, Outlet, redirect } from "react-router";
-import { HomePage } from "../presentation/pages/HomePage";
-import { ChatPage } from "../presentation/pages/ChatPage";
-import { Phq9AssessmentPage } from "../presentation/pages/Phq9AssessmentPage";
-import { Gad7AssessmentPage } from "../presentation/pages/Gad7AssessmentPage";
-import { SplashPage } from "../presentation/pages/SplashPage";
-import { PrivacyPage } from "../presentation/pages/PrivacyPage";
-import { ConsentPage } from "../presentation/pages/ConsentPage";
-import { AssessmentSelectPage } from "../presentation/pages/AssessmentSelectPage";
-import { AssessmentResultPage } from "../presentation/pages/AssessmentResultPage";
-import { CrisisOfferPage } from "../presentation/pages/CrisisOfferPage";
-import { CrisisAcceptPage } from "../presentation/pages/CrisisAcceptPage";
-import { CrisisDeclinePage } from "../presentation/pages/CrisisDeclinePage";
-import { PeersPage } from "../presentation/pages/PeersPage";
-import { ManagerDashboardPage } from "../presentation/pages/ManagerDashboardPage";
-import { ManagerLoginPage } from "../presentation/pages/ManagerLoginPage";
-import { ManagerInsightHistoryPage } from "../presentation/pages/ManagerInsightHistoryPage";
-import { YouPage } from "../presentation/pages/YouPage";
-import { useConsentStore } from "../stores/consent.store";
-import { useManagerSessionStore } from "../stores/manager-session.store";
-import { routes } from "../presentation/lib/routes";
+import { HomePage } from "@/presentation/pages/HomePage";
+import { ChatPage } from "@/presentation/pages/ChatPage";
+import { Phq9AssessmentPage } from "@/presentation/pages/Phq9AssessmentPage";
+import { Gad7AssessmentPage } from "@/presentation/pages/Gad7AssessmentPage";
+import { SplashPage } from "@/presentation/pages/SplashPage";
+import { PrivacyPage } from "@/presentation/pages/PrivacyPage";
+import { ConsentPage } from "@/presentation/pages/ConsentPage";
+import { AssessmentSelectPage } from "@/presentation/pages/AssessmentSelectPage";
+import { AssessmentResultPage } from "@/presentation/pages/AssessmentResultPage";
+import { CrisisOfferPage } from "@/presentation/pages/CrisisOfferPage";
+import { CrisisAcceptPage } from "@/presentation/pages/CrisisAcceptPage";
+import { CrisisDeclinePage } from "@/presentation/pages/CrisisDeclinePage";
+import { PeersPage } from "@/presentation/pages/PeersPage";
+import { ManagerDashboardPage } from "@/presentation/pages/ManagerDashboardPage";
+import { ManagerLoginPage } from "@/presentation/pages/ManagerLoginPage";
+import { ManagerInsightHistoryPage } from "@/presentation/pages/ManagerInsightHistoryPage";
+import { YouPage } from "@/presentation/pages/YouPage";
+import { useConsentStore } from "@/stores/consent.store";
+import { useManagerSessionStore } from "@/stores/manager-session.store";
+import { routes } from "@/presentation/lib/routes";
 
 // Single source of truth for the app's route tree. router.test.tsx imports
 // this directly (rather than hand-duplicating it) so the test router can

@@ -1,6 +1,6 @@
 import type { AssessmentScaleType } from "@zelo/domain";
-import { PHQ9_QUESTIONS, PHQ9_RISK_ITEM_INDEX } from "../domain/assessment-scales/phq9";
-import { GAD7_QUESTIONS } from "../domain/assessment-scales/gad7";
+import { PHQ9_QUESTIONS, PHQ9_RISK_ITEM_INDEX } from "@/domain/assessment-scales/phq9";
+import { GAD7_QUESTIONS } from "@/domain/assessment-scales/gad7";
 
 export interface ScoreResult {
   totalScore: number;

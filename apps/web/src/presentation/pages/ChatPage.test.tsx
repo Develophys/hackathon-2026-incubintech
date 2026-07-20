@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { ChatPage } from "./ChatPage";
-import * as container from "../../app/container";
+import * as container from "@/app/container";
 
 function renderChat() {
   return render(

@@ -1,9 +1,9 @@
 import type { AssessmentScaleType } from "@zelo/domain";
-import type { AssessmentRecord } from "../domain/assessment-record";
+import type { AssessmentRecord } from "@/domain/assessment-record";
 import type { ScoreAssessmentUseCase } from "./score-assessment.usecase";
 import type { EncryptAssessmentUseCase } from "./encrypt-assessment.usecase";
-import type { LocalAssessmentStorePort } from "../ports/local-assessment-store.port";
-import type { AssessmentSubmissionPort } from "../ports/assessment-submission.port";
+import type { LocalAssessmentStorePort } from "@/ports/local-assessment-store.port";
+import type { AssessmentSubmissionPort } from "@/ports/assessment-submission.port";
 
 export interface SubmitAssessmentParams {
   scaleType: AssessmentScaleType;

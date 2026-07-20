@@ -1,16 +1,16 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BackButton } from "../ui/BackButton";
-import { PrivacyBadge } from "../ui/PrivacyBadge";
-import { SectionLabel } from "../ui/SectionLabel";
-import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
-import { routes } from "../lib/routes";
-import { useManagerSignals } from "../hooks/useManagerSignals";
-import { useManagerInsight } from "../hooks/useManagerInsight";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BackButton } from "@/presentation/ui/BackButton";
+import { PrivacyBadge } from "@/presentation/ui/PrivacyBadge";
+import { SectionLabel } from "@/presentation/ui/SectionLabel";
+import { Card } from "@/presentation/ui/Card";
+import { Button } from "@/presentation/ui/Button";
+import { routes } from "@/presentation/lib/routes";
+import { useManagerSignals } from "@/presentation/hooks/useManagerSignals";
+import { useManagerInsight } from "@/presentation/hooks/useManagerInsight";
 import { useManagerSessionStore } from "@/stores/manager-session.store";
-import { UnauthorizedManagerError } from "../../ports/manager-signals.port";
+import { UnauthorizedManagerError } from "@/ports/manager-signals.port";
 
 const MIN_TREND_BAR_HEIGHT = 8;
 

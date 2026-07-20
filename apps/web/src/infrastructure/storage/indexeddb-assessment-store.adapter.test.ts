@@ -1,7 +1,7 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
 import { IndexedDbAssessmentStoreAdapter } from "./indexeddb-assessment-store.adapter";
-import type { AssessmentRecord } from "../../domain/assessment-record";
+import type { AssessmentRecord } from "@/domain/assessment-record";
 
 const SAMPLE_RECORD: AssessmentRecord = {
   id: "b3f1c2b0-1234-4a5b-9c6d-000000000001",

@@ -1,5 +1,5 @@
 import type { AnonymizedMessage } from "@zelo/domain";
-import type { ChatGatewayPort, ChatStreamEvent } from "../ports/chat-gateway.port";
+import type { ChatGatewayPort, ChatStreamEvent } from "@/ports/chat-gateway.port";
 import type { AnonymizeTextUseCase } from "./anonymize-text.usecase";
 
 export interface SendChatMessageParams {

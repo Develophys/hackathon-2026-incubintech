@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getManagerSignalsUseCase } from "../../app/container";
-import { useManagerSessionStore } from "../../stores/manager-session.store";
+import { getManagerSignalsUseCase } from "@/app/container";
+import { useManagerSessionStore } from "@/stores/manager-session.store";
 
 export function useManagerSignals() {
   const token = useManagerSessionStore((state) => state.token);

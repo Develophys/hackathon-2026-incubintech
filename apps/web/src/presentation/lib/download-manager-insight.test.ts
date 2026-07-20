@@ -17,7 +17,7 @@ vi.mock("jspdf", () => ({
 }));
 
 import { downloadInsightAsPdf, downloadInsightAsText } from "./download-manager-insight";
-import type { StoredManagerInsight } from "../../ports/manager-insight-history.port";
+import type { StoredManagerInsight } from "@/ports/manager-insight-history.port";
 
 const ENTRY: StoredManagerInsight = {
   id: "abc123",

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BackButton } from "../ui/BackButton";
-import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
-import { routes } from "../lib/routes";
-import { requestHumanHandoffUseCase } from "../../app/container";
-import { GetCrisisDirectionUseCase, type ProfessionalBond } from "../../use-cases/get-crisis-direction.usecase";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BackButton } from "@/presentation/ui/BackButton";
+import { Button } from "@/presentation/ui/Button";
+import { Card } from "@/presentation/ui/Card";
+import { routes } from "@/presentation/lib/routes";
+import { requestHumanHandoffUseCase } from "@/app/container";
+import { GetCrisisDirectionUseCase, type ProfessionalBond } from "@/use-cases/get-crisis-direction.usecase";
 
 const getCrisisDirectionUseCase = new GetCrisisDirectionUseCase();
 

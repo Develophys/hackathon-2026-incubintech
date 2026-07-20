@@ -1,5 +1,5 @@
-import type { LocalAssessmentStorePort } from "../../ports/local-assessment-store.port";
-import type { AssessmentRecord } from "../../domain/assessment-record";
+import type { LocalAssessmentStorePort } from "@/ports/local-assessment-store.port";
+import type { AssessmentRecord } from "@/domain/assessment-record";
 
 const DB_NAME = "zelo-assessments";
 const STORE_NAME = "records";

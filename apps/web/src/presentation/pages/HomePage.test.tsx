@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HomePage } from "./HomePage";
-import * as container from "../../app/container";
-import { useFollowUpStore } from "../../stores/followup.store";
+import * as container from "@/app/container";
+import { useFollowUpStore } from "@/stores/followup.store";
 
 function renderHome() {
   const queryClient = new QueryClient();

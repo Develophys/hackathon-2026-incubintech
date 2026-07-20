@@ -1,4 +1,4 @@
-import type { StoredManagerInsight } from "../../ports/manager-insight-history.port";
+import type { StoredManagerInsight } from "@/ports/manager-insight-history.port";
 
 function formatDate(generatedAt: string): string {
   return new Date(generatedAt).toLocaleDateString("pt-BR", { year: "numeric", month: "long", day: "numeric" });

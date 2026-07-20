@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ManagerLoginPage } from "./ManagerLoginPage";
-import * as container from "../../app/container";
-import { InvalidManagerCodeError } from "../../ports/manager-auth.port";
+import * as container from "@/app/container";
+import { InvalidManagerCodeError } from "@/ports/manager-auth.port";
 
 function renderPage() {
   const queryClient = new QueryClient();

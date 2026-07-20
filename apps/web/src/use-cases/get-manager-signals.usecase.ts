@@ -1,4 +1,4 @@
-import type { ManagerSignalsPort, ManagerSignalsResponse } from "../ports/manager-signals.port";
+import type { ManagerSignalsPort, ManagerSignalsResponse } from "@/ports/manager-signals.port";
 
 export class GetManagerSignalsUseCase {
   constructor(private readonly signalsPort: ManagerSignalsPort) {}

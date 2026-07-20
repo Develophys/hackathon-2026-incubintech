@@ -1,4 +1,4 @@
-import type { EncryptionPort } from "../ports/encryption.port";
+import type { EncryptionPort } from "@/ports/encryption.port";
 
 export interface EncryptedPayload {
   ciphertext: string;

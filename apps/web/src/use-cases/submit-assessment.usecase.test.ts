@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { SubmitAssessmentUseCase } from "./submit-assessment.usecase";
 import { ScoreAssessmentUseCase } from "./score-assessment.usecase";
 import { EncryptAssessmentUseCase } from "./encrypt-assessment.usecase";
-import type { EncryptionPort } from "../ports/encryption.port";
-import type { LocalAssessmentStorePort } from "../ports/local-assessment-store.port";
-import type { AssessmentSubmissionPort } from "../ports/assessment-submission.port";
-import type { AssessmentRecord } from "../domain/assessment-record";
+import type { EncryptionPort } from "@/ports/encryption.port";
+import type { LocalAssessmentStorePort } from "@/ports/local-assessment-store.port";
+import type { AssessmentSubmissionPort } from "@/ports/assessment-submission.port";
+import type { AssessmentRecord } from "@/domain/assessment-record";
 import type { Assessment } from "@zelo/domain";
 
 class FakeEncryptionPort implements EncryptionPort {

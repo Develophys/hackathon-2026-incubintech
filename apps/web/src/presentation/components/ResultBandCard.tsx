@@ -1,6 +1,6 @@
-import { Card } from "../ui/Card";
-import { ScoreDial } from "../ui/ScoreDial";
-import type { ScoreBand } from "../lib/band-for";
+import { Card } from "@/presentation/ui/Card";
+import { ScoreDial } from "@/presentation/ui/ScoreDial";
+import type { ScoreBand } from "@/presentation/lib/band-for";
 
 interface ResultBandCardProps {
   scaleType: "PHQ-9" | "GAD-7";

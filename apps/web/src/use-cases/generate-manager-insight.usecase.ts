@@ -1,4 +1,4 @@
-import type { ManagerInsightPort, ManagerInsightResult } from "../ports/manager-insight.port";
+import type { ManagerInsightPort, ManagerInsightResult } from "@/ports/manager-insight.port";
 
 export class GenerateManagerInsightUseCase {
   constructor(private readonly insightPort: ManagerInsightPort) {}
