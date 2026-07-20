@@ -9,7 +9,7 @@ import { Button } from "../ui/Button";
 import { routes } from "../lib/routes";
 import { useManagerSignals } from "../hooks/useManagerSignals";
 import { useManagerInsight } from "../hooks/useManagerInsight";
-import { useManagerSessionStore } from "../../stores/manager-session.store";
+import { useManagerSessionStore } from "@/stores/manager-session.store";
 import { UnauthorizedManagerError } from "../../ports/manager-signals.port";
 
 const MIN_TREND_BAR_HEIGHT = 8;
@@ -117,7 +117,7 @@ export function ManagerDashboardPage() {
             </div>
             {!insight.data && (
               <div className="mt-3">
-                <Button variant="outline" full={false} loading={insight.isPending} onClick={() => insight.mutate()}>
+                <Button className="p-2" variant="outline" full={false} loading={insight.isPending} onClick={() => insight.mutate()}>
                   Gerar análise
                 </Button>
                 {insight.isError && (
