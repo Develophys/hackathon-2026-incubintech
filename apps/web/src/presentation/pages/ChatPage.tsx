@@ -1,4 +1,4 @@
-import { HeartHandshake } from "lucide-react";
+import { HeartHandshake, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PhoneShell } from "@/presentation/layout/PhoneShell";
 import { BackButton } from "@/presentation/ui/BackButton";
@@ -66,6 +66,15 @@ export function ChatPage() {
         >
           <HeartHandshake size={18} />
           Falar com uma pessoa real
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate(routes.assessment)}
+          className="mx-4 mb-3 flex min-h-[44px] items-center justify-center gap-2 rounded-2xl bg-surface-brand p-[13px] font-bold text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        >
+          <ClipboardList size={18} />
+          Avaliar como estou
         </button>
 
         {/* hasActiveRiskSignal is hardcoded false: real risk-signal detection is a separate,
