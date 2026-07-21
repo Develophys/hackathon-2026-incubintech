@@ -6,6 +6,7 @@ import { PrivacyBadge } from "@/presentation/ui/PrivacyBadge";
 import { SectionLabel } from "@/presentation/ui/SectionLabel";
 import { Card } from "@/presentation/ui/Card";
 import { Button } from "@/presentation/ui/Button";
+import { Skeleton } from "@/presentation/ui/Skeleton";
 import { routes } from "@/presentation/lib/routes";
 import { useManagerSignals } from "@/presentation/hooks/useManagerSignals";
 import { useManagerInsight } from "@/presentation/hooks/useManagerInsight";
@@ -13,15 +14,58 @@ import { useManagerSessionStore } from "@/stores/manager-session.store";
 import { UnauthorizedManagerError } from "@/ports/manager-signals.port";
 
 const MIN_TREND_BAR_HEIGHT = 8;
+const TREND_SKELETON_BAR_COUNT = 6;
+const SEGMENTS_SKELETON_ROW_COUNT = 3;
 
 function toTrendBarHeights(trend: { concerningRate: number }[]): number[] {
   return trend.map((point) => Math.max(MIN_TREND_BAR_HEIGHT, Math.round(point.concerningRate * 100)));
 }
 
+function KpiCardSkeleton({ className = "" }: { className?: string }) {
+  return (
+    <Card className={["text-center", className].join(" ")}>
+      <Skeleton className="mx-auto h-[30px] w-16 rounded-md" />
+      <Skeleton className="mx-auto mt-2 h-3 w-32 rounded-md" />
+    </Card>
+  );
+}
+
+function TrendCardSkeleton() {
+  return (
+    <Card>
+      <Skeleton className="h-4 w-32 rounded-md" />
+      <div className="mt-3 flex h-14 items-end gap-2">
+        {Array.from({ length: TREND_SKELETON_BAR_COUNT }, (_, index) => (
+          <Skeleton key={index} className="h-full w-full rounded-md" />
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function SegmentsCardSkeleton() {
+  return (
+    <Card>
+      <Skeleton className="h-4 w-28 rounded-md" />
+      <div className="mt-3 flex flex-col gap-3">
+        {Array.from({ length: SEGMENTS_SKELETON_ROW_COUNT }, (_, index) => (
+          <div key={index}>
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-3 w-24 rounded-md" />
+              <Skeleton className="h-3 w-14 rounded-md" />
+            </div>
+            <Skeleton className="mt-1 h-2 w-full rounded-pill" />
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 export function ManagerDashboardPage() {
   const navigate = useNavigate();
   const clearSession = useManagerSessionStore((state) => state.clearSession);
-  const { data, error, isError } = useManagerSignals();
+  const { data, error, isError, isLoading } = useManagerSignals();
   const insight = useManagerInsight();
 
   useEffect(() => {
@@ -55,56 +99,77 @@ export function ManagerDashboardPage() {
         </p>
 
         <div className="mt-5 flex gap-3">
-          <Card className="flex-1 text-center">
-            <p className="font-serif text-[30px] text-warn">{Math.round(overallConcerningRate * 100)}%</p>
-            <p className="text-caption text-muted">sinais de burnout na equipe</p>
-          </Card>
-          <Card className="flex-1 text-center">
-            <p className="font-serif text-[30px] text-brand">{checkInsLast4Weeks}</p>
-            <p className="text-caption text-muted">questionários respondidos (4 semanas)</p>
-          </Card>
+          {isLoading ? (
+            <>
+              <KpiCardSkeleton className="flex-1" />
+              <KpiCardSkeleton className="flex-1" />
+            </>
+          ) : (
+            <>
+              <Card className="flex-1 text-center">
+                <p className="font-serif text-[30px] text-warn">{Math.round(overallConcerningRate * 100)}%</p>
+                <p className="text-caption text-muted">sinais de burnout na equipe</p>
+              </Card>
+              <Card className="flex-1 text-center">
+                <p className="font-serif text-[30px] text-brand">{checkInsLast4Weeks}</p>
+                <p className="text-caption text-muted">questionários respondidos (4 semanas)</p>
+              </Card>
+            </>
+          )}
         </div>
 
         <div className="mt-3">
-          <Card className="text-center">
-            <p className="font-serif text-[30px] text-brand">{Math.round(followUpResponseRate * 100)}%</p>
-            <p className="text-caption text-muted">taxa de resposta do follow-up</p>
-          </Card>
+          {isLoading ? (
+            <KpiCardSkeleton />
+          ) : (
+            <Card className="text-center">
+              <p className="font-serif text-[30px] text-brand">{Math.round(followUpResponseRate * 100)}%</p>
+              <p className="text-caption text-muted">taxa de resposta do follow-up</p>
+            </Card>
+          )}
         </div>
 
         <div className="mt-[14px]">
-          <Card>
-            <div className="flex items-center justify-between">
-              <p className="text-body font-extrabold text-ink">Tendência geral</p>
-              <p className="font-mono text-[12px] text-muted-2">últimas 6 semanas</p>
-            </div>
-            <div className="mt-3 flex h-14 items-end gap-2">
-              {bars.map((height, index) => (
-                <div key={index} data-testid="trend-bar" className="w-full rounded-md bg-brand" style={{ height: `${height}%` }} />
-              ))}
-            </div>
-          </Card>
+          {isLoading ? (
+            <TrendCardSkeleton />
+          ) : (
+            <Card>
+              <div className="flex items-center justify-between">
+                <p className="text-body font-extrabold text-ink">Tendência geral</p>
+                <p className="font-mono text-[12px] text-muted-2">últimas 6 semanas</p>
+              </div>
+              <div className="mt-3 flex h-14 items-end gap-2">
+                {bars.map((height, index) => (
+                  <div key={index} data-testid="trend-bar" className="w-full rounded-md bg-brand" style={{ height: `${height}%` }} />
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
 
         <div className="mt-[14px]">
-          <Card>
-            <p className="text-body font-extrabold text-ink">Sinais por setor</p>
-            <div className="mt-3 flex flex-col gap-3">
-              {segments.map((segment) => (
-                <div key={segment.label}>
-                  <div className="flex items-center justify-between text-label text-ink-2">
-                    <span>{segment.label}</span>
-                    <span className="font-mono text-[12px] text-muted-2">
-                      {segment.value}% · n={segment.n}
-                    </span>
+          {isLoading ? (
+            <SegmentsCardSkeleton />
+          ) : (
+            <Card>
+              <p className="text-body font-extrabold text-ink">Sinais por setor</p>
+              <div className="mt-3 flex flex-col gap-3">
+                {segments.map((segment) => (
+                  <div key={segment.label}>
+                    <div className="flex items-center justify-between text-label text-ink-2">
+                      <span>{segment.label}</span>
+                      <span className="font-mono text-[12px] text-muted-2">
+                        {segment.value}% · n={segment.n}
+                      </span>
+                    </div>
+                    <div className="mt-1 h-2 overflow-hidden rounded-pill bg-canvas-alt">
+                      <div className="h-full rounded-pill bg-brand" style={{ width: `${segment.value}%` }} />
+                    </div>
                   </div>
-                  <div className="mt-1 h-2 overflow-hidden rounded-pill bg-canvas-alt">
-                    <div className="h-full rounded-pill bg-brand" style={{ width: `${segment.value}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
 
         <div className="mt-[14px]">

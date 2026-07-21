@@ -143,4 +143,24 @@ describe("ManagerDashboardPage", () => {
     });
     expect(screen.getByText("questionários respondidos (4 semanas)")).toBeInTheDocument();
   });
+
+  it("shows skeleton placeholders while signals are loading, then replaces them with real content", async () => {
+    let resolveSignals!: (value: typeof SIGNALS_RESPONSE) => void;
+    const pending = new Promise<typeof SIGNALS_RESPONSE>((resolve) => {
+      resolveSignals = resolve;
+    });
+    vi.spyOn(container.getManagerSignalsUseCase, "execute").mockReturnValue(pending);
+
+    renderManager();
+
+    expect(screen.getAllByTestId("skeleton").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Plantão noturno")).not.toBeInTheDocument();
+
+    resolveSignals(SIGNALS_RESPONSE);
+
+    await waitFor(() => {
+      expect(screen.getByText("Plantão noturno")).toBeInTheDocument();
+    });
+    expect(screen.queryAllByTestId("skeleton")).toHaveLength(0);
+  });
 });
