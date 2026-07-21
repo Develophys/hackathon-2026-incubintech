@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BackButton } from "../ui/BackButton";
-import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
-import { IconBadge } from "../ui/IconBadge";
-import { PrivacyBadge } from "../ui/PrivacyBadge";
-import { useConsentStore } from "../../stores/consent.store";
-import { routes } from "../lib/routes";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BackButton } from "@/presentation/ui/BackButton";
+import { Button } from "@/presentation/ui/Button";
+import { Card } from "@/presentation/ui/Card";
+import { IconBadge } from "@/presentation/ui/IconBadge";
+import { PrivacyBadge } from "@/presentation/ui/PrivacyBadge";
+import { useConsentStore } from "@/stores/consent.store";
+import { routes } from "@/presentation/lib/routes";
 
 export function YouPage() {
   const navigate = useNavigate();

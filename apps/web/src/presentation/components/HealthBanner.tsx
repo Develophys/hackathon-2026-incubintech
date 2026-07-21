@@ -1,5 +1,5 @@
-import { useApiHealth } from "../hooks/useApiHealth";
-import { useUiStore } from "../../stores/ui.store";
+import { useApiHealth } from "@/presentation/hooks/useApiHealth";
+import { useUiStore } from "@/stores/ui.store";
 
 export function HealthBanner() {
   const { data, isLoading } = useApiHealth();

@@ -1,4 +1,4 @@
-import { ApiHealthResultSchema, type ApiHealthPort, type ApiHealthResult } from "../../ports/api-health.port";
+import { ApiHealthResultSchema, type ApiHealthPort, type ApiHealthResult } from "@/ports/api-health.port";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
 

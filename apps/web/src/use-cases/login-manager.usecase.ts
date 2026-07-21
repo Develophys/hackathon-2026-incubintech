@@ -1,4 +1,4 @@
-import type { ManagerAuthPort, ManagerLoginResult } from "../ports/manager-auth.port";
+import type { ManagerAuthPort, ManagerLoginResult } from "@/ports/manager-auth.port";
 
 export class LoginManagerUseCase {
   constructor(private readonly authPort: ManagerAuthPort) {}

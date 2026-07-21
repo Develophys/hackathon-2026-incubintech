@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EncryptAssessmentUseCase } from "./encrypt-assessment.usecase";
-import type { EncryptionPort } from "../ports/encryption.port";
+import type { EncryptionPort } from "@/ports/encryption.port";
 
 class FakeEncryptionPort implements EncryptionPort {
   async encrypt(plaintext: string): Promise<string> {

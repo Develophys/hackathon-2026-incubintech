@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Phq9AssessmentPage } from "./Phq9AssessmentPage";
-import * as container from "../../app/container";
-import { PHQ9_QUESTIONS } from "../../domain/assessment-scales/phq9";
+import * as container from "@/app/container";
+import { PHQ9_QUESTIONS } from "@/domain/assessment-scales/phq9";
 
 function renderPhq9() {
   const queryClient = new QueryClient();

@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Lock } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { Button } from "../ui/Button";
-import { PrivacyBadge } from "../ui/PrivacyBadge";
-import { ResultBandCard } from "../components/ResultBandCard";
-import { RiskSignalCallout } from "../components/RiskSignalCallout";
-import { EncryptionInfoModal } from "../components/EncryptionInfoModal";
-import { bandFor } from "../lib/band-for";
-import { routes } from "../lib/routes";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { Button } from "@/presentation/ui/Button";
+import { PrivacyBadge } from "@/presentation/ui/PrivacyBadge";
+import { ResultBandCard } from "@/presentation/components/ResultBandCard";
+import { RiskSignalCallout } from "@/presentation/components/RiskSignalCallout";
+import { EncryptionInfoModal } from "@/presentation/components/EncryptionInfoModal";
+import { bandFor } from "@/presentation/lib/band-for";
+import { routes } from "@/presentation/lib/routes";
 
 interface ResultLocationState {
   scaleType: "PHQ-9" | "GAD-7";

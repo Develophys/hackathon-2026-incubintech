@@ -1,6 +1,6 @@
-import type { ManagerInsightHistoryPort, StoredManagerInsight } from "../../ports/manager-insight-history.port";
-import { StoredManagerInsightSchema } from "../../ports/manager-insight-history.port";
-import { UnauthorizedManagerError } from "../../ports/manager-signals.port";
+import type { ManagerInsightHistoryPort, StoredManagerInsight } from "@/ports/manager-insight-history.port";
+import { StoredManagerInsightSchema } from "@/ports/manager-insight-history.port";
+import { UnauthorizedManagerError } from "@/ports/manager-signals.port";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
 

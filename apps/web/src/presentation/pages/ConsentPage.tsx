@@ -1,13 +1,13 @@
 import { useState, type ReactNode } from "react";
 import { Check, ChevronRight, Lock } from "lucide-react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BackButton } from "../ui/BackButton";
-import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
-import { useConsentStore } from "../../stores/consent.store";
-import { routes } from "../lib/routes";
-import { EncryptionInfoModal } from "../components/EncryptionInfoModal";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BackButton } from "@/presentation/ui/BackButton";
+import { Button } from "@/presentation/ui/Button";
+import { Card } from "@/presentation/ui/Card";
+import { useConsentStore } from "@/stores/consent.store";
+import { routes } from "@/presentation/lib/routes";
+import { EncryptionInfoModal } from "@/presentation/components/EncryptionInfoModal";
 
 const ROWS: ReactNode[] = [
   <>Entendo que o Zelo <strong>não emite diagnóstico</strong> e não substitui atendimento profissional.</>,

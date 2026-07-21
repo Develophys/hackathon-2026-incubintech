@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GetManagerInsightHistoryUseCase } from "./get-manager-insight-history.usecase";
-import type { ManagerInsightHistoryPort, StoredManagerInsight } from "../ports/manager-insight-history.port";
+import type { ManagerInsightHistoryPort, StoredManagerInsight } from "@/ports/manager-insight-history.port";
 
 class FakeManagerInsightHistoryPort implements ManagerInsightHistoryPort {
   constructor(private readonly rows: StoredManagerInsight[]) {}

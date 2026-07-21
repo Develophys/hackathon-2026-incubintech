@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CheckApiHealthUseCase } from "./check-api-health.usecase";
-import type { ApiHealthPort, ApiHealthResult } from "../ports/api-health.port";
+import type { ApiHealthPort, ApiHealthResult } from "@/ports/api-health.port";
 
 class FakeHealthyApi implements ApiHealthPort {
   async check(): Promise<ApiHealthResult> {

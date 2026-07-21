@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { GenerateManagerInsightUseCase } from "./generate-manager-insight.usecase";
-import type { ManagerInsightPort, ManagerInsightResult } from "../ports/manager-insight.port";
-import { InsightGenerationFailedError } from "../ports/manager-insight.port";
+import type { ManagerInsightPort, ManagerInsightResult } from "@/ports/manager-insight.port";
+import { InsightGenerationFailedError } from "@/ports/manager-insight.port";
 
 class FakeManagerInsightPort implements ManagerInsightPort {
   constructor(private readonly result: ManagerInsightResult | Error) {}

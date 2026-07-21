@@ -21,7 +21,7 @@ import { ManagerDashboardPage } from "./ManagerDashboardPage";
 import { ManagerLoginPage } from "./ManagerLoginPage";
 import { YouPage } from "./YouPage";
 import { ManagerInsightHistoryPage } from "./ManagerInsightHistoryPage";
-import { useConsentStore } from "../../stores/consent.store";
+import { useConsentStore } from "@/stores/consent.store";
 
 const RESULT_STATE = { scaleType: "PHQ-9" as const, totalScore: 12, max: 27, riskSignal: true };
 

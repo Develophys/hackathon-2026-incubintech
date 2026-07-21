@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { ConsentPage } from "./ConsentPage";
-import { useConsentStore } from "../../stores/consent.store";
+import { useConsentStore } from "@/stores/consent.store";
 
 function renderConsent() {
   return render(

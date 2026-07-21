@@ -1,11 +1,11 @@
 import { HeartHandshake } from "lucide-react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
-import { IconBadge } from "../ui/IconBadge";
-import { requestHumanHandoffUseCase } from "../../app/container";
-import { routes } from "../lib/routes";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { Button } from "@/presentation/ui/Button";
+import { Card } from "@/presentation/ui/Card";
+import { IconBadge } from "@/presentation/ui/IconBadge";
+import { requestHumanHandoffUseCase } from "@/app/container";
+import { routes } from "@/presentation/lib/routes";
 
 export function CrisisOfferPage() {
   const navigate = useNavigate();

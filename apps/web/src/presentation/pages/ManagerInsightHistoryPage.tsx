@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BackButton } from "../ui/BackButton";
-import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
-import { SectionLabel } from "../ui/SectionLabel";
-import { routes } from "../lib/routes";
-import { useManagerInsightHistory } from "../hooks/useManagerInsightHistory";
-import { useManagerSessionStore } from "../../stores/manager-session.store";
-import { UnauthorizedManagerError } from "../../ports/manager-signals.port";
-import { downloadInsightAsPdf, downloadInsightAsText } from "../lib/download-manager-insight";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BackButton } from "@/presentation/ui/BackButton";
+import { Card } from "@/presentation/ui/Card";
+import { Button } from "@/presentation/ui/Button";
+import { SectionLabel } from "@/presentation/ui/SectionLabel";
+import { routes } from "@/presentation/lib/routes";
+import { useManagerInsightHistory } from "@/presentation/hooks/useManagerInsightHistory";
+import { useManagerSessionStore } from "@/stores/manager-session.store";
+import { UnauthorizedManagerError } from "@/ports/manager-signals.port";
+import { downloadInsightAsPdf, downloadInsightAsText } from "@/presentation/lib/download-manager-insight";
 
 function formatDate(generatedAt: string): string {
   return new Date(generatedAt).toLocaleDateString("pt-BR", { year: "numeric", month: "long", day: "numeric" });

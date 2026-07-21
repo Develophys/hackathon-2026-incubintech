@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BackButton } from "../ui/BackButton";
-import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
-import { routes } from "../lib/routes";
-import { useManagerLogin } from "../hooks/useManagerLogin";
-import { InvalidManagerCodeError } from "../../ports/manager-auth.port";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BackButton } from "@/presentation/ui/BackButton";
+import { Button } from "@/presentation/ui/Button";
+import { Card } from "@/presentation/ui/Card";
+import { routes } from "@/presentation/lib/routes";
+import { useManagerLogin } from "@/presentation/hooks/useManagerLogin";
+import { InvalidManagerCodeError } from "@/ports/manager-auth.port";
 
 export function ManagerLoginPage() {
   const navigate = useNavigate();

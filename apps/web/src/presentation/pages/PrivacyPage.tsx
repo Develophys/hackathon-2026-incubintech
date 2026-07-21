@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
-import { SectionLabel } from "../ui/SectionLabel";
-import { routes } from "../lib/routes";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { Button } from "@/presentation/ui/Button";
+import { Card } from "@/presentation/ui/Card";
+import { SectionLabel } from "@/presentation/ui/SectionLabel";
+import { routes } from "@/presentation/lib/routes";
 
 const CLAIMS = [
   { title: "Processado no seu aparelho", body: "O cálculo do seu resultado nunca sai do celular." },

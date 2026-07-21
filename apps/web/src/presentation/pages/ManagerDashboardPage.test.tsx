@@ -4,9 +4,9 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ManagerDashboardPage } from "./ManagerDashboardPage";
-import { useManagerSessionStore } from "../../stores/manager-session.store";
-import * as container from "../../app/container";
-import { UnauthorizedManagerError } from "../../ports/manager-signals.port";
+import { useManagerSessionStore } from "@/stores/manager-session.store";
+import * as container from "@/app/container";
+import { UnauthorizedManagerError } from "@/ports/manager-signals.port";
 
 function renderManager() {
   const queryClient = new QueryClient();

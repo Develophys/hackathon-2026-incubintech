@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SendChatMessageUseCase } from "./send-chat-message.usecase";
 import { AnonymizeTextUseCase } from "./anonymize-text.usecase";
-import type { ChatGatewayPort, ChatStreamEvent } from "../ports/chat-gateway.port";
+import type { ChatGatewayPort, ChatStreamEvent } from "@/ports/chat-gateway.port";
 
 class FakeChatGateway implements ChatGatewayPort {
   public lastParams: Parameters<ChatGatewayPort["streamReply"]>[0] | undefined;

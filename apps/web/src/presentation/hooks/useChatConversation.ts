@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import type { AnonymizedMessage } from "@zelo/domain";
-import { sendChatMessageUseCase } from "../../app/container";
-import { isChatErrorEvent } from "../../ports/chat-gateway.port";
+import { sendChatMessageUseCase } from "@/app/container";
+import { isChatErrorEvent } from "@/ports/chat-gateway.port";
 
 export interface ChatUiMessage {
   role: "user" | "assistant";

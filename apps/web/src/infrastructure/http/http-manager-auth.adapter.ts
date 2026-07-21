@@ -1,5 +1,5 @@
-import type { ManagerAuthPort, ManagerLoginResult } from "../../ports/manager-auth.port";
-import { ManagerLoginResultSchema, InvalidManagerCodeError } from "../../ports/manager-auth.port";
+import type { ManagerAuthPort, ManagerLoginResult } from "@/ports/manager-auth.port";
+import { ManagerLoginResultSchema, InvalidManagerCodeError } from "@/ports/manager-auth.port";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
 

@@ -1,5 +1,5 @@
 import type { Assessment } from "@zelo/domain";
-import type { AssessmentSubmissionPort } from "../../ports/assessment-submission.port";
+import type { AssessmentSubmissionPort } from "@/ports/assessment-submission.port";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
 

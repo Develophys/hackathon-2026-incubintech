@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Lock } from "lucide-react";
 import { useNavigate } from "react-router";
-import { PhoneShell } from "../layout/PhoneShell";
-import { BackButton } from "../ui/BackButton";
-import { PrivacyBadge } from "../ui/PrivacyBadge";
-import { routes } from "../lib/routes";
-import { EncryptionInfoModal } from "../components/EncryptionInfoModal";
+import { PhoneShell } from "@/presentation/layout/PhoneShell";
+import { BackButton } from "@/presentation/ui/BackButton";
+import { PrivacyBadge } from "@/presentation/ui/PrivacyBadge";
+import { routes } from "@/presentation/lib/routes";
+import { EncryptionInfoModal } from "@/presentation/components/EncryptionInfoModal";
 
 export function AssessmentSelectPage() {
   const navigate = useNavigate();

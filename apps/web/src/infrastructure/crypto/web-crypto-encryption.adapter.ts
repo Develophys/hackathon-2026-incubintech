@@ -1,4 +1,4 @@
-import type { EncryptionPort } from "../../ports/encryption.port";
+import type { EncryptionPort } from "@/ports/encryption.port";
 
 const DB_NAME = "zelo-crypto";
 const STORE_NAME = "keys";

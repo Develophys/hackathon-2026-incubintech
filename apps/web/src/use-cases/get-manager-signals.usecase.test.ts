@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { GetManagerSignalsUseCase } from "./get-manager-signals.usecase";
-import type { ManagerSignalsPort, ManagerSignalsResponse } from "../ports/manager-signals.port";
-import { UnauthorizedManagerError } from "../ports/manager-signals.port";
+import type { ManagerSignalsPort, ManagerSignalsResponse } from "@/ports/manager-signals.port";
+import { UnauthorizedManagerError } from "@/ports/manager-signals.port";
 
 const SAMPLE_RESPONSE: ManagerSignalsResponse = {
   overallConcerningRate: 0.41,
