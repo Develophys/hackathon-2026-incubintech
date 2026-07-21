@@ -23,7 +23,9 @@ Single-line addition to `CHAT_SYSTEM_PROMPT` in `apps/api/src/modules/chat/appli
 
 This sits next to the existing "nem toda resposta precisa seguir a fórmula 'valide + pergunta aberta'" rule (line 40 today) rather than duplicating it — it's a stricter, explicit cap on top of that existing looser guidance. No code changes outside the prompt string.
 
-**Acceptance criteria:** the prompt file contains the new rule; no other files change. This is prompt engineering — verify by manually running a few chat turns and confirming replies don't stack multiple questions, not by an automated test (the existing prompt has no automated tone tests today, per `chat-system-prompt.ts` having no sibling `.test.ts`).
+**Acceptance criteria:** the prompt file contains the new rule; no other files change. This is prompt engineering — verify by manually running a few chat turns and confirming replies don't stack multiple questions.
+
+*Updated during implementation planning:* the plan additionally added `chat-system-prompt.test.ts`, asserting the new rule's text is present in `CHAT_SYSTEM_PROMPT`. This is a regression guard only (it can't verify actual model behavior, only that the rule text hasn't been deleted or reworded) — the manual chat-turn check above remains the only real verification of the observable behavior change, and is still required before the demo.
 
 ## B. Quick win — anxiety-rating CTA surfaced from chat (ship now)
 

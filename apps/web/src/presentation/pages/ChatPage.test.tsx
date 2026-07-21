@@ -50,4 +50,19 @@ describe("ChatPage", () => {
     expect(await screen.findByText("Estou bem")).toBeInTheDocument();
     expect(await screen.findByText("Oi, tudo bem?")).toBeInTheDocument();
   });
+
+  it("shows an assessment CTA that navigates to /assessment", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={["/chat"]}>
+        <Routes>
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/assessment" element={<div>Assessment select screen</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole("button", { name: /avaliar como estou/i }));
+    expect(screen.getByText("Assessment select screen")).toBeInTheDocument();
+  });
 });
