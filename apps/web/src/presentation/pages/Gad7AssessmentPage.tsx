@@ -4,6 +4,7 @@ import { PhoneShell } from "@/presentation/layout/PhoneShell";
 import { BackButton } from "@/presentation/ui/BackButton";
 import { ProgressBar } from "@/presentation/ui/ProgressBar";
 import { QuestionCard } from "@/presentation/components/QuestionCard";
+import { QuestionCardSkeleton } from "@/presentation/components/QuestionCardSkeleton";
 import { GAD7_QUESTIONS } from "@/domain/assessment-scales/gad7";
 import { FREQUENCY_RESPONSE_OPTIONS } from "@/domain/assessment-scales/frequency-scale";
 import { useSubmitAssessment } from "@/presentation/hooks/useSubmitAssessment";
@@ -70,13 +71,16 @@ export function Gad7AssessmentPage() {
           Nas últimas 2 semanas, com que frequência você foi incomodado(a) por:
         </p>
 
-        <QuestionCard
-          question={GAD7_QUESTIONS[questionIndex]!}
-          options={FREQUENCY_RESPONSE_OPTIONS}
-          selected={answers[questionIndex]}
-          onSelect={handleSelect}
-          disabled={isPending}
-        />
+        {isPending ? (
+          <QuestionCardSkeleton />
+        ) : (
+          <QuestionCard
+            question={GAD7_QUESTIONS[questionIndex]!}
+            options={FREQUENCY_RESPONSE_OPTIONS}
+            selected={answers[questionIndex]}
+            onSelect={handleSelect}
+          />
+        )}
 
         {submitError && (
           <p className="mt-4 text-caption text-danger">

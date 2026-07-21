@@ -54,4 +54,28 @@ describe("Gad7AssessmentPage", () => {
       answers: new Array(GAD7_QUESTIONS.length).fill(0),
     });
   });
+
+  it("shows a skeleton in place of the question card while the final submission is in flight", async () => {
+    let resolveSubmit!: (value: Awaited<ReturnType<typeof container.submitAssessmentUseCase.execute>>) => void;
+    const pending = new Promise<Awaited<ReturnType<typeof container.submitAssessmentUseCase.execute>>>((resolve) => {
+      resolveSubmit = resolve;
+    });
+    vi.spyOn(container.submitAssessmentUseCase, "execute").mockReturnValue(pending);
+
+    const user = userEvent.setup();
+    renderGad7();
+
+    for (let i = 0; i < GAD7_QUESTIONS.length; i++) {
+      await user.click(screen.getByRole("button", { name: "Nenhuma vez" }));
+    }
+
+    expect(screen.getAllByTestId("skeleton").length).toBeGreaterThan(0);
+    expect(screen.queryByRole("button", { name: "Nenhuma vez" })).not.toBeInTheDocument();
+
+    resolveSubmit({ totalScore: 0, riskSignal: false, submissionSucceeded: true });
+
+    await waitFor(() => {
+      expect(screen.getByText("Result screen")).toBeInTheDocument();
+    });
+  });
 });
