@@ -45,3 +45,21 @@ Like `simulated_signals`, the script is idempotent: it deletes all existing
 sent/responded counts climbing from 20 sent / 9 responded (45%) to 30 sent / 21 responded
 (70%) — a believable, improving-but-imperfect response rate for the demo. Edit only that
 table to change the scenario.
+
+## Re-seeding before a live demo
+
+Migrations and seeding are never run automatically against the deployed Fly.io/Neon
+database (see `docker/api.Dockerfile`) — both are manual steps. Since the seed is
+generated relative to "today," data seeded a few days before a demo will show a stale
+"current week." Re-run the seed against the production database on the morning of any
+live demo so the current week's numbers are fresh:
+
+```bash
+DATABASE_URL="<neon pooled connection string>" \
+DIRECT_DATABASE_URL="<neon direct connection string>" \
+pnpm --filter @zelo/api exec tsx prisma/seed.ts
+```
+
+Both connection strings are already in `apps/api/.env`. Run `prisma migrate status` first
+with the same env vars if a schema change shipped since the last deploy, to confirm
+migrations are applied before seeding.
