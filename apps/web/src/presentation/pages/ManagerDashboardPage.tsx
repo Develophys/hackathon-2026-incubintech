@@ -172,8 +172,8 @@ export function ManagerDashboardPage() {
           )}
         </div>
 
-        <div className="mt-[14px]">
-          <Card>
+        <div className="mt-3.5">
+          <Card className="mb-2">
             <div className="flex items-center justify-between">
               <p className="text-body font-extrabold text-ink">Análise com IA</p>
               <Link to={routes.managerHistory} className="text-label font-bold text-brand">
@@ -182,7 +182,7 @@ export function ManagerDashboardPage() {
             </div>
             {!insight.data && (
               <div className="mt-3">
-                <Button className="p-2" variant="outline" full={false} loading={insight.isPending} onClick={() => insight.mutate()}>
+                <Button className="p-2 cursor-pointer" variant="outline" full={false} loading={insight.isPending} onClick={() => insight.mutate()}>
                   Gerar análise
                 </Button>
                 {insight.isError && (

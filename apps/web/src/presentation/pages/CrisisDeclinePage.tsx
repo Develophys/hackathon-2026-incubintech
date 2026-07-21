@@ -13,7 +13,7 @@ export function CrisisDeclinePage() {
 
   return (
     <PhoneShell>
-      <div className="flex min-h-full flex-col pt-[30px]">
+      <div className="flex min-h-full flex-col pt-7.5 gap-3">
         <BackButton label="Voltar" onClick={() => navigate(routes.crisis)} />
         <h1 className="mb-2 mt-4 text-h1 text-ink">Tudo bem. A escolha é sua.</h1>
         <p className="text-body text-muted">
